@@ -25,9 +25,13 @@ Completely framework-agnostic and database-agnostic.
 
      `$ composer require delight-im/auth`
 
+     Include the Composer autoloader:
+
+     `require __DIR__.'/vendor/autoload.php';`
+
    * or
-   * Install manually (*not* recommended)
-     * Copy the contents of the [`src`](src) directory to your project
+   * Install manually
+     * Copy the contents of the [`src`](src) directory to a subfolder of your project
      * Include the files in your code via `require` or `require_once`
  * Set up a database and create the required tables
    * [MySQL](Database/MySQL.sql)
