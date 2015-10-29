@@ -745,7 +745,7 @@ class Auth {
 	 * @throws TooManyRequestsException if the number of allowed attempts/requests has been exceeded
 	 * @throws AuthError if an internal problem occurred (do *not* catch)
 	 */
-	public function throttle($actionType, $customSelector = null) {
+	private function throttle($actionType, $customSelector = null) {
 		// if a custom selector has been provided (e.g. username, user ID or confirmation token)
 		if (isset($customSelector)) {
 			// use the provided selector for throttling
