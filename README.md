@@ -51,6 +51,12 @@ $auth = new Delight\Auth\Auth($db);
 
 If you have an open `PDO` connection already, just re-use it.
 
+If you do enforce HTTPS on your site, pass `true` as the second parameter to the constructor. This is optional and the default is `false`.
+
+Only in the very rare case that you need access to your cookies from JavaScript, pass `true` as the third argument to the constructor. This is optional and the default is `false`. There is almost always a *better* solution than enabling this, however.
+
+If your web server is behind a proxy server and `$_SERVER['REMOTE_ADDR']` only contains the proxy's IP address, you must pass the user's real IP address to the constructor in the fourth argument. The default is `null`.
+
 ### Sign up a new user (register)
 
 ```php
@@ -74,6 +80,8 @@ catch (Delight\Auth\TooManyRequestsException $e) {
     // too many requests
 }
 ```
+
+The username in the third parameter is optional. You can pass `null` here if you don't want to manage usernames.
 
 For email verification, you should build an URL with the selector and token and send it to the user, e.g.:
 
@@ -104,6 +112,8 @@ catch (Delight\Auth\TooManyRequestsException $e) {
     // too many requests
 }
 ```
+
+The third parameter controls whether the login is persistent with a long-lived cookie. This is known as the "remember me" feature. Set this to `false` to disable the feature. Otherwise, ask the user if they want to enable "remember me". This is usually done with a checkbox in your user interface. Then use their input to decide between `false` and `true` here. This is optional and the default is `false`.
 
 ### Perform email verification
 
@@ -152,6 +162,81 @@ $auth->logout();
 // user has been signed out
 ```
 
+### Check if the user is signed in
+
+```php
+if ($auth->isLoggedIn()) {
+    // user is signed in
+}
+else {
+    // user is *not* signed in yet
+}
+```
+
+A shorthand/alias for this method is `$auth->check()`.
+
+### Get the user's ID
+
+```php
+$id = $auth->getUserId();
+```
+
+If the user is not currently signed in, this returns `null`.
+
+A shorthand/alias for this method is `$auth->id()`.
+
+### Get the user's email address
+
+```php
+$email = $auth->getEmail();
+```
+
+If the user is not currently signed in, this returns `null`.
+
+### Get the user's display name
+
+```php
+$email = $auth->getUsername();
+```
+
+Remember that usernames are optional and there is only a username if you supplied it during registration.
+
+If the user is not currently signed in, this returns `null`.
+
+### Check if the user was "remembered"
+
+```php
+if ($auth->isRemembered()) {
+    // user did not sign in but was logged in through their long-lived cookie
+}
+else {
+    // user signed in manually
+}
+```
+
+If the user is not currently signed in, this returns `null`.
+
+### Get the user's IP address
+
+```php
+$ip = $auth->getIpAddress();
+```
+
+### Utilities
+
+#### Create a random string
+
+```php
+$length = 24;
+$randomStr = Delight\Auth\Auth::createRandomString($length);
+```
+
+#### Create a UUID v4 as per RFC 4122
+
+```php
+$uuid = Delight\Auth\Auth::createUuid();
+```
+
 ## Features
 
  * registration
@@ -169,6 +254,7 @@ $auth->logout();
  * logout
    * full and reliable destruction of session
  * session management
+   * protection against session hijacking
    * protection against session fixation attacks
  * throttling
    * per IP address
@@ -177,6 +263,10 @@ $auth->logout();
    * prevents clickjacking
    * prevent content sniffing (MIME sniffing)
    * disables caching of potentially sensitive data
+ * miscellaneous
+   * ready for both IPv4 and IPv6
+   * works behind proxy servers as well
+   * privacy-friendly (e.g. does *not* save readable IP addresses)
 
 ## Exceptions
 
