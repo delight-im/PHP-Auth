@@ -1,6 +1,6 @@
 {
 	"name": "delight-im/auth",
-	"description": "Secure authentication for PHP, once and for all, really simple to use",
+	"description": "Authentication for PHP. Simple, lightweight and secure.",
 	"require": {
 		"php": ">=5.5.0"
 	},

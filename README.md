@@ -1,6 +1,8 @@
 # Auth
 
-Secure authentication for PHP, once and for all, really simple to use.
+Authentication for PHP. Simple, lightweight and secure.
+
+Written once, to be used everywhere.
 
 Completely framework-agnostic and database-agnostic.
 

@@ -21,7 +21,7 @@ namespace Delight\Auth;
 require __DIR__.'/Base64.php';
 require __DIR__.'/Exceptions.php';
 
-/** Secure authentication for PHP, once and for all, really simple to use */
+/** Base class that provides all methods, properties and utilities for secure authentication */
 class Auth {
 
 	const SESSION_FIELD_LOGGED_IN = 'auth_logged_in';
