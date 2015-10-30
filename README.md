@@ -46,7 +46,7 @@ Completely framework-agnostic and database-agnostic.
 // $db = new PDO('mysql:dbname=database;host=localhost;charset=utf8', 'username', 'password');
 // $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-$auth = new Delight\Auth\Auth($db);
+$auth = new \Delight\Auth\Auth($db);
 ```
 
 If you have an open `PDO` connection already, just re-use it.
@@ -67,16 +67,16 @@ try {
 
     // we have signed up a new user with the ID `$userId`
 }
-catch (Delight\Auth\InvalidEmailException $e) {
+catch (\Delight\Auth\InvalidEmailException $e) {
     // invalid email address
 }
-catch (Delight\Auth\InvalidPasswordException $e) {
+catch (\Delight\Auth\InvalidPasswordException $e) {
     // invalid password
 }
-catch (Delight\Auth\UserAlreadyExistsException $e) {
+catch (\Delight\Auth\UserAlreadyExistsException $e) {
     // user already exists
 }
-catch (Delight\Auth\TooManyRequestsException $e) {
+catch (\Delight\Auth\TooManyRequestsException $e) {
     // too many requests
 }
 ```
@@ -99,16 +99,16 @@ try {
 
     // user is logged in
 }
-catch (Delight\Auth\InvalidEmailException $e) {
+catch (\Delight\Auth\InvalidEmailException $e) {
     // wrong email address
 }
-catch (Delight\Auth\InvalidPasswordException $e) {
+catch (\Delight\Auth\InvalidPasswordException $e) {
     // wrong password
 }
-catch (Delight\Auth\EmailNotVerifiedException $e) {
+catch (\Delight\Auth\EmailNotVerifiedException $e) {
     // email not verified
 }
-catch (Delight\Auth\TooManyRequestsException $e) {
+catch (\Delight\Auth\TooManyRequestsException $e) {
     // too many requests
 }
 ```
@@ -125,13 +125,13 @@ try {
 
     // email address has been verified
 }
-catch (Delight\Auth\InvalidSelectorTokenPairException $e) {
+catch (\Delight\Auth\InvalidSelectorTokenPairException $e) {
     // invalid token
 }
-catch (Delight\Auth\TokenExpiredException $e) {
+catch (\Delight\Auth\TokenExpiredException $e) {
     // token expired
 }
-catch (Delight\Auth\TooManyRequestsException $e) {
+catch (\Delight\Auth\TooManyRequestsException $e) {
     // too many requests
 }
 ```
@@ -146,10 +146,10 @@ try {
 
     // password has been changed
 }
-catch (Delight\Auth\NotLoggedInException $e) {
+catch (\Delight\Auth\NotLoggedInException $e) {
     // not logged in
 }
-catch (Delight\Auth\InvalidPasswordException $e) {
+catch (\Delight\Auth\InvalidPasswordException $e) {
     // invalid password(s)
 }
 ```
@@ -228,13 +228,13 @@ $ip = $auth->getIpAddress();
 
 ```php
 $length = 24;
-$randomStr = Delight\Auth\Auth::createRandomString($length);
+$randomStr = \Delight\Auth\Auth::createRandomString($length);
 ```
 
 #### Create a UUID v4 as per RFC 4122
 
 ```php
-$uuid = Delight\Auth\Auth::createUuid();
+$uuid = \Delight\Auth\Auth::createUuid();
 ```
 
 ## Features

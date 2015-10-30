@@ -25,7 +25,7 @@ $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
 require __DIR__.'/../src/Auth.php';
 
-$auth = new Delight\Auth\Auth($db);
+$auth = new \Delight\Auth\Auth($db);
 
 $result = processRequestData($auth);
 
@@ -38,7 +38,7 @@ else {
 	showGuestUserForm();
 }
 
-function processRequestData(Delight\Auth\Auth $auth) {
+function processRequestData(\Delight\Auth\Auth $auth) {
 	if (isset($_POST)) {
 		if (isset($_POST['action'])) {
 			if ($_POST['action'] === 'login') {
@@ -47,16 +47,16 @@ function processRequestData(Delight\Auth\Auth $auth) {
 
 					return 'ok';
 				}
-				catch (Delight\Auth\InvalidEmailException $e) {
+				catch (\Delight\Auth\InvalidEmailException $e) {
 					return 'wrong email address';
 				}
-				catch (Delight\Auth\InvalidPasswordException $e) {
+				catch (\Delight\Auth\InvalidPasswordException $e) {
 					return 'wrong password';
 				}
-				catch (Delight\Auth\EmailNotVerifiedException $e) {
+				catch (\Delight\Auth\EmailNotVerifiedException $e) {
 					return 'email not verified';
 				}
-				catch (Delight\Auth\TooManyRequestsException $e) {
+				catch (\Delight\Auth\TooManyRequestsException $e) {
 					return 'too many requests';
 				}
 			}
@@ -83,16 +83,16 @@ function processRequestData(Delight\Auth\Auth $auth) {
 
 					return $auth->register($_POST['email'], $_POST['password'], $_POST['username'], $callback);
 				}
-				catch (Delight\Auth\InvalidEmailException $e) {
+				catch (\Delight\Auth\InvalidEmailException $e) {
 					return 'invalid email address';
 				}
-				catch (Delight\Auth\InvalidPasswordException $e) {
+				catch (\Delight\Auth\InvalidPasswordException $e) {
 					return 'invalid password';
 				}
-				catch (Delight\Auth\UserAlreadyExistsException $e) {
+				catch (\Delight\Auth\UserAlreadyExistsException $e) {
 					return 'user already exists';
 				}
-				catch (Delight\Auth\TooManyRequestsException $e) {
+				catch (\Delight\Auth\TooManyRequestsException $e) {
 					return 'too many requests';
 				}
 			}
@@ -102,13 +102,13 @@ function processRequestData(Delight\Auth\Auth $auth) {
 
 					return 'ok';
 				}
-				catch (Delight\Auth\InvalidSelectorTokenPairException $e) {
+				catch (\Delight\Auth\InvalidSelectorTokenPairException $e) {
 					return 'invalid token';
 				}
-				catch (Delight\Auth\TokenExpiredException $e) {
+				catch (\Delight\Auth\TokenExpiredException $e) {
 					return 'token expired';
 				}
-				catch (Delight\Auth\TooManyRequestsException $e) {
+				catch (\Delight\Auth\TooManyRequestsException $e) {
 					return 'too many requests';
 				}
 			}
@@ -118,10 +118,10 @@ function processRequestData(Delight\Auth\Auth $auth) {
 
 					return 'ok';
 				}
-				catch (Delight\Auth\NotLoggedInException $e) {
+				catch (\Delight\Auth\NotLoggedInException $e) {
 					return 'not logged in';
 				}
-				catch (Delight\Auth\InvalidPasswordException $e) {
+				catch (\Delight\Auth\InvalidPasswordException $e) {
 					return 'invalid password(s)';
 				}
 			}
@@ -139,7 +139,7 @@ function processRequestData(Delight\Auth\Auth $auth) {
 	return null;
 }
 
-function showDebugData(Delight\Auth\Auth $auth, $result) {
+function showDebugData(\Delight\Auth\Auth $auth, $result) {
 	echo '<pre>';
 
 	echo 'Last operation'."\t\t\t\t";
@@ -171,9 +171,9 @@ function showDebugData(Delight\Auth\Auth $auth, $result) {
 	echo "\n";
 
 	echo 'Auth::createRandomString()'."\t\t";
-	var_dump(Delight\Auth\Auth::createRandomString());
+	var_dump(\Delight\Auth\Auth::createRandomString());
 	echo 'Auth::createUuid()'."\t\t\t";
-	var_dump(Delight\Auth\Auth::createUuid());
+	var_dump(\Delight\Auth\Auth::createUuid());
 
 	echo '</pre>';
 }
