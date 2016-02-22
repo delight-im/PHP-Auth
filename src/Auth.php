@@ -289,6 +289,12 @@ class Auth {
 			$userData = $stmt->fetch(\PDO::FETCH_ASSOC);
 			if ($userData !== false) {
 				if (password_verify($password, $userData['password'])) {
+					// if the password needs to be re-hashed to keep up with improving password cracking techniques
+					if (password_needs_rehash($userData['password'], PASSWORD_DEFAULT)) {
+						// create a new hash from the password and update it in the database
+						$this->updatePassword($userData['id'], $password);
+					}
+
 					if ($userData['verified'] == 1) {
 						$this->onLoginSuccessful($userData['id'], $email, $userData['username'], false);
 
