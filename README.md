@@ -43,7 +43,7 @@ Completely framework-agnostic and database-agnostic.
 ### Create a new instance
 
 ```php
-// $db = new PDO('mysql:dbname=database;host=localhost;charset=utf8', 'username', 'password');
+// $db = new PDO('mysql:dbname=database;host=localhost;charset=utf8mb4', 'username', 'password');
 // $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
 $auth = new \Delight\Auth\Auth($db);

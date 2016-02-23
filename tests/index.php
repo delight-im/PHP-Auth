@@ -20,7 +20,7 @@ header('Content-type: text/html; charset=utf-8');
 error_reporting(E_ALL);
 ini_set('display_errors', 'stdout');
 
-$db = new PDO('mysql:dbname=php_auth;host=127.0.0.1;charset=utf8', 'root', '');
+$db = new PDO('mysql:dbname=php_auth;host=127.0.0.1;charset=utf8mb4', 'root', '');
 $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
 require __DIR__.'/../src/Auth.php';
