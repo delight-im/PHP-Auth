@@ -118,7 +118,7 @@ class Auth {
 				// if both selector and token were found
 				if (isset($parts[0]) && isset($parts[1])) {
 					$stmt = $this->db->prepare("SELECT a.user, a.token, a.expires, b.email, b.username FROM users_remembered AS a JOIN users AS b ON a.user = b.id WHERE a.selector = :selector");
-					$stmt->bindParam(':selector', $parts[0], \PDO::PARAM_STR);
+					$stmt->bindValue(':selector', $parts[0], \PDO::PARAM_STR);
 					if ($stmt->execute()) {
 						$rememberData = $stmt->fetch(\PDO::FETCH_ASSOC);
 						if ($rememberData !== false) {
@@ -168,16 +168,15 @@ class Auth {
 		}
 
 		$username = isset($username) ? trim($username) : null;
-		$registered = time();
 		$password = password_hash($password, PASSWORD_DEFAULT);
 		$verified = isset($emailConfirmationCallback) && is_callable($emailConfirmationCallback) ? 0 : 1;
 
 		$stmt = $this->db->prepare("INSERT INTO users (email, password, username, verified, registered) VALUES (:email, :password, :username, :verified, :registered)");
-		$stmt->bindParam(':email', $email, \PDO::PARAM_STR);
-		$stmt->bindParam(':password', $password, \PDO::PARAM_STR);
-		$stmt->bindParam(':username', $username, \PDO::PARAM_STR);
-		$stmt->bindParam(':verified', $verified, \PDO::PARAM_INT);
-		$stmt->bindParam(':registered', $registered, \PDO::PARAM_INT);
+		$stmt->bindValue(':email', $email, \PDO::PARAM_STR);
+		$stmt->bindValue(':password', $password, \PDO::PARAM_STR);
+		$stmt->bindValue(':username', $username, \PDO::PARAM_STR);
+		$stmt->bindValue(':verified', $verified, \PDO::PARAM_INT);
+		$stmt->bindValue(':registered', time(), \PDO::PARAM_INT);
 
 		try {
 			$result = $stmt->execute();
@@ -198,7 +197,7 @@ class Auth {
 		if ($result) {
 			// get the ID of the user that we've just created
 			$stmt = $this->db->prepare("SELECT id FROM users WHERE email = :email");
-			$stmt->bindParam(':email', $email, \PDO::PARAM_STR);
+			$stmt->bindValue(':email', $email, \PDO::PARAM_STR);
 
 			if ($result = $stmt->execute()) {
 				$newUserId = $stmt->fetchColumn();
@@ -235,10 +234,10 @@ class Auth {
 		$expires = time() + 3600 * 24;
 
 		$stmt = $this->db->prepare("INSERT INTO users_confirmations (email, selector, token, expires) VALUES (:email, :selector, :token, :expires)");
-		$stmt->bindParam(':email', $email, \PDO::PARAM_STR);
-		$stmt->bindParam(':selector', $selector, \PDO::PARAM_STR);
-		$stmt->bindParam(':token', $tokenHashed, \PDO::PARAM_STR);
-		$stmt->bindParam(':expires', $expires, \PDO::PARAM_INT);
+		$stmt->bindValue(':email', $email, \PDO::PARAM_STR);
+		$stmt->bindValue(':selector', $selector, \PDO::PARAM_STR);
+		$stmt->bindValue(':token', $tokenHashed, \PDO::PARAM_STR);
+		$stmt->bindValue(':expires', $expires, \PDO::PARAM_INT);
 
 		if ($stmt->execute()) {
 			if (isset($emailConfirmationCallback) && is_callable($emailConfirmationCallback)) {
@@ -284,7 +283,7 @@ class Auth {
 		}
 
 		$stmt = $this->db->prepare("SELECT id, password, verified, username FROM users WHERE email = :email");
-		$stmt->bindParam(':email', $email, \PDO::PARAM_STR);
+		$stmt->bindValue(':email', $email, \PDO::PARAM_STR);
 		if ($stmt->execute()) {
 			$userData = $stmt->fetch(\PDO::FETCH_ASSOC);
 			if ($userData !== false) {
@@ -334,10 +333,10 @@ class Auth {
 		$expires = time() + 3600 * 24 * 28;
 
 		$stmt = $this->db->prepare("INSERT INTO users_remembered (user, selector, token, expires) VALUES (:user, :selector, :token, :expires)");
-		$stmt->bindParam(':user', $userId, \PDO::PARAM_INT);
-		$stmt->bindParam(':selector', $selector, \PDO::PARAM_STR);
-		$stmt->bindParam(':token', $tokenHashed, \PDO::PARAM_STR);
-		$stmt->bindParam(':expires', $expires, \PDO::PARAM_INT);
+		$stmt->bindValue(':user', $userId, \PDO::PARAM_INT);
+		$stmt->bindValue(':selector', $selector, \PDO::PARAM_STR);
+		$stmt->bindValue(':token', $tokenHashed, \PDO::PARAM_STR);
+		$stmt->bindValue(':expires', $expires, \PDO::PARAM_INT);
 
 		if ($stmt->execute()) {
 			$this->setRememberCookie($selector, $token, $expires);
@@ -357,7 +356,7 @@ class Auth {
 	 */
 	private function deleteRememberDirective($userId) {
 		$stmt = $this->db->prepare("DELETE FROM users_remembered WHERE user = :user");
-		$stmt->bindParam(':user', $userId, \PDO::PARAM_INT);
+		$stmt->bindValue(':user', $userId, \PDO::PARAM_INT);
 
 		if ($stmt->execute()) {
 			$this->setRememberCookie(null, null, time() - 3600);
@@ -405,11 +404,9 @@ class Auth {
 	 * @param bool $remembered whether the user was remembered ("remember me") or logged in actively
 	 */
 	private function onLoginSuccessful($userId, $email, $username, $remembered) {
-		$lastLogin = time();
-
 		$stmt = $this->db->prepare("UPDATE users SET last_login = :lastLogin WHERE id = :id");
-		$stmt->bindParam(':lastLogin', $lastLogin, \PDO::PARAM_INT);
-		$stmt->bindParam(':id', $userId, \PDO::PARAM_INT);
+		$stmt->bindValue(':lastLogin', time(), \PDO::PARAM_INT);
+		$stmt->bindValue(':id', $userId, \PDO::PARAM_INT);
 		$stmt->execute();
 
 		// re-generate the session ID to prevent session fixation attacks
@@ -483,20 +480,18 @@ class Auth {
 		$this->throttle(self::THROTTLE_ACTION_CONFIRM_EMAIL, $selector);
 
 		$stmt = $this->db->prepare("SELECT id, email, token, expires FROM users_confirmations WHERE selector = :selector");
-		$stmt->bindParam(':selector', $selector, \PDO::PARAM_STR);
+		$stmt->bindValue(':selector', $selector, \PDO::PARAM_STR);
 		if ($stmt->execute()) {
 			$confirmationData = $stmt->fetch(\PDO::FETCH_ASSOC);
 			if ($confirmationData !== false) {
 				if (password_verify($token, $confirmationData['token'])) {
 					if ($confirmationData['expires'] >= time()) {
-						$verified = 1;
-
 						$stmt = $this->db->prepare("UPDATE users SET verified = :verified WHERE email = :email");
-						$stmt->bindParam(':verified', $verified, \PDO::PARAM_INT);
-						$stmt->bindParam(':email', $confirmationData['email'], \PDO::PARAM_STR);
+						$stmt->bindValue(':verified', 1, \PDO::PARAM_INT);
+						$stmt->bindValue(':email', $confirmationData['email'], \PDO::PARAM_STR);
 						if ($stmt->execute()) {
 							$stmt = $this->db->prepare("DELETE FROM users_confirmations WHERE id = :id");
-							$stmt->bindParam(':id', $confirmationData['id'], \PDO::PARAM_INT);
+							$stmt->bindValue(':id', $confirmationData['id'], \PDO::PARAM_INT);
 							if ($stmt->execute()) {
 								return;
 							}
@@ -549,7 +544,7 @@ class Auth {
 			$userId = $this->getUserId();
 
 			$stmt = $this->db->prepare("SELECT password FROM users WHERE id = :userId");
-			$stmt->bindParam(':userId', $userId, \PDO::PARAM_INT);
+			$stmt->bindValue(':userId', $userId, \PDO::PARAM_INT);
 			if ($stmt->execute()) {
 				$passwordInDatabase = $stmt->fetchColumn();
 				if (password_verify($oldPassword, $passwordInDatabase)) {
@@ -580,8 +575,8 @@ class Auth {
 		$newPassword = password_hash($newPassword, PASSWORD_DEFAULT);
 
 		$stmt = $this->db->prepare("UPDATE users SET password = :password WHERE id = :userId");
-		$stmt->bindParam(':password', $newPassword, \PDO::PARAM_STR);
-		$stmt->bindParam(':userId', $userId, \PDO::PARAM_INT);
+		$stmt->bindValue(':password', $newPassword, \PDO::PARAM_STR);
+		$stmt->bindValue(':userId', $userId, \PDO::PARAM_INT);
 		$stmt->execute();
 	}
 
@@ -767,9 +762,9 @@ class Auth {
 		$timeBucket = self::getTimeBucket();
 
 		$stmt = $this->db->prepare('INSERT INTO users_throttling (action_type, selector, time_bucket, attempts) VALUES (:actionType, :selector, :timeBucket, 1)');
-		$stmt->bindParam(':actionType', $actionType, \PDO::PARAM_STR);
-		$stmt->bindParam(':selector', $selector, \PDO::PARAM_STR);
-		$stmt->bindParam(':timeBucket', $timeBucket, \PDO::PARAM_INT);
+		$stmt->bindValue(':actionType', $actionType, \PDO::PARAM_STR);
+		$stmt->bindValue(':selector', $selector, \PDO::PARAM_STR);
+		$stmt->bindValue(':timeBucket', $timeBucket, \PDO::PARAM_INT);
 		try {
 			$stmt->execute();
 		}
@@ -778,9 +773,9 @@ class Auth {
 			if ($e->getCode() == '23000') {
 				// update the old entry
 				$stmt = $this->db->prepare('UPDATE users_throttling SET attempts = attempts+1 WHERE action_type = :actionType AND selector = :selector AND time_bucket = :timeBucket');
-				$stmt->bindParam(':actionType', $actionType, \PDO::PARAM_STR);
-				$stmt->bindParam(':selector', $selector, \PDO::PARAM_STR);
-				$stmt->bindParam(':timeBucket', $timeBucket, \PDO::PARAM_INT);
+				$stmt->bindValue(':actionType', $actionType, \PDO::PARAM_STR);
+				$stmt->bindValue(':selector', $selector, \PDO::PARAM_STR);
+				$stmt->bindValue(':timeBucket', $timeBucket, \PDO::PARAM_INT);
 				$stmt->execute();
 			}
 			// if we have another error
@@ -791,9 +786,9 @@ class Auth {
 		}
 
 		$stmt = $this->db->prepare('SELECT attempts FROM users_throttling WHERE action_type = :actionType AND selector = :selector AND time_bucket = :timeBucket');
-		$stmt->bindParam(':actionType', $actionType, \PDO::PARAM_STR);
-		$stmt->bindParam(':selector', $selector, \PDO::PARAM_STR);
-		$stmt->bindParam(':timeBucket', $timeBucket, \PDO::PARAM_INT);
+		$stmt->bindValue(':actionType', $actionType, \PDO::PARAM_STR);
+		$stmt->bindValue(':selector', $selector, \PDO::PARAM_STR);
+		$stmt->bindValue(':timeBucket', $timeBucket, \PDO::PARAM_INT);
 		if ($stmt->execute()) {
 			$attempts = $stmt->fetchColumn();
 
