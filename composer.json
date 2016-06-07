@@ -2,7 +2,8 @@
 	"name": "delight-im/auth",
 	"description": "Authentication for PHP. Simple, lightweight and secure.",
 	"require": {
-		"php": ">=5.5.0"
+		"php": ">=5.5.0",
+		"ext-openssl": "*"
 	},
 	"type": "library",
 	"keywords": [ "auth", "authentication", "login", "security" ],
