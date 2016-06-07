@@ -1,1 +1,6 @@
+# IntelliJ
 .idea/
+
+# Composer
+vendor/
+composer.phar
