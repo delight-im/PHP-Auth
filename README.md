@@ -18,7 +18,7 @@ Completely framework-agnostic and database-agnostic.
 
  * PHP 5.5.0+
    * OpenSSL extension
- * MySQL 5.5.3+ **or** MariaDB 5.5.23
+ * MySQL 5.5.3+ **or** MariaDB 5.5.23+
 
 ## Installation
 
