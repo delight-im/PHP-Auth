@@ -16,9 +16,16 @@
  * limitations under the License.
  */
 
-header('Content-type: text/html; charset=utf-8');
+// enable error reporting
 error_reporting(E_ALL);
 ini_set('display_errors', 'stdout');
+
+// enable assertions
+ini_set('assert.active', 1);
+ini_set('zend.assertions', 1);
+ini_set('assert.exception', 1);
+
+header('Content-type: text/html; charset=utf-8');
 
 $db = new PDO('mysql:dbname=php_auth;host=127.0.0.1;charset=utf8mb4', 'root', '');
 $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
