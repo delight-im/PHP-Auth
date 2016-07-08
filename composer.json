@@ -3,7 +3,8 @@
 	"description": "Authentication for PHP. Simple, lightweight and secure.",
 	"require": {
 		"php": ">=5.5.0",
-		"ext-openssl": "*"
+		"ext-openssl": "*",
+		"delight-im/cookie": "^1.2"
 	},
 	"type": "library",
 	"keywords": [ "auth", "authentication", "login", "security" ],
