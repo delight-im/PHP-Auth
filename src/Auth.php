@@ -266,9 +266,6 @@ class Auth {
 	 * @throws AuthError if an internal problem occurred (do *not* catch)
 	 */
 	public function login($email, $password, $remember = false) {
-		$this->throttle(self::THROTTLE_ACTION_LOGIN);
-		$this->throttle(self::THROTTLE_ACTION_LOGIN, $email);
-
 		$email = isset($email) ? trim($email) : null;
 		if (empty($email)) {
 			throw new InvalidEmailException();
@@ -308,10 +305,16 @@ class Auth {
 					}
 				}
 				else {
+					$this->throttle(self::THROTTLE_ACTION_LOGIN);
+					$this->throttle(self::THROTTLE_ACTION_LOGIN, $email);
+
 					throw new InvalidPasswordException();
 				}
 			}
 			else {
+				$this->throttle(self::THROTTLE_ACTION_LOGIN);
+				$this->throttle(self::THROTTLE_ACTION_LOGIN, $email);
+
 				throw new InvalidEmailException();
 			}
 		}
