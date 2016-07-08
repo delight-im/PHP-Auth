@@ -254,8 +254,13 @@ $uuid = \Delight\Auth\Auth::createUuid();
  * logout
    * full and reliable destruction of session
  * session management
-   * protection against session hijacking
+   * protection against session hijacking via cross-site scripting (XSS)
+     * do *not* permit script-based access to cookies
+     * restrict cookies to HTTPS to prevent session hijacking via non-secure HTTP
    * protection against session fixation attacks
+   * protection against cross-site request forgery (CSRF)
+     * works automatically (i.e. no need for CSRF tokens everywhere)
+     * do *not* use HTTP `GET` requests for "dangerous" operations
  * throttling
    * per IP address
    * per account

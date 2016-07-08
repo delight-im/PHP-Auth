@@ -85,7 +85,7 @@ class Auth {
 		session_set_cookie_params($params['lifetime'], $params['path'], $params['domain'], $params['secure'], $params['httponly']);
 
 		// start the session
-		@session_start();
+		@\Delight\Cookie\Session::start();
 	}
 
 	/** Improves the application's security over HTTP(S) by setting specific headers */
@@ -388,7 +388,18 @@ class Auth {
 		}
 
 		// set the cookie with the selector and token
-		$result = setcookie(self::COOKIE_NAME_REMEMBER, $content, $expires, $params['path'], $params['domain'], $params['secure'], $params['httponly']);
+		$cookie = new \Delight\Cookie\Cookie(self::COOKIE_NAME_REMEMBER);
+		$cookie->setValue($content);
+		$cookie->setExpiryTime($expires);
+		if (!empty($params['path'])) {
+			$cookie->setPath($params['path']);
+		}
+		if (!empty($params['domain'])) {
+			$cookie->setDomain($params['domain']);
+		}
+		$cookie->setHttpOnly($params['httponly']);
+		$cookie->setSecureOnly($params['secure']);
+		$result = $cookie->save();
 
 		if ($result === false) {
 			throw new HeadersAlreadySentError();
@@ -410,7 +421,7 @@ class Auth {
 		$stmt->execute();
 
 		// re-generate the session ID to prevent session fixation attacks
-		session_regenerate_id(true);
+		\Delight\Cookie\Session::regenerate(true);
 
 		// save the user data in the session
 		$this->setLoggedIn(true);
@@ -456,8 +467,17 @@ class Auth {
 		// get our cookie settings
 		$params = $this->createCookieSettings();
 
-		// set the cookie with the selector and token
-		$result = setcookie(session_name(), '', time() - 3600, $params['path'], $params['domain'], $params['secure'], $params['httponly']);
+		// cause the session cookie to be deleted
+		$cookie = new \Delight\Cookie\Cookie(session_name());
+		if (!empty($params['path'])) {
+			$cookie->setPath($params['path']);
+		}
+		if (!empty($params['domain'])) {
+			$cookie->setDomain($params['domain']);
+		}
+		$cookie->setHttpOnly($params['httponly']);
+		$cookie->setSecureOnly($params['secure']);
+		$result = $cookie->delete();
 
 		if ($result === false) {
 			throw new HeadersAlreadySentError();
@@ -829,8 +849,6 @@ class Auth {
 		// get the default cookie settings
 		$params = session_get_cookie_params();
 
-		// optimize the cookie domain
-		$params['domain'] = self::optimizeCookieDomain($params['domain']);
 		// check if we want to send cookies via SSL/TLS only
 		$params['secure'] = $params['secure'] || $this->useHttps;
 		// check if we want to send cookies via HTTP(S) only
@@ -838,41 +856,6 @@ class Auth {
 
 		// return the modified settings
 		return $params;
-	}
-
-	/**
-	 * Optimizes the specified cookie domain
-	 *
-	 * @param string $domain the supplied cookie domain
-	 * @return string the optimized cookie domain
-	 */
-	private static function optimizeCookieDomain($domain) {
-		// if no domain has been explicitly provided
-		if (empty($domain)) {
-			// use the current hostname as a default
-			$domain = $_SERVER['SERVER_NAME'];
-		}
-
-		// if the domain name starts with the `www` subdomain
-		if (substr($domain, 0, 4) === 'www.') {
-			// strip the subdomain
-			$domain = substr($domain, 4);
-		}
-
-		// count the dots in the domain name
-		$numDots = substr_count($domain, '.');
-
-		// if there is no dot at all (usually `localhost`) or only a single dot (no subdomain)
-		if ($numDots < 2) {
-			// if the domain doesn't already start with a dot
-			if (substr($domain, 0, 1) !== '.') {
-				// prepend a dot to allow all subdomains
-				$domain = '.'.$domain;
-			}
-		}
-
-		// return the optimized domain name
-		return $domain;
 	}
 
 	/**
