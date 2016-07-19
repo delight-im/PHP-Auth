@@ -222,6 +222,10 @@ If the user is not currently signed in, this returns `null`.
 $ip = $auth->getIpAddress();
 ```
 
+### Read and write session data
+
+For detailed information on how to read and write session data conveniently, please refer to [the documentation of the session library](https://github.com/delight-im/PHP-Cookie), which is included by default.
+
 ### Utilities
 
 #### Create a random string
