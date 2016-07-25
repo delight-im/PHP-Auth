@@ -113,7 +113,11 @@ catch (\Delight\Auth\TooManyRequestsException $e) {
 }
 ```
 
-The third parameter controls whether the login is persistent with a long-lived cookie. This is known as the "remember me" feature. Set this to `false` to disable the feature. Otherwise, ask the user if they want to enable "remember me". This is usually done with a checkbox in your user interface. Then use their input to decide between `false` and `true` here. This is optional and the default is `false`.
+The third parameter controls whether the login is persistent with a long-lived cookie. With such a persistent login, users may stay authenticated for a long time, even when the browser session has already been closed and the session cookies have expired. Typically, you'll want to keep the user logged in for weeks or months with this feature, which is known as "remember me" or "keep me logged in". Many users will find this more convenient, but it may be less secure if they leave their devices unattended.
+
+*Without* the persistent login, which is the *default* behavior, a user will only stay logged in until they close their browser, or as long as configured via `session.cookie_lifetime` and `session.gc_maxlifetime` in PHP.
+
+Set the third parameter to `false` to disable the feature. Otherwise, ask the user if they want to enable "remember me". This is usually done with a checkbox in your user interface. Use the input from that checkbox to decide between `false` and `true` here. This is optional and the default is `false`.
 
 ### Perform email verification
 
@@ -250,7 +254,7 @@ $uuid = \Delight\Auth\Auth::createUuid();
    * customizable password requirements and enforcement
    * optional usernames with customizable restrictions
  * login
-   * keeping the user logged in for a long time via secure long-lived token ("remember me")
+   * keeping the user logged in for a long time (beyond expiration of browser session) via secure long-lived token ("remember me")
  * account management
    * change password
    * tracking the time of sign up and last login

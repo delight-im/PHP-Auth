@@ -205,8 +205,8 @@ function showGuestUserForm() {
 	echo '<input type="text" name="email" placeholder="Email" /> ';
 	echo '<input type="text" name="password" placeholder="Password" /> ';
 	echo '<select name="remember" size="1">';
-	echo '<option value="0">Remember? — No</option>';
-	echo '<option value="1">Remember? — Yes</option>';
+	echo '<option value="0">Remember (28 days)? — No</option>';
+	echo '<option value="1">Remember (28 days)? — Yes</option>';
 	echo '</select> ';
 	echo '<button type="submit">Login</button>';
 	echo '</form>';
