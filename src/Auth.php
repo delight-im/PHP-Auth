@@ -781,8 +781,6 @@ class Auth {
 		$this->throttle(self::THROTTLE_ACTION_CONSUME_TOKEN);
 		$this->throttle(self::THROTTLE_ACTION_CONSUME_TOKEN, $selector);
 
-		$newPassword = self::validatePassword($newPassword);
-
 		$stmt = $this->db->prepare("SELECT id, user, token, expires FROM users_resets WHERE selector = :selector");
 		$stmt->bindValue(':selector', $selector, \PDO::PARAM_STR);
 		if ($stmt->execute()) {
@@ -791,6 +789,8 @@ class Auth {
 			if ($resetData !== false) {
 				if (password_verify($token, $resetData['token'])) {
 					if ($resetData['expires'] >= time()) {
+						$newPassword = self::validatePassword($newPassword);
+
 						$this->updatePassword($resetData['user'], $newPassword);
 
 						$stmt = $this->db->prepare("DELETE FROM users_resets WHERE id = :id");
