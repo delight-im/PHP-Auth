@@ -142,14 +142,14 @@ class Auth {
 	 * @param string $email the email address to register
 	 * @param string $password the password for the new account
 	 * @param string|null $username (optional) the username that will be displayed
-	 * @param callable|null $emailConfirmationCallback (optional) the function that sends the confirmation email to the user
+	 * @param callable|null $callback (optional) the function that sends the confirmation email to the user
 	 * @return int the ID of the user that has been created (if any)
 	 * @throws InvalidEmailException if the email address was invalid
 	 * @throws InvalidPasswordException if the password was invalid
 	 * @throws UserAlreadyExistsException if a user with the specified email address already exists
 	 * @throws AuthError if an internal problem occurred (do *not* catch)
 	 */
-	public function register($email, $password, $username = null, callable $emailConfirmationCallback = null) {
+	public function register($email, $password, $username = null, callable $callback = null) {
 		$this->throttle(self::THROTTLE_ACTION_REGISTER);
 
 		$email = self::validateEmailAddress($email);
@@ -161,7 +161,7 @@ class Auth {
 
 		$username = isset($username) ? trim($username) : null;
 		$password = password_hash($password, PASSWORD_DEFAULT);
-		$verified = isset($emailConfirmationCallback) && is_callable($emailConfirmationCallback) ? 0 : 1;
+		$verified = isset($callback) && is_callable($callback) ? 0 : 1;
 
 		$stmt = $this->db->prepare("INSERT INTO users (email, password, username, verified, registered) VALUES (:email, :password, :username, :verified, :registered)");
 		$stmt->bindValue(':email', $email, \PDO::PARAM_STR);
@@ -202,7 +202,7 @@ class Auth {
 				return $newUserId;
 			}
 			else {
-				$this->createConfirmationRequest($email, $emailConfirmationCallback);
+				$this->createConfirmationRequest($email, $callback);
 
 				return $newUserId;
 			}
@@ -224,10 +224,10 @@ class Auth {
 	 * When the user wants to verify their email address as a next step, both pieces will be required again
 	 *
 	 * @param string $email the email address to verify
-	 * @param callable $emailConfirmationCallback the function that sends the confirmation email to the user
+	 * @param callable $callback the function that sends the confirmation email to the user
 	 * @throws AuthError if an internal problem occurred (do *not* catch)
 	 */
-	private function createConfirmationRequest($email, callable $emailConfirmationCallback) {
+	private function createConfirmationRequest($email, callable $callback) {
 		$selector = self::createRandomString(16);
 		$token = self::createRandomString(16);
 		$tokenHashed = password_hash($token, PASSWORD_DEFAULT);
@@ -240,8 +240,8 @@ class Auth {
 		$stmt->bindValue(':expires', $expires, \PDO::PARAM_INT);
 
 		if ($stmt->execute()) {
-			if (isset($emailConfirmationCallback) && is_callable($emailConfirmationCallback)) {
-				$emailConfirmationCallback($selector, $token);
+			if (isset($callback) && is_callable($callback)) {
+				$callback($selector, $token);
 			}
 			else {
 				throw new MissingCallbackError();
