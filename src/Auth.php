@@ -25,7 +25,7 @@ class Auth {
 	const THROTTLE_ACTION_LOGIN = 'login';
 	const THROTTLE_ACTION_REGISTER = 'register';
 	const THROTTLE_ACTION_CONFIRM_EMAIL = 'confirm_email';
-	const THROTTLE_HTTP_RESPONSE_CODE = 429;
+	const HTTP_STATUS_CODE_TOO_MANY_REQUESTS = 429;
 
 	/** @var \PDO the database connection that will be used */
 	private $db;
@@ -817,15 +817,31 @@ class Auth {
 			if ($attempts !== false) {
 				// if the number of attempts has acceeded our accepted limit
 				if ($attempts > $this->throttlingActionsPerTimeBucket) {
-					// send a HTTP status code that indicates active throttling
-					http_response_code(self::THROTTLE_HTTP_RESPONSE_CODE);
-					// tell the client when they should try again
-					@header('Retry-After: '.$this->throttlingTimeBucketSize);
-					// throw an exception
-					throw new TooManyRequestsException();
+					self::onTooManyRequests($this->throttlingTimeBucketSize);
 				}
 			}
 		}
+	}
+
+	/**
+	 * Called when there have been too many requests for some action or object
+	 *
+	 * @param int|null $retryAfterInterval the optional interval after which the client should retry (in seconds)
+	 * @throws TooManyRequestsException to inform any calling method about this problem
+	 */
+	private static function onTooManyRequests($retryAfterInterval = null) {
+		// if no interval has been provided after which the client should retry
+		if ($retryAfterInterval === null) {
+			// use one day as the default
+			$retryAfterInterval = 60 * 60 * 24;
+		}
+
+		// send an appropriate HTTP status code
+		http_response_code(self::HTTP_STATUS_CODE_TOO_MANY_REQUESTS);
+		// tell the client when they should try again
+		@header('Retry-After: '.$retryAfterInterval);
+		// throw an exception
+		throw new TooManyRequestsException();
 	}
 
 	/**
