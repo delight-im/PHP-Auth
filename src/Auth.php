@@ -630,6 +630,26 @@ class Auth {
 	}
 
 	/**
+	 * Returns the number of open requests for a password reset by the specified user
+	 *
+	 * @param int $userId the ID of the user to check the requests for
+	 * @return int the number of open requests for a password reset
+	 * @throws AuthError if an internal problem occurred (do *not* catch)
+	 */
+	private function getOpenPasswordResetRequests($userId) {
+		$stmt = $this->db->prepare("SELECT COUNT(*) FROM users_resets WHERE user = :userId AND expires > :expiresAfter");
+		$stmt->bindValue(':userId', $userId, \PDO::PARAM_INT);
+		$stmt->bindValue(':expiresAfter', time(), \PDO::PARAM_INT);
+
+		if ($stmt->execute()) {
+			return $stmt->fetchColumn();
+		}
+		else {
+			throw new DatabaseError();
+		}
+	}
+
+	/**
 	 * Sets whether the user is currently logged in and updates the session
 	 *
 	 * @param bool $loggedIn whether the user is logged in or not
