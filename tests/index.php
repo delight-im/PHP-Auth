@@ -109,6 +109,31 @@ function processRequestData(\Delight\Auth\Auth $auth) {
 					return 'too many requests';
 				}
 			}
+			else if ($_POST['action'] === 'forgotPassword') {
+				try {
+					$auth->forgotPassword($_POST['email'], function ($selector, $token) {
+						echo '<pre>';
+						echo 'Password reset';
+						echo "\n";
+						echo '  >  Selector';
+						echo "\t\t\t\t";
+						echo htmlspecialchars($selector);
+						echo "\n";
+						echo '  >  Token';
+						echo "\t\t\t\t";
+						echo htmlspecialchars($token);
+						echo '</pre>';
+					});
+
+					return 'ok';
+				}
+				catch (\Delight\Auth\InvalidEmailException $e) {
+					return 'invalid email address';
+				}
+				catch (\Delight\Auth\TooManyRequestsException $e) {
+					return 'too many requests';
+				}
+			}
 			else if ($_POST['action'] === 'changePassword') {
 				try {
 					$auth->changePassword($_POST['oldPassword'], $_POST['newPassword']);
@@ -228,5 +253,11 @@ function showGuestUserForm() {
 	echo '<input type="text" name="selector" placeholder="Selector" /> ';
 	echo '<input type="text" name="token" placeholder="Token" /> ';
 	echo '<button type="submit">Confirm email</button>';
+	echo '</form>';
+
+	echo '<form action="" method="post" accept-charset="utf-8">';
+	echo '<input type="hidden" name="action" value="forgotPassword" />';
+	echo '<input type="text" name="email" placeholder="Email" /> ';
+	echo '<button type="submit">Forgot password</button>';
 	echo '</form>';
 }

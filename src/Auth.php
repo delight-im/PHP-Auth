@@ -625,6 +625,55 @@ class Auth {
 	}
 
 	/**
+	 * Initiates a password reset request for the user with the specified email address
+	 *
+	 * The callback function must have the following signature:
+	 *
+	 * `function ($selector, $token)`
+	 *
+	 * Both pieces of information must be sent to the user, usually embedded in a link
+	 *
+	 * When the user wants to proceed to the second step of the password reset, both pieces will be required again
+	 *
+	 * @param string $email the email address of the user who wants to request the password reset
+	 * @param callable $callback the function that sends the password reset information to the user
+	 * @param int|null $requestExpiresAfter (optional) the interval in seconds after which the request should expire
+	 * @param int|null $maxOpenRequests (optional) the maximum number of unexpired and unused requests per user
+	 * @throws InvalidEmailException if the email address was invalid or could not be found
+	 * @throws TooManyRequestsException if the number of allowed attempts/requests has been exceeded
+	 * @throws AuthError if an internal problem occurred (do *not* catch)
+	 */
+	public function forgotPassword($email, callable $callback, $requestExpiresAfter = null, $maxOpenRequests = null) {
+		$email = self::validateEmailAddress($email);
+
+		if ($requestExpiresAfter === null) {
+			// use six hours as the default
+			$requestExpiresAfter = 60 * 60 * 6;
+		}
+		else {
+			$requestExpiresAfter = (int) $requestExpiresAfter;
+		}
+
+		if ($maxOpenRequests === null) {
+			// use two requests per user as the default
+			$maxOpenRequests = 2;
+		}
+		else {
+			$maxOpenRequests = (int) $maxOpenRequests;
+		}
+
+		$userId = $this->getUserIdByEmailAddress($email);
+		$openRequests = (int) $this->getOpenPasswordResetRequests($userId);
+
+		if ($openRequests < $maxOpenRequests) {
+			$this->createPasswordResetRequest($userId, $requestExpiresAfter, $callback);
+		}
+		else {
+			self::onTooManyRequests($requestExpiresAfter);
+		}
+	}
+
+	/**
 	 * Returns the user ID for the account with the specified email address (if any)
 	 *
 	 * @param string $email the email address to look for
