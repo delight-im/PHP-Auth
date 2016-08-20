@@ -140,6 +140,65 @@ catch (\Delight\Auth\TooManyRequestsException $e) {
 }
 ```
 
+### Reset a password ("forgot password")
+
+```php
+try {
+    $auth->forgotPassword($_POST['email'], function ($selector, $token) {
+        // send `$selector` and `$token` to the user (e.g. via email)
+    });
+
+    // request has been generated
+}
+catch (\Delight\Auth\InvalidEmailException $e) {
+    // invalid email address
+}
+catch (\Delight\Auth\TooManyRequestsException $e) {
+    // too many requests
+}
+```
+
+You should build an URL with the selector and token and send it to the user, e.g.:
+
+```php
+$url = 'https://www.example.com/reset_password?selector='.urlencode($selector).'&token='.urlencode($token);
+```
+
+As the next step, users will click on the link that they received. Extract the selector and token from the URL.
+
+If the selector/token pair is valid, let the user choose a new password:
+
+```php
+if ($auth->canResetPassword($_POST['selector'], $_POST['token'])) {
+    // put the selector into a `hidden` field (or keep it in the URL)
+    // put the token into a `hidden` field (or keep it in the URL)
+
+    // ask the user for their new password
+}
+```
+
+Now when you have the new password for the user (and still have the other two pieces of information), you can reset the password:
+
+```php
+try {
+    $auth->resetPassword($_POST['selector'], $_POST['token'], $_POST['password']);
+
+    // password has been reset
+}
+catch (\Delight\Auth\InvalidSelectorTokenPairException $e) {
+    // invalid token
+}
+catch (\Delight\Auth\TokenExpiredException $e) {
+    // token expired
+}
+catch (\Delight\Auth\InvalidPasswordException $e) {
+    // invalid password
+}
+catch (\Delight\Auth\TooManyRequestsException $e) {
+    // too many requests
+}
+```
+
 ### Change the current user's password
 
 If a user is currently logged in, they may change their password.
