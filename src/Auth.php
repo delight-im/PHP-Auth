@@ -873,7 +873,7 @@ class Auth {
 	/**
 	 * Called when there have been too many requests for some action or object
 	 *
-	 * @param int|null $retryAfterInterval the optional interval after which the client should retry (in seconds)
+	 * @param int|null $retryAfterInterval (optional) the interval after which the client should retry (in seconds)
 	 * @throws TooManyRequestsException to inform any calling method about this problem
 	 */
 	private static function onTooManyRequests($retryAfterInterval = null) {
