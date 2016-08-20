@@ -24,7 +24,7 @@ class Auth {
 	const IP_ADDRESS_HASH_ALGORITHM = 'sha256';
 	const THROTTLE_ACTION_LOGIN = 'login';
 	const THROTTLE_ACTION_REGISTER = 'register';
-	const THROTTLE_ACTION_CONFIRM_EMAIL = 'confirm_email';
+	const THROTTLE_ACTION_CONSUME_TOKEN = 'confirm_email';
 	const HTTP_STATUS_CODE_TOO_MANY_REQUESTS = 429;
 
 	/** @var \PDO the database connection that will be used */
@@ -527,8 +527,8 @@ class Auth {
 	 * @throws AuthError if an internal problem occurred (do *not* catch)
 	 */
 	public function confirmEmail($selector, $token) {
-		$this->throttle(self::THROTTLE_ACTION_CONFIRM_EMAIL);
-		$this->throttle(self::THROTTLE_ACTION_CONFIRM_EMAIL, $selector);
+		$this->throttle(self::THROTTLE_ACTION_CONSUME_TOKEN);
+		$this->throttle(self::THROTTLE_ACTION_CONSUME_TOKEN, $selector);
 
 		$stmt = $this->db->prepare("SELECT id, email, token, expires FROM users_confirmations WHERE selector = :selector");
 		$stmt->bindValue(':selector', $selector, \PDO::PARAM_STR);
