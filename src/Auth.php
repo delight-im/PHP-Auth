@@ -127,14 +127,22 @@ class Auth {
 	/**
 	 * Attempts to sign up a user
 	 *
-	 * If you want accounts to be activated by default, pass `null` as the fourth argument
+	 * If you want accounts to be activated by default, pass `null` as the callback
 	 *
-	 * If you want to perform email verification, pass `function ($selector, $token) {}` as the fourth argument
+	 * If you want to perform email verification, pass an anonymous function as the callback
+	 *
+	 * The callback function must have the following signature:
+	 *
+	 * `function ($selector, $token)`
+	 *
+	 * Both pieces of information must be sent to the user, usually embedded in a link
+	 *
+	 * When the user wants to verify their email address as a next step, both pieces will be required again
 	 *
 	 * @param string $email the email address to register
 	 * @param string $password the password for the new account
 	 * @param string|null $username (optional) the username that will be displayed
-	 * @param callable|null $emailConfirmationCallback (optional) the function that sends the confirmation email
+	 * @param callable|null $emailConfirmationCallback (optional) the function that sends the confirmation email to the user
 	 * @return int the ID of the user that has been created (if any)
 	 * @throws InvalidEmailException if the email address was invalid
 	 * @throws InvalidPasswordException if the password was invalid
@@ -207,8 +215,16 @@ class Auth {
 	/**
 	 * Creates a request for email confirmation
 	 *
+	 * The callback function must have the following signature:
+	 *
+	 * `function ($selector, $token)`
+	 *
+	 * Both pieces of information must be sent to the user, usually embedded in a link
+	 *
+	 * When the user wants to verify their email address as a next step, both pieces will be required again
+	 *
 	 * @param string $email the email address to verify
-	 * @param callable $emailConfirmationCallback the function that sends the confirmation email
+	 * @param callable $emailConfirmationCallback the function that sends the confirmation email to the user
 	 * @throws AuthError if an internal problem occurred (do *not* catch)
 	 */
 	private function createConfirmationRequest($email, callable $emailConfirmationCallback) {
@@ -375,7 +391,7 @@ class Auth {
 	 *
 	 * @param string $selector the selector from the selector/token pair
 	 * @param string $token the token from the selector/token pair
-	 * @param int $expires timestamp (in seconds) when the token expires
+	 * @param int $expires the interval in seconds after which the token should expire
 	 * @throws AuthError if an internal problem occurred (do *not* catch)
 	 */
 	private function setRememberCookie($selector, $token, $expires) {
@@ -873,7 +889,7 @@ class Auth {
 	/**
 	 * Called when there have been too many requests for some action or object
 	 *
-	 * @param int|null $retryAfterInterval (optional) the interval after which the client should retry (in seconds)
+	 * @param int|null $retryAfterInterval (optional) the interval in seconds after which the client should retry
 	 * @throws TooManyRequestsException to inform any calling method about this problem
 	 */
 	private static function onTooManyRequests($retryAfterInterval = null) {
