@@ -672,6 +672,49 @@ class Auth {
 	}
 
 	/**
+	 * Creates a new password reset request
+	 *
+	 * The callback function must have the following signature:
+	 *
+	 * `function ($selector, $token)`
+	 *
+	 * Both pieces of information must be sent to the user, usually embedded in a link
+	 *
+	 * When the user wants to proceed to the second step of the password reset, both pieces will be required again
+	 *
+	 * @param int $userId the ID of the user who requested the reset
+	 * @param int $expiresAfter the interval in seconds after which the request should expire
+	 * @param callable $callback the function that sends the password reset information to the user
+	 * @throws AuthError if an internal problem occurred (do *not* catch)
+	 */
+	private function createPasswordResetRequest($userId, $expiresAfter, callable $callback) {
+		$selector = self::createRandomString(20);
+		$token = self::createRandomString(20);
+		$tokenHashed = password_hash($token, PASSWORD_DEFAULT);
+		$expiresAt = time() + $expiresAfter;
+
+		$stmt = $this->db->prepare("INSERT INTO users_resets (user, selector, token, expires) VALUES (:userId, :selector, :token, :expires)");
+		$stmt->bindValue(':userId', $userId, \PDO::PARAM_INT);
+		$stmt->bindValue(':selector', $selector, \PDO::PARAM_STR);
+		$stmt->bindValue(':token', $tokenHashed, \PDO::PARAM_STR);
+		$stmt->bindValue(':expires', $expiresAt, \PDO::PARAM_INT);
+
+		if ($stmt->execute()) {
+			if (isset($callback) && is_callable($callback)) {
+				$callback($selector, $token);
+			}
+			else {
+				throw new MissingCallbackError();
+			}
+
+			return;
+		}
+		else {
+			throw new DatabaseError();
+		}
+	}
+
+	/**
 	 * Sets whether the user is currently logged in and updates the session
 	 *
 	 * @param bool $loggedIn whether the user is logged in or not
