@@ -153,11 +153,7 @@ class Auth {
 		$this->throttle(self::THROTTLE_ACTION_REGISTER);
 
 		$email = self::validateEmailAddress($email);
-
-		$password = isset($password) ? trim($password) : null;
-		if (empty($password)) {
-			throw new InvalidPasswordException();
-		}
+		$password = self::validatePassword($password);
 
 		$username = isset($username) ? trim($username) : null;
 		$password = password_hash($password, PASSWORD_DEFAULT);
@@ -267,11 +263,7 @@ class Auth {
 	 */
 	public function login($email, $password, $remember = false) {
 		$email = self::validateEmailAddress($email);
-
-		$password = isset($password) ? trim($password) : null;
-		if (empty($password)) {
-			throw new InvalidPasswordException();
-		}
+		$password = self::validatePassword($password);
 
 		$stmt = $this->db->prepare("SELECT id, password, verified, username FROM users WHERE email = :email");
 		$stmt->bindValue(':email', $email, \PDO::PARAM_STR);
@@ -336,6 +328,27 @@ class Auth {
 		}
 
 		return $email;
+	}
+
+	/**
+	 * Validates a password
+	 *
+	 * @param string $password the password to validate
+	 * @return string the password if it's valid
+	 * @throws InvalidPasswordException if the password was invalid
+	 */
+	private static function validatePassword($password) {
+		if (empty($password)) {
+			throw new InvalidPasswordException();
+		}
+
+		$password = trim($password);
+
+		if (strlen($password) < 1) {
+			throw new InvalidPasswordException();
+		}
+
+		return $password;
 	}
 
 	/**
@@ -569,15 +582,8 @@ class Auth {
 	 */
 	public function changePassword($oldPassword, $newPassword) {
 		if ($this->isLoggedIn()) {
-			$oldPassword = isset($oldPassword) ? trim($oldPassword) : null;
-			if (empty($oldPassword)) {
-				throw new InvalidPasswordException();
-			}
-
-			$newPassword = isset($newPassword) ? trim($newPassword) : null;
-			if (empty($newPassword)) {
-				throw new InvalidPasswordException();
-			}
+			$oldPassword = self::validatePassword($oldPassword);
+			$newPassword = self::validatePassword($newPassword);
 
 			$userId = $this->getUserId();
 
