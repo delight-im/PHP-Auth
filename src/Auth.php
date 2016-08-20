@@ -603,6 +603,33 @@ class Auth {
 	}
 
 	/**
+	 * Returns the user ID for the account with the specified email address (if any)
+	 *
+	 * @param string $email the email address to look for
+	 * @return string the user ID (if an account was found)
+	 * @throws InvalidEmailException if the email address could not be found
+	 * @throws AuthError if an internal problem occurred (do *not* catch)
+	 */
+	private function getUserIdByEmailAddress($email) {
+		$stmt = $this->db->prepare("SELECT id FROM users WHERE email = :email");
+		$stmt->bindValue(':email', $email, \PDO::PARAM_STR);
+
+		if ($stmt->execute()) {
+			$userId = $stmt->fetchColumn();
+
+			if ($userId !== false) {
+				return $userId;
+			}
+			else {
+				throw new InvalidEmailException();
+			}
+		}
+		else {
+			throw new DatabaseError();
+		}
+	}
+
+	/**
 	 * Sets whether the user is currently logged in and updates the session
 	 *
 	 * @param bool $loggedIn whether the user is logged in or not
