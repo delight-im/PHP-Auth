@@ -134,6 +134,25 @@ function processRequestData(\Delight\Auth\Auth $auth) {
 					return 'too many requests';
 				}
 			}
+			else if ($_POST['action'] === 'resetPassword') {
+				try {
+					$auth->resetPassword($_POST['selector'], $_POST['token'], $_POST['password']);
+
+					return 'ok';
+				}
+				catch (\Delight\Auth\InvalidSelectorTokenPairException $e) {
+					return 'invalid token';
+				}
+				catch (\Delight\Auth\TokenExpiredException $e) {
+					return 'token expired';
+				}
+				catch (\Delight\Auth\InvalidPasswordException $e) {
+					return 'invalid password';
+				}
+				catch (\Delight\Auth\TooManyRequestsException $e) {
+					return 'too many requests';
+				}
+			}
 			else if ($_POST['action'] === 'changePassword') {
 				try {
 					$auth->changePassword($_POST['oldPassword'], $_POST['newPassword']);
@@ -259,5 +278,13 @@ function showGuestUserForm() {
 	echo '<input type="hidden" name="action" value="forgotPassword" />';
 	echo '<input type="text" name="email" placeholder="Email" /> ';
 	echo '<button type="submit">Forgot password</button>';
+	echo '</form>';
+
+	echo '<form action="" method="post" accept-charset="utf-8">';
+	echo '<input type="hidden" name="action" value="resetPassword" />';
+	echo '<input type="text" name="selector" placeholder="Selector" /> ';
+	echo '<input type="text" name="token" placeholder="Token" /> ';
+	echo '<input type="text" name="password" placeholder="New password" /> ';
+	echo '<button type="submit">Reset password</button>';
 	echo '</form>';
 }

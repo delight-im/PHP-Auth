@@ -764,6 +764,63 @@ class Auth {
 	}
 
 	/**
+	 * Resets the password for a particular account by supplying the correct selector/token pair
+	 *
+	 * The selector/token pair must have been generated previously by calling `Auth#forgotPassword(...)`
+	 *
+	 * @param string $selector the selector from the selector/token pair
+	 * @param string $token the token from the selector/token pair
+	 * @param string $newPassword the new password to set for the account
+	 * @throws InvalidSelectorTokenPairException if either the selector or the token was not correct
+	 * @throws TokenExpiredException if the token has already expired
+	 * @throws InvalidPasswordException if the new password was invalid
+	 * @throws TooManyRequestsException if the number of allowed attempts/requests has been exceeded
+	 * @throws AuthError if an internal problem occurred (do *not* catch)
+	 */
+	public function resetPassword($selector, $token, $newPassword) {
+		$this->throttle(self::THROTTLE_ACTION_CONSUME_TOKEN);
+		$this->throttle(self::THROTTLE_ACTION_CONSUME_TOKEN, $selector);
+
+		$newPassword = self::validatePassword($newPassword);
+
+		$stmt = $this->db->prepare("SELECT id, user, token, expires FROM users_resets WHERE selector = :selector");
+		$stmt->bindValue(':selector', $selector, \PDO::PARAM_STR);
+		if ($stmt->execute()) {
+			$resetData = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+			if ($resetData !== false) {
+				if (password_verify($token, $resetData['token'])) {
+					if ($resetData['expires'] >= time()) {
+						$this->updatePassword($resetData['user'], $newPassword);
+
+						$stmt = $this->db->prepare("DELETE FROM users_resets WHERE id = :id");
+						$stmt->bindValue(':id', $resetData['id'], \PDO::PARAM_INT);
+
+						if ($stmt->execute()) {
+							return;
+						}
+						else {
+							throw new DatabaseError();
+						}
+					}
+					else {
+						throw new TokenExpiredException();
+					}
+				}
+				else {
+					throw new InvalidSelectorTokenPairException();
+				}
+			}
+			else {
+				throw new InvalidSelectorTokenPairException();
+			}
+		}
+		else {
+			throw new DatabaseError();
+		}
+	}
+
+	/**
 	 * Sets whether the user is currently logged in and updates the session
 	 *
 	 * @param bool $loggedIn whether the user is logged in or not
