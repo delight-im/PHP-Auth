@@ -257,7 +257,7 @@ class Auth {
 	 * @param string $password the user's password
 	 * @param bool $remember whether to keep the user logged in ("remember me") or not
 	 * @throws InvalidEmailException if the email address was invalid or could not be found
-	 * @throws InvalidPasswordException if the password was invalid or didn't match the email address
+	 * @throws InvalidPasswordException if the password was invalid
 	 * @throws EmailNotVerifiedException if the email address has not been verified yet via confirmation email
 	 * @throws AuthError if an internal problem occurred (do *not* catch)
 	 */
