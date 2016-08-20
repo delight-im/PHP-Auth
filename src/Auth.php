@@ -821,6 +821,35 @@ class Auth {
 	}
 
 	/**
+	 * Check if the supplied selector/token pair can be used to reset a password
+	 *
+	 * The selector/token pair must have been generated previously by calling `Auth#forgotPassword(...)`
+	 *
+	 * @param string $selector the selector from the selector/token pair
+	 * @param string $token the token from the selector/token pair
+	 * @return bool whether the password can be reset using the supplied information
+	 * @throws AuthError if an internal problem occurred (do *not* catch)
+	 */
+	public function canResetPassword($selector, $token) {
+		try {
+			// pass an invalid password intentionally to force an expected error
+			$this->resetPassword($selector, $token, null);
+
+			// we should already be in the `catch` block now so this is not expected
+			throw new AuthError();
+		}
+		// if the password is the only thing that's invalid
+		catch (InvalidPasswordException $e) {
+			// the password can be reset
+			return true;
+		}
+		// if some other things failed (as well)
+		catch (AuthException $e) {
+			return false;
+		}
+	}
+
+	/**
 	 * Sets whether the user is currently logged in and updates the session
 	 *
 	 * @param bool $loggedIn whether the user is logged in or not
