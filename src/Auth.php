@@ -144,13 +144,7 @@ class Auth {
 	public function register($email, $password, $username = null, callable $emailConfirmationCallback = null) {
 		$this->throttle(self::THROTTLE_ACTION_REGISTER);
 
-		$email = isset($email) ? trim($email) : null;
-		if (empty($email)) {
-			throw new InvalidEmailException();
-		}
-		if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-			throw new InvalidEmailException();
-		}
+		$email = self::validateEmailAddress($email);
 
 		$password = isset($password) ? trim($password) : null;
 		if (empty($password)) {
@@ -256,13 +250,7 @@ class Auth {
 	 * @throws AuthError if an internal problem occurred (do *not* catch)
 	 */
 	public function login($email, $password, $remember = false) {
-		$email = isset($email) ? trim($email) : null;
-		if (empty($email)) {
-			throw new InvalidEmailException();
-		}
-		if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-			throw new InvalidEmailException();
-		}
+		$email = self::validateEmailAddress($email);
 
 		$password = isset($password) ? trim($password) : null;
 		if (empty($password)) {
@@ -311,6 +299,27 @@ class Auth {
 		else {
 			throw new DatabaseError();
 		}
+	}
+
+	/**
+	 * Validates an email address
+	 *
+	 * @param string $email the email address to validate
+	 * @return string the email address if it's valid
+	 * @throws InvalidEmailException if the email address was invalid
+	 */
+	private static function validateEmailAddress($email) {
+		if (empty($email)) {
+			throw new InvalidEmailException();
+		}
+
+		$email = trim($email);
+
+		if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+			throw new InvalidEmailException();
+		}
+
+		return $email;
 	}
 
 	/**
