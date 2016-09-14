@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "22e56875c7a1386807d5cf6ae01f50fa",
-    "content-hash": "b914ccd7ac15e1519d7a04b55dbe725e",
+    "hash": "2fcb5bf14375dcb4f3e1aefed162f9ac",
+    "content-hash": "36b2872a9cd5c5d018a7eff0b026b862",
     "packages": [
         {
             "name": "delight-im/cookie",
@@ -92,7 +92,7 @@
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
-        "php": ">=5.5.0",
+        "php": ">=5.6.0",
         "ext-openssl": "*"
     },
     "platform-dev": []
