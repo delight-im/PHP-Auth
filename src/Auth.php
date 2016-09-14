@@ -8,6 +8,8 @@
 
 namespace Delight\Auth;
 
+use Delight\Cookie\Cookie;
+
 require __DIR__.'/Base64.php';
 require __DIR__.'/Exceptions.php';
 
@@ -419,7 +421,7 @@ class Auth {
 		}
 
 		// set the cookie with the selector and token
-		$cookie = new \Delight\Cookie\Cookie(self::COOKIE_NAME_REMEMBER);
+		$cookie = new Cookie(self::COOKIE_NAME_REMEMBER);
 		$cookie->setValue($content);
 		$cookie->setExpiryTime($expires);
 		if (!empty($params['path'])) {
@@ -499,7 +501,7 @@ class Auth {
 		$params = $this->createCookieSettings();
 
 		// cause the session cookie to be deleted
-		$cookie = new \Delight\Cookie\Cookie(session_name());
+		$cookie = new Cookie(session_name());
 		if (!empty($params['path'])) {
 			$cookie->setPath($params['path']);
 		}
