@@ -9,6 +9,7 @@
 namespace Delight\Auth;
 
 use Delight\Cookie\Cookie;
+use Delight\Cookie\Session;
 
 require __DIR__.'/Base64.php';
 require __DIR__.'/Exceptions.php';
@@ -77,7 +78,7 @@ class Auth {
 		session_set_cookie_params($params['lifetime'], $params['path'], $params['domain'], $params['secure'], $params['httponly']);
 
 		// start the session
-		@\Delight\Cookie\Session::start();
+		@Session::start();
 	}
 
 	/** Improves the application's security over HTTP(S) by setting specific headers */
@@ -454,7 +455,7 @@ class Auth {
 		$stmt->execute();
 
 		// re-generate the session ID to prevent session fixation attacks
-		\Delight\Cookie\Session::regenerate(true);
+		Session::regenerate(true);
 
 		// save the user data in the session
 		$this->setLoggedIn(true);
