@@ -4,7 +4,8 @@
 	"require": {
 		"php": ">=5.6.0",
 		"ext-openssl": "*",
-		"delight-im/cookie": "^2.0"
+		"delight-im/cookie": "^2.0",
+		"delight-im/db": "^1.0"
 	},
 	"type": "library",
 	"keywords": [ "auth", "authentication", "login", "security" ],

@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "f2ce29fd15383e4d2ef9deb0639eb614",
-    "content-hash": "8585c0850a5bb8d8deeed439ee05e45c",
+    "hash": "45725e3304dd222a479929547338ae58",
+    "content-hash": "7121218e8e172712a3bc9205f59daf6b",
     "packages": [
         {
             "name": "delight-im/cookie",
@@ -47,6 +47,47 @@
                 "xss"
             ],
             "time": "2016-09-05 19:17:56"
+        },
+        {
+            "name": "delight-im/db",
+            "version": "v1.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/delight-im/PHP-DB.git",
+                "reference": "4f7bf0aac174c818896927fe10a47878a502b7e4"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/delight-im/PHP-DB/zipball/4f7bf0aac174c818896927fe10a47878a502b7e4",
+                "reference": "4f7bf0aac174c818896927fe10a47878a502b7e4",
+                "shasum": ""
+            },
+            "require": {
+                "ext-pdo": "*",
+                "php": ">=5.6.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Delight\\Db\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "Safe and convenient SQL database access in a driver-agnostic way",
+            "homepage": "https://github.com/delight-im/PHP-DB",
+            "keywords": [
+                "database",
+                "mysql",
+                "pdo",
+                "pgsql",
+                "postgresql",
+                "sql",
+                "sqlite"
+            ],
+            "time": "2016-09-12 13:56:24"
         },
         {
             "name": "delight-im/http",
