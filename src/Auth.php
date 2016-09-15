@@ -10,6 +10,10 @@ namespace Delight\Auth;
 
 use Delight\Cookie\Cookie;
 use Delight\Cookie\Session;
+use Delight\Db\PdoDatabase;
+use Delight\Db\PdoDsn;
+use Delight\Db\Throwable\Error;
+use Delight\Db\Throwable\IntegrityConstraintViolationException;
 
 require __DIR__.'/Base64.php';
 require __DIR__.'/Exceptions.php';
@@ -30,7 +34,7 @@ class Auth {
 	const THROTTLE_ACTION_CONSUME_TOKEN = 'confirm_email';
 	const HTTP_STATUS_CODE_TOO_MANY_REQUESTS = 429;
 
-	/** @var \PDO the database connection that will be used */
+	/** @var PdoDatabase the database connection that will be used */
 	private $db;
 	/** @var boolean whether HTTPS (TLS/SSL) will be used (recommended) */
 	private $useHttps;
@@ -44,13 +48,25 @@ class Auth {
 	private $throttlingTimeBucketSize;
 
 	/**
-	 * @param \PDO $databaseConnection the database connection that will be used
+	 * @param PdoDatabase|PdoDsn|\PDO $databaseConnection the database connection that will be used
 	 * @param bool $useHttps whether HTTPS (TLS/SSL) will be used (recommended)
 	 * @param bool $allowCookiesScriptAccess whether cookies should be accessible via client-side scripts (*not* recommended)
 	 * @param string $ipAddress the IP address that should be used instead of the default setting (if any), e.g. when behind a proxy
 	 */
-	public function __construct(\PDO $databaseConnection, $useHttps = false, $allowCookiesScriptAccess = false, $ipAddress = null) {
-		$this->db = $databaseConnection;
+	public function __construct($databaseConnection, $useHttps = false, $allowCookiesScriptAccess = false, $ipAddress = null) {
+		if ($databaseConnection instanceof PdoDatabase) {
+			$this->db = $databaseConnection;
+		}
+		elseif ($databaseConnection instanceof PdoDsn) {
+			$this->db = PdoDatabase::fromDsn($databaseConnection);
+		}
+		elseif ($databaseConnection instanceof \PDO) {
+			$this->db = PdoDatabase::fromPdo($databaseConnection, true);
+		}
+		else {
+			throw new \InvalidArgumentException('The database connection must be an instance of either `PdoDatabase`, `PdoDsn` or `PDO`');
+		}
+
 		$this->useHttps = $useHttps;
 		$this->allowCookiesScriptAccess = $allowCookiesScriptAccess;
 		$this->ipAddress = empty($ipAddress) ? $_SERVER['REMOTE_ADDR'] : $ipAddress;
@@ -110,15 +126,20 @@ class Auth {
 				$parts = explode(self::COOKIE_CONTENT_SEPARATOR, $_COOKIE[self::COOKIE_NAME_REMEMBER], 2);
 				// if both selector and token were found
 				if (isset($parts[0]) && isset($parts[1])) {
-					$stmt = $this->db->prepare("SELECT a.user, a.token, a.expires, b.email, b.username FROM users_remembered AS a JOIN users AS b ON a.user = b.id WHERE a.selector = :selector");
-					$stmt->bindValue(':selector', $parts[0], \PDO::PARAM_STR);
-					if ($stmt->execute()) {
-						$rememberData = $stmt->fetch(\PDO::FETCH_ASSOC);
-						if ($rememberData !== false) {
-							if ($rememberData['expires'] >= time()) {
-								if (password_verify($parts[1], $rememberData['token'])) {
-									$this->onLoginSuccessful($rememberData['user'], $rememberData['email'], $rememberData['username'], true);
-								}
+					try {
+						$rememberData = $this->db->selectRow(
+							'SELECT a.user, a.token, a.expires, b.email, b.username FROM users_remembered AS a JOIN users AS b ON a.user = b.id WHERE a.selector = ?',
+							[ $parts[0] ]
+						);
+					}
+					catch (Error $e) {
+						throw new DatabaseError();
+					}
+
+					if (!empty($rememberData)) {
+						if ($rememberData['expires'] >= time()) {
+							if (password_verify($parts[1], $rememberData['token'])) {
+								$this->onLoginSuccessful($rememberData['user'], $rememberData['email'], $rememberData['username'], true);
 							}
 						}
 					}
@@ -162,53 +183,33 @@ class Auth {
 		$password = password_hash($password, PASSWORD_DEFAULT);
 		$verified = isset($callback) && is_callable($callback) ? 0 : 1;
 
-		$stmt = $this->db->prepare("INSERT INTO users (email, password, username, verified, registered) VALUES (:email, :password, :username, :verified, :registered)");
-		$stmt->bindValue(':email', $email, \PDO::PARAM_STR);
-		$stmt->bindValue(':password', $password, \PDO::PARAM_STR);
-		$stmt->bindValue(':username', $username, \PDO::PARAM_STR);
-		$stmt->bindValue(':verified', $verified, \PDO::PARAM_INT);
-		$stmt->bindValue(':registered', time(), \PDO::PARAM_INT);
-
 		try {
-			$result = $stmt->execute();
+			$this->db->insert(
+				'users',
+				[
+					'email' => $email,
+					'password' => $password,
+					'username' => $username,
+					'verified' => $verified,
+					'registered' => time()
+				]
+			);
 		}
-		catch (\PDOException $e) {
+		catch (IntegrityConstraintViolationException $e) {
 			// if we have a duplicate entry
-			if ($e->getCode() == '23000') {
-				throw new UserAlreadyExistsException();
-			}
-			// if we have another error
-			else {
-				// throw an exception
-				throw new DatabaseError(null, null, $e);
-			}
+			throw new UserAlreadyExistsException();
 		}
-
-		// if creating the new user was successful
-		if ($result) {
-			// get the ID of the user that we've just created
-			$stmt = $this->db->prepare("SELECT id FROM users WHERE email = :email");
-			$stmt->bindValue(':email', $email, \PDO::PARAM_STR);
-
-			if ($result = $stmt->execute()) {
-				$newUserId = $stmt->fetchColumn();
-			}
-			else {
-				$newUserId = null;
-			}
-
-			if ($verified === 1) {
-				return $newUserId;
-			}
-			else {
-				$this->createConfirmationRequest($email, $callback);
-
-				return $newUserId;
-			}
-		}
-		else {
+		catch (Error $e) {
 			throw new DatabaseError();
 		}
+
+		$newUserId = (int) $this->db->getLastInsertId();
+
+		if ($verified === 0) {
+			$this->createConfirmationRequest($email, $callback);
+		}
+
+		return $newUserId;
 	}
 
 	/**
@@ -232,24 +233,26 @@ class Auth {
 		$tokenHashed = password_hash($token, PASSWORD_DEFAULT);
 		$expires = time() + 3600 * 24;
 
-		$stmt = $this->db->prepare("INSERT INTO users_confirmations (email, selector, token, expires) VALUES (:email, :selector, :token, :expires)");
-		$stmt->bindValue(':email', $email, \PDO::PARAM_STR);
-		$stmt->bindValue(':selector', $selector, \PDO::PARAM_STR);
-		$stmt->bindValue(':token', $tokenHashed, \PDO::PARAM_STR);
-		$stmt->bindValue(':expires', $expires, \PDO::PARAM_INT);
+		try {
+			$this->db->insert(
+				'users_confirmations',
+				[
+					'email' => $email,
+					'selector' => $selector,
+					'token' => $tokenHashed,
+					'expires' => $expires
+				]
+			);
+		}
+		catch (Error $e) {
+			throw new DatabaseError();
+		}
 
-		if ($stmt->execute()) {
-			if (isset($callback) && is_callable($callback)) {
-				$callback($selector, $token);
-			}
-			else {
-				throw new MissingCallbackError();
-			}
-
-			return;
+		if (isset($callback) && is_callable($callback)) {
+			$callback($selector, $token);
 		}
 		else {
-			throw new DatabaseError();
+			throw new MissingCallbackError();
 		}
 	}
 
@@ -268,47 +271,49 @@ class Auth {
 		$email = self::validateEmailAddress($email);
 		$password = self::validatePassword($password);
 
-		$stmt = $this->db->prepare("SELECT id, password, verified, username FROM users WHERE email = :email");
-		$stmt->bindValue(':email', $email, \PDO::PARAM_STR);
-		if ($stmt->execute()) {
-			$userData = $stmt->fetch(\PDO::FETCH_ASSOC);
-			if ($userData !== false) {
-				if (password_verify($password, $userData['password'])) {
-					// if the password needs to be re-hashed to keep up with improving password cracking techniques
-					if (password_needs_rehash($userData['password'], PASSWORD_DEFAULT)) {
-						// create a new hash from the password and update it in the database
-						$this->updatePassword($userData['id'], $password);
+		try {
+			$userData = $this->db->selectRow(
+				'SELECT id, password, verified, username FROM users WHERE email = ?',
+				[ $email ]
+			);
+		}
+		catch (Error $e) {
+			throw new DatabaseError();
+		}
+
+		if (!empty($userData)) {
+			if (password_verify($password, $userData['password'])) {
+				// if the password needs to be re-hashed to keep up with improving password cracking techniques
+				if (password_needs_rehash($userData['password'], PASSWORD_DEFAULT)) {
+					// create a new hash from the password and update it in the database
+					$this->updatePassword($userData['id'], $password);
+				}
+
+				if ($userData['verified'] === 1) {
+					$this->onLoginSuccessful($userData['id'], $email, $userData['username'], false);
+
+					if ($remember) {
+						$this->createRememberDirective($userData['id']);
 					}
 
-					if ($userData['verified'] == 1) {
-						$this->onLoginSuccessful($userData['id'], $email, $userData['username'], false);
-
-						if ($remember) {
-							$this->createRememberDirective($userData['id']);
-						}
-
-						return;
-					}
-					else {
-						throw new EmailNotVerifiedException();
-					}
+					return;
 				}
 				else {
-					$this->throttle(self::THROTTLE_ACTION_LOGIN);
-					$this->throttle(self::THROTTLE_ACTION_LOGIN, $email);
-
-					throw new InvalidPasswordException();
+					throw new EmailNotVerifiedException();
 				}
 			}
 			else {
 				$this->throttle(self::THROTTLE_ACTION_LOGIN);
 				$this->throttle(self::THROTTLE_ACTION_LOGIN, $email);
 
-				throw new InvalidEmailException();
+				throw new InvalidPasswordException();
 			}
 		}
 		else {
-			throw new DatabaseError();
+			$this->throttle(self::THROTTLE_ACTION_LOGIN);
+			$this->throttle(self::THROTTLE_ACTION_LOGIN, $email);
+
+			throw new InvalidEmailException();
 		}
 	}
 
@@ -366,20 +371,22 @@ class Auth {
 		$tokenHashed = password_hash($token, PASSWORD_DEFAULT);
 		$expires = time() + 3600 * 24 * 28;
 
-		$stmt = $this->db->prepare("INSERT INTO users_remembered (user, selector, token, expires) VALUES (:user, :selector, :token, :expires)");
-		$stmt->bindValue(':user', $userId, \PDO::PARAM_INT);
-		$stmt->bindValue(':selector', $selector, \PDO::PARAM_STR);
-		$stmt->bindValue(':token', $tokenHashed, \PDO::PARAM_STR);
-		$stmt->bindValue(':expires', $expires, \PDO::PARAM_INT);
-
-		if ($stmt->execute()) {
-			$this->setRememberCookie($selector, $token, $expires);
-
-			return;
+		try {
+			$this->db->insert(
+				'users_remembered',
+				[
+					'user' => $userId,
+					'selector' => $selector,
+					'token' => $tokenHashed,
+					'expires' => $expires
+				]
+			);
 		}
-		else {
+		catch (Error $e) {
 			throw new DatabaseError();
 		}
+
+		$this->setRememberCookie($selector, $token, $expires);
 	}
 
 	/**
@@ -389,17 +396,17 @@ class Auth {
 	 * @throws AuthError if an internal problem occurred (do *not* catch)
 	 */
 	private function deleteRememberDirective($userId) {
-		$stmt = $this->db->prepare("DELETE FROM users_remembered WHERE user = :user");
-		$stmt->bindValue(':user', $userId, \PDO::PARAM_INT);
-
-		if ($stmt->execute()) {
-			$this->setRememberCookie(null, null, time() - 3600);
-
-			return;
+		try {
+			$this->db->delete(
+				'users_remembered',
+				[ 'user' => $userId ]
+			);
 		}
-		else {
+		catch (Error $e) {
 			throw new DatabaseError();
 		}
+
+		$this->setRememberCookie(null, null, time() - 3600);
 	}
 
 	/**
@@ -447,12 +454,19 @@ class Auth {
 	 * @param string $email the email address of the user who has just logged in
 	 * @param string $username the username (if any)
 	 * @param bool $remembered whether the user was remembered ("remember me") or logged in actively
+	 * @throws AuthError if an internal problem occurred (do *not* catch)
 	 */
 	private function onLoginSuccessful($userId, $email, $username, $remembered) {
-		$stmt = $this->db->prepare("UPDATE users SET last_login = :lastLogin WHERE id = :id");
-		$stmt->bindValue(':lastLogin', time(), \PDO::PARAM_INT);
-		$stmt->bindValue(':id', $userId, \PDO::PARAM_INT);
-		$stmt->execute();
+		try {
+			$this->db->update(
+				'users',
+				[ 'last_login' => time() ],
+				[ 'id' => $userId ]
+			);
+		}
+		catch (Error $e) {
+			throw new DatabaseError();
+		}
 
 		// re-generate the session ID to prevent session fixation attacks
 		Session::regenerate(true);
@@ -533,36 +547,42 @@ class Auth {
 		$this->throttle(self::THROTTLE_ACTION_CONSUME_TOKEN);
 		$this->throttle(self::THROTTLE_ACTION_CONSUME_TOKEN, $selector);
 
-		$stmt = $this->db->prepare("SELECT id, email, token, expires FROM users_confirmations WHERE selector = :selector");
-		$stmt->bindValue(':selector', $selector, \PDO::PARAM_STR);
-		if ($stmt->execute()) {
-			$confirmationData = $stmt->fetch(\PDO::FETCH_ASSOC);
-			if ($confirmationData !== false) {
-				if (password_verify($token, $confirmationData['token'])) {
-					if ($confirmationData['expires'] >= time()) {
-						$stmt = $this->db->prepare("UPDATE users SET verified = :verified WHERE email = :email");
-						$stmt->bindValue(':verified', 1, \PDO::PARAM_INT);
-						$stmt->bindValue(':email', $confirmationData['email'], \PDO::PARAM_STR);
-						if ($stmt->execute()) {
-							$stmt = $this->db->prepare("DELETE FROM users_confirmations WHERE id = :id");
-							$stmt->bindValue(':id', $confirmationData['id'], \PDO::PARAM_INT);
-							if ($stmt->execute()) {
-								return;
-							}
-							else {
-								throw new DatabaseError();
-							}
-						}
-						else {
-							throw new DatabaseError();
-						}
+		try {
+			$confirmationData = $this->db->selectRow(
+				'SELECT id, email, token, expires FROM users_confirmations WHERE selector = ?',
+				[ $selector ]
+			);
+		}
+		catch (Error $e) {
+			throw new DatabaseError();
+		}
+
+		if (!empty($confirmationData)) {
+			if (password_verify($token, $confirmationData['token'])) {
+				if ($confirmationData['expires'] >= time()) {
+					try {
+						$this->db->update(
+							'users',
+							[ 'verified' => 1 ],
+							[ 'email' => $confirmationData['email'] ]
+						);
 					}
-					else {
-						throw new TokenExpiredException();
+					catch (Error $e) {
+						throw new DatabaseError();
+					}
+
+					try {
+						$this->db->delete(
+							'users_confirmations',
+							[ 'id' => $confirmationData['id'] ]
+						);
+					}
+					catch (Error $e) {
+						throw new DatabaseError();
 					}
 				}
 				else {
-					throw new InvalidSelectorTokenPairException();
+					throw new TokenExpiredException();
 				}
 			}
 			else {
@@ -570,7 +590,7 @@ class Auth {
 			}
 		}
 		else {
-			throw new DatabaseError();
+			throw new InvalidSelectorTokenPairException();
 		}
 	}
 
@@ -590,21 +610,26 @@ class Auth {
 
 			$userId = $this->getUserId();
 
-			$stmt = $this->db->prepare("SELECT password FROM users WHERE id = :userId");
-			$stmt->bindValue(':userId', $userId, \PDO::PARAM_INT);
-			if ($stmt->execute()) {
-				$passwordInDatabase = $stmt->fetchColumn();
+			try {
+				$passwordInDatabase = $this->db->selectValue(
+					'SELECT password FROM users WHERE id = ?',
+					[ $userId ]
+				);
+			}
+			catch (Error $e) {
+				throw new DatabaseError();
+			}
+
+			if (!empty($passwordInDatabase)) {
 				if (password_verify($oldPassword, $passwordInDatabase)) {
 					$this->updatePassword($userId, $newPassword);
-
-					return;
 				}
 				else {
 					throw new InvalidPasswordException();
 				}
 			}
 			else {
-				throw new DatabaseError();
+				throw new NotLoggedInException();
 			}
 		}
 		else {
@@ -617,14 +642,21 @@ class Auth {
 	 *
 	 * @param int $userId the ID of the user whose password should be updated
 	 * @param string $newPassword the new password
+	 * @throws AuthError if an internal problem occurred (do *not* catch)
 	 */
 	private function updatePassword($userId, $newPassword) {
 		$newPassword = password_hash($newPassword, PASSWORD_DEFAULT);
 
-		$stmt = $this->db->prepare("UPDATE users SET password = :password WHERE id = :userId");
-		$stmt->bindValue(':password', $newPassword, \PDO::PARAM_STR);
-		$stmt->bindValue(':userId', $userId, \PDO::PARAM_INT);
-		$stmt->execute();
+		try {
+			$this->db->update(
+				'users',
+				[ 'password' => $newPassword ],
+				[ 'id' => $userId ]
+			);
+		}
+		catch (Error $e) {
+			throw new DatabaseError();
+		}
 	}
 
 	/**
@@ -685,21 +717,21 @@ class Auth {
 	 * @throws AuthError if an internal problem occurred (do *not* catch)
 	 */
 	private function getUserIdByEmailAddress($email) {
-		$stmt = $this->db->prepare("SELECT id FROM users WHERE email = :email");
-		$stmt->bindValue(':email', $email, \PDO::PARAM_STR);
+		try {
+			$userId = $this->db->selectValue(
+				'SELECT id FROM users WHERE email = ?',
+				[ $email ]
+			);
+		}
+		catch (Error $e) {
+			throw new DatabaseError();
+		}
 
-		if ($stmt->execute()) {
-			$userId = $stmt->fetchColumn();
-
-			if ($userId !== false) {
-				return $userId;
-			}
-			else {
-				throw new InvalidEmailException();
-			}
+		if (!empty($userId)) {
+			return $userId;
 		}
 		else {
-			throw new DatabaseError();
+			throw new InvalidEmailException();
 		}
 	}
 
@@ -711,14 +743,23 @@ class Auth {
 	 * @throws AuthError if an internal problem occurred (do *not* catch)
 	 */
 	private function getOpenPasswordResetRequests($userId) {
-		$stmt = $this->db->prepare("SELECT COUNT(*) FROM users_resets WHERE user = :userId AND expires > :expiresAfter");
-		$stmt->bindValue(':userId', $userId, \PDO::PARAM_INT);
-		$stmt->bindValue(':expiresAfter', time(), \PDO::PARAM_INT);
+		try {
+			$requests = $this->db->selectValue(
+				'SELECT COUNT(*) FROM users_resets WHERE user = ? AND expires > ?',
+				[
+					$userId,
+					time()
+				]
+			);
 
-		if ($stmt->execute()) {
-			return $stmt->fetchColumn();
+			if (!empty($requests)) {
+				return $requests;
+			}
+			else {
+				return 0;
+			}
 		}
-		else {
+		catch (Error $e) {
 			throw new DatabaseError();
 		}
 	}
@@ -745,24 +786,26 @@ class Auth {
 		$tokenHashed = password_hash($token, PASSWORD_DEFAULT);
 		$expiresAt = time() + $expiresAfter;
 
-		$stmt = $this->db->prepare("INSERT INTO users_resets (user, selector, token, expires) VALUES (:userId, :selector, :token, :expires)");
-		$stmt->bindValue(':userId', $userId, \PDO::PARAM_INT);
-		$stmt->bindValue(':selector', $selector, \PDO::PARAM_STR);
-		$stmt->bindValue(':token', $tokenHashed, \PDO::PARAM_STR);
-		$stmt->bindValue(':expires', $expiresAt, \PDO::PARAM_INT);
+		try {
+			$this->db->insert(
+				'users_resets',
+				[
+					'user' => $userId,
+					'selector' => $selector,
+					'token' => $tokenHashed,
+					'expires' => $expiresAt
+				]
+			);
+		}
+		catch (Error $e) {
+			throw new DatabaseError();
+		}
 
-		if ($stmt->execute()) {
-			if (isset($callback) && is_callable($callback)) {
-				$callback($selector, $token);
-			}
-			else {
-				throw new MissingCallbackError();
-			}
-
-			return;
+		if (isset($callback) && is_callable($callback)) {
+			$callback($selector, $token);
 		}
 		else {
-			throw new DatabaseError();
+			throw new MissingCallbackError();
 		}
 	}
 
@@ -784,34 +827,35 @@ class Auth {
 		$this->throttle(self::THROTTLE_ACTION_CONSUME_TOKEN);
 		$this->throttle(self::THROTTLE_ACTION_CONSUME_TOKEN, $selector);
 
-		$stmt = $this->db->prepare("SELECT id, user, token, expires FROM users_resets WHERE selector = :selector");
-		$stmt->bindValue(':selector', $selector, \PDO::PARAM_STR);
-		if ($stmt->execute()) {
-			$resetData = $stmt->fetch(\PDO::FETCH_ASSOC);
+		try {
+			$resetData = $this->db->selectRow(
+				'SELECT id, user, token, expires FROM users_resets WHERE selector = ?',
+				[ $selector ]
+			);
+		}
+		catch (Error $e) {
+			throw new DatabaseError();
+		}
 
-			if ($resetData !== false) {
-				if (password_verify($token, $resetData['token'])) {
-					if ($resetData['expires'] >= time()) {
-						$newPassword = self::validatePassword($newPassword);
+		if (!empty($resetData)) {
+			if (password_verify($token, $resetData['token'])) {
+				if ($resetData['expires'] >= time()) {
+					$newPassword = self::validatePassword($newPassword);
 
-						$this->updatePassword($resetData['user'], $newPassword);
+					$this->updatePassword($resetData['user'], $newPassword);
 
-						$stmt = $this->db->prepare("DELETE FROM users_resets WHERE id = :id");
-						$stmt->bindValue(':id', $resetData['id'], \PDO::PARAM_INT);
-
-						if ($stmt->execute()) {
-							return;
-						}
-						else {
-							throw new DatabaseError();
-						}
+					try {
+						$this->db->delete(
+							'users_resets',
+							[ 'id' => $resetData['id'] ]
+						);
 					}
-					else {
-						throw new TokenExpiredException();
+					catch (Error $e) {
+						throw new DatabaseError();
 					}
 				}
 				else {
-					throw new InvalidSelectorTokenPairException();
+					throw new TokenExpiredException();
 				}
 			}
 			else {
@@ -819,7 +863,7 @@ class Auth {
 			}
 		}
 		else {
-			throw new DatabaseError();
+			throw new InvalidSelectorTokenPairException();
 		}
 	}
 
@@ -1033,42 +1077,55 @@ class Auth {
 		// get the time bucket that we do the throttling for
 		$timeBucket = self::getTimeBucket();
 
-		$stmt = $this->db->prepare('INSERT INTO users_throttling (action_type, selector, time_bucket, attempts) VALUES (:actionType, :selector, :timeBucket, 1)');
-		$stmt->bindValue(':actionType', $actionType, \PDO::PARAM_STR);
-		$stmt->bindValue(':selector', $selector, \PDO::PARAM_STR);
-		$stmt->bindValue(':timeBucket', $timeBucket, \PDO::PARAM_INT);
 		try {
-			$stmt->execute();
+			$this->db->insert(
+				'users_throttling',
+				[
+					'action_type' => $actionType,
+					'selector' => $selector,
+					'time_bucket' => $timeBucket,
+					'attempts' => 1
+				]
+			);
 		}
-		catch (\PDOException $e) {
-			// if we have a duplicate entry
-			if ($e->getCode() == '23000') {
-				// update the old entry
-				$stmt = $this->db->prepare('UPDATE users_throttling SET attempts = attempts+1 WHERE action_type = :actionType AND selector = :selector AND time_bucket = :timeBucket');
-				$stmt->bindValue(':actionType', $actionType, \PDO::PARAM_STR);
-				$stmt->bindValue(':selector', $selector, \PDO::PARAM_STR);
-				$stmt->bindValue(':timeBucket', $timeBucket, \PDO::PARAM_INT);
-				$stmt->execute();
+		catch (IntegrityConstraintViolationException $e) {
+			// if we have a duplicate entry, update the old entry
+			try {
+				$this->db->exec(
+					'UPDATE users_throttling SET attempts = attempts+1 WHERE action_type = ? AND selector = ? AND time_bucket = ?',
+					[
+						$actionType,
+						$selector,
+						$timeBucket
+					]
+				);
 			}
-			// if we have another error
-			else {
-				// throw an exception
-				throw new DatabaseError(null, null, $e);
+			catch (Error $e) {
+				throw new DatabaseError();
 			}
+		}
+		catch (Error $e) {
+			throw new DatabaseError();
 		}
 
-		$stmt = $this->db->prepare('SELECT attempts FROM users_throttling WHERE action_type = :actionType AND selector = :selector AND time_bucket = :timeBucket');
-		$stmt->bindValue(':actionType', $actionType, \PDO::PARAM_STR);
-		$stmt->bindValue(':selector', $selector, \PDO::PARAM_STR);
-		$stmt->bindValue(':timeBucket', $timeBucket, \PDO::PARAM_INT);
-		if ($stmt->execute()) {
-			$attempts = $stmt->fetchColumn();
+		try {
+			$attempts = $this->db->selectValue(
+				'SELECT attempts FROM users_throttling WHERE action_type = ? AND selector = ? AND time_bucket = ?',
+				[
+					$actionType,
+					$selector,
+					$timeBucket
+				]
+			);
+		}
+		catch (Error $e) {
+			throw new DatabaseError();
+		}
 
-			if ($attempts !== false) {
-				// if the number of attempts has acceeded our accepted limit
-				if ($attempts > $this->throttlingActionsPerTimeBucket) {
-					self::onTooManyRequests($this->throttlingTimeBucketSize);
-				}
+		if (!empty($attempts)) {
+			// if the number of attempts has acceeded our accepted limit
+			if ($attempts > $this->throttlingActionsPerTimeBucket) {
+				self::onTooManyRequests($this->throttlingTimeBucketSize);
 			}
 		}
 	}
