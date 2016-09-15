@@ -44,7 +44,8 @@ Completely framework-agnostic and database-agnostic.
 
 ```php
 // $db = new PDO('mysql:dbname=my-database;host=localhost;charset=utf8mb4', 'my-username', 'my-password');
-// $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+// or
+// $db = new \Delight\Db\PdoDsn('mysql:dbname=my-database;host=localhost;charset=utf8mb4', 'my-username', 'my-password');
 
 $auth = new \Delight\Auth\Auth($db);
 ```

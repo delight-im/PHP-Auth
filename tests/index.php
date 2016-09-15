@@ -20,7 +20,6 @@ header('Content-type: text/html; charset=utf-8');
 require __DIR__.'/../vendor/autoload.php';
 
 $db = new PDO('mysql:dbname=php_auth;host=127.0.0.1;charset=utf8mb4', 'root', '');
-$db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
 $auth = new \Delight\Auth\Auth($db);
 
