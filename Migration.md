@@ -38,3 +38,7 @@
 ## From `v2.x.x` to `v3.x.x`
 
  * The license has been changed from the [Apache License 2.0](http://www.apache.org/licenses/LICENSE-2.0) to the [MIT License](https://opensource.org/licenses/MIT).
+
+## From `v3.x.x` to `v4.x.x`
+
+ * PHP 5.6.0 or higher is now required.
