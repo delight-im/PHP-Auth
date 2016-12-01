@@ -4,21 +4,21 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "45725e3304dd222a479929547338ae58",
-    "content-hash": "7121218e8e172712a3bc9205f59daf6b",
+    "hash": "bd80e3e52b8bd8a4a0c74c7cf9f5bf5e",
+    "content-hash": "3f836c43e0ff2293051f2ccb739d23cf",
     "packages": [
         {
             "name": "delight-im/cookie",
-            "version": "v2.0.1",
+            "version": "v2.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/delight-im/PHP-Cookie.git",
-                "reference": "004cde69ec840e65c15275e09b92ecb1da06f357"
+                "reference": "3e41e0d44959b59de98722b5b1b1fb83f9f528f3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/delight-im/PHP-Cookie/zipball/004cde69ec840e65c15275e09b92ecb1da06f357",
-                "reference": "004cde69ec840e65c15275e09b92ecb1da06f357",
+                "url": "https://api.github.com/repos/delight-im/PHP-Cookie/zipball/3e41e0d44959b59de98722b5b1b1fb83f9f528f3",
+                "reference": "3e41e0d44959b59de98722b5b1b1fb83f9f528f3",
                 "shasum": ""
             },
             "require": {
@@ -46,20 +46,20 @@
                 "samesite",
                 "xss"
             ],
-            "time": "2016-09-05 19:17:56"
+            "time": "2016-11-23 20:09:42"
         },
         {
             "name": "delight-im/db",
-            "version": "v1.0.1",
+            "version": "v1.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/delight-im/PHP-DB.git",
-                "reference": "4f7bf0aac174c818896927fe10a47878a502b7e4"
+                "reference": "c8d1eba6583007471d55bf7d88eb3c9d87ea849d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/delight-im/PHP-DB/zipball/4f7bf0aac174c818896927fe10a47878a502b7e4",
-                "reference": "4f7bf0aac174c818896927fe10a47878a502b7e4",
+                "url": "https://api.github.com/repos/delight-im/PHP-DB/zipball/c8d1eba6583007471d55bf7d88eb3c9d87ea849d",
+                "reference": "c8d1eba6583007471d55bf7d88eb3c9d87ea849d",
                 "shasum": ""
             },
             "require": {
@@ -87,7 +87,7 @@
                 "sql",
                 "sqlite"
             ],
-            "time": "2016-09-12 13:56:24"
+            "time": "2016-12-01 12:40:36"
         },
         {
             "name": "delight-im/http",
