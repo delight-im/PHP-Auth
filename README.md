@@ -95,8 +95,17 @@ If you don't want to perform email verification, just omit the last parameter to
 ### Sign in an existing user (login)
 
 ```php
+if ($_POST['remember'] == 1) {
+    // keep logged in for one year
+    $rememberDuration = (int) (60 * 60 * 24 * 365.25);
+}
+else {
+    // do not keep logged in after session ends
+    $rememberDuration = null;
+}
+
 try {
-    $auth->login($_POST['email'], $_POST['password'], ($_POST['remember'] == 1));
+    $auth->login($_POST['email'], $_POST['password'], $rememberDuration);
 
     // user is logged in
 }
@@ -118,7 +127,7 @@ The third parameter controls whether the login is persistent with a long-lived c
 
 *Without* the persistent login, which is the *default* behavior, a user will only stay logged in until they close their browser, or as long as configured via `session.cookie_lifetime` and `session.gc_maxlifetime` in PHP.
 
-Set the third parameter to `false` to disable the feature. Otherwise, ask the user if they want to enable "remember me". This is usually done with a checkbox in your user interface. Use the input from that checkbox to decide between `false` and `true` here. This is optional and the default is `false`.
+Omit the third parameter or set it to `null` to disable the feature. Otherwise, ask the user if they want to enable "remember me". This is usually done with a checkbox in your user interface. Use the input from that checkbox to decide between `null` and a pre-defined duration in seconds here, e.g. `60 * 60 * 24 * 365.25` for one year.
 
 ### Perform email verification
 

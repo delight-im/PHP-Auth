@@ -263,13 +263,13 @@ class Auth {
 	 *
 	 * @param string $email the user's email address
 	 * @param string $password the user's password
-	 * @param bool $remember whether to keep the user logged in ("remember me") or not
+	 * @param int|bool|null $rememberDuration (optional) the duration in seconds to keep the user logged in ("remember me"), e.g. `60 * 60 * 24 * 365.25` for one year
 	 * @throws InvalidEmailException if the email address was invalid or could not be found
 	 * @throws InvalidPasswordException if the password was invalid
 	 * @throws EmailNotVerifiedException if the email address has not been verified yet via confirmation email
 	 * @throws AuthError if an internal problem occurred (do *not* catch)
 	 */
-	public function login($email, $password, $remember = false) {
+	public function login($email, $password, $rememberDuration = null) {
 		$email = self::validateEmailAddress($email);
 		$password = self::validatePassword($password);
 
@@ -294,8 +294,16 @@ class Auth {
 				if ($userData['verified'] === 1) {
 					$this->onLoginSuccessful($userData['id'], $email, $userData['username'], false);
 
-					if ($remember) {
-						$this->createRememberDirective($userData['id']);
+					// continue to support the old parameter format
+					if ($rememberDuration === true) {
+						$rememberDuration = 60 * 60 * 24 * 28;
+					}
+					elseif ($rememberDuration === false) {
+						$rememberDuration = null;
+					}
+
+					if ($rememberDuration !== null) {
+						$this->createRememberDirective($userData['id'], $rememberDuration);
 					}
 
 					return;
@@ -365,13 +373,14 @@ class Auth {
 	 * Creates a new directive keeping the user logged in ("remember me")
 	 *
 	 * @param int $userId the user ID to keep signed in
+	 * @param int $duration the duration in seconds
 	 * @throws AuthError if an internal problem occurred (do *not* catch)
 	 */
-	private function createRememberDirective($userId) {
+	private function createRememberDirective($userId, $duration) {
 		$selector = self::createRandomString(24);
 		$token = self::createRandomString(32);
 		$tokenHashed = password_hash($token, PASSWORD_DEFAULT);
-		$expires = time() + 3600 * 24 * 28;
+		$expires = time() + ((int) $duration);
 
 		try {
 			$this->db->insert(

@@ -38,8 +38,17 @@ function processRequestData(\Delight\Auth\Auth $auth) {
 	if (isset($_POST)) {
 		if (isset($_POST['action'])) {
 			if ($_POST['action'] === 'login') {
+				if ($_POST['remember'] == 1) {
+					// keep logged in for one year
+					$rememberDuration = (int) (60 * 60 * 24 * 365.25);
+				}
+				else {
+					// do not keep logged in after session ends
+					$rememberDuration = null;
+				}
+
 				try {
-					$auth->login($_POST['email'], $_POST['password'], ($_POST['remember'] == 1));
+					$auth->login($_POST['email'], $_POST['password'], $rememberDuration);
 
 					return 'ok';
 				}
@@ -248,8 +257,8 @@ function showGuestUserForm() {
 	echo '<input type="text" name="email" placeholder="Email" /> ';
 	echo '<input type="text" name="password" placeholder="Password" /> ';
 	echo '<select name="remember" size="1">';
-	echo '<option value="0">Remember (28 days)? — No</option>';
-	echo '<option value="1">Remember (28 days)? — Yes</option>';
+	echo '<option value="0">Remember (keep logged in)? — No</option>';
+	echo '<option value="1">Remember (keep logged in)? — Yes</option>';
 	echo '</select> ';
 	echo '<button type="submit">Login</button>';
 	echo '</form>';
