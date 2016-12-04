@@ -369,7 +369,7 @@ class Auth {
 	 */
 	private function createRememberDirective($userId) {
 		$selector = self::createRandomString(24);
-		$token = self::createRandomString(24);
+		$token = self::createRandomString(32);
 		$tokenHashed = password_hash($token, PASSWORD_DEFAULT);
 		$expires = time() + 3600 * 24 * 28;
 
