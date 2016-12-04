@@ -58,7 +58,7 @@ Only in the very rare case that you need access to your cookies from JavaScript,
 
 If your web server is behind a proxy server and `$_SERVER['REMOTE_ADDR']` only contains the proxy's IP address, you must pass the user's real IP address to the constructor in the fourth argument. The default is `null`.
 
-### Sign up a new user (register)
+### Registration (sign up a new user)
 
 ```php
 try {
@@ -92,7 +92,7 @@ $url = 'https://www.example.com/verify_email?selector='.urlencode($selector).'&t
 
 If you don't want to perform email verification, just omit the last parameter to `register(...)`. The new user will be active immediately, then.
 
-### Sign in an existing user (login)
+### Login (sign in an existing user)
 
 ```php
 if ($_POST['remember'] == 1) {
