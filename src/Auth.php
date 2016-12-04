@@ -231,7 +231,9 @@ class Auth {
 		$selector = self::createRandomString(16);
 		$token = self::createRandomString(16);
 		$tokenHashed = password_hash($token, PASSWORD_DEFAULT);
-		$expires = time() + 3600 * 24;
+
+		// the request shall be valid for one day
+		$expires = time() + 60 * 60 * 24;
 
 		try {
 			$this->db->insert(
@@ -622,6 +624,7 @@ class Auth {
 
 			if (!empty($passwordInDatabase)) {
 				if (password_verify($oldPassword, $passwordInDatabase)) {
+					// update the password in the database
 					$this->updatePassword($userId, $newPassword);
 				}
 				else {
@@ -842,6 +845,7 @@ class Auth {
 				if ($resetData['expires'] >= time()) {
 					$newPassword = self::validatePassword($newPassword);
 
+					// update the password in the database
 					$this->updatePassword($resetData['user'], $newPassword);
 
 					try {
