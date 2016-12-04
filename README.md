@@ -137,7 +137,7 @@ catch (\Delight\Auth\TooManyRequestsException $e) {
 
 ### Keeping the user logged in
 
-The third parameter to `Auth#login` method controls whether the login is persistent with a long-lived cookie. With such a persistent login, users may stay authenticated for a long time, even when the browser session has already been closed and the session cookies have expired. Typically, you'll want to keep the user logged in for weeks or months with this feature, which is known as "remember me" or "keep me logged in". Many users will find this more convenient, but it may be less secure if they leave their devices unattended.
+The third parameter to the `Auth#login` method controls whether the login is persistent with a long-lived cookie. With such a persistent login, users may stay authenticated for a long time, even when the browser session has already been closed and the session cookies have expired. Typically, you'll want to keep the user logged in for weeks or months with this feature, which is known as "remember me" or "keep me logged in". Many users will find this more convenient, but it may be less secure if they leave their devices unattended.
 
 ```php
 if ($_POST['remember'] == 1) {
@@ -219,7 +219,7 @@ catch (\Delight\Auth\TooManyRequestsException $e) {
 }
 ```
 
-### Change the current user's password
+### Changing the current user's password
 
 If a user is currently logged in, they may change their password.
 
@@ -245,7 +245,7 @@ $auth->logout();
 // user has been signed out
 ```
 
-### Check if the user is signed in
+### Checking if the user is signed in
 
 ```php
 if ($auth->isLoggedIn()) {
@@ -258,7 +258,7 @@ else {
 
 A shorthand/alias for this method is `$auth->check()`.
 
-### Get the user's ID
+### Getting the user's ID
 
 ```php
 $id = $auth->getUserId();
@@ -268,7 +268,7 @@ If the user is not currently signed in, this returns `null`.
 
 A shorthand/alias for this method is `$auth->id()`.
 
-### Get the user's email address
+### Getting the user's email address
 
 ```php
 $email = $auth->getEmail();
@@ -276,7 +276,7 @@ $email = $auth->getEmail();
 
 If the user is not currently signed in, this returns `null`.
 
-### Get the user's display name
+### Getting the user's display name
 
 ```php
 $email = $auth->getUsername();
@@ -286,7 +286,7 @@ Remember that usernames are optional and there is only a username if you supplie
 
 If the user is not currently signed in, this returns `null`.
 
-### Check if the user was "remembered"
+### Checking if the user was "remembered"
 
 ```php
 if ($auth->isRemembered()) {
@@ -299,26 +299,26 @@ else {
 
 If the user is not currently signed in, this returns `null`.
 
-### Get the user's IP address
+### Getting the user's IP address
 
 ```php
 $ip = $auth->getIpAddress();
 ```
 
-### Read and write session data
+### Reading and writing session data
 
 For detailed information on how to read and write session data conveniently, please refer to [the documentation of the session library](https://github.com/delight-im/PHP-Cookie), which is included by default.
 
 ### Utilities
 
-#### Create a random string
+#### Creating a random string
 
 ```php
 $length = 24;
 $randomStr = \Delight\Auth\Auth::createRandomString($length);
 ```
 
-#### Create a UUID v4 as per RFC 4122
+#### Creating a UUID v4 as per RFC 4122
 
 ```php
 $uuid = \Delight\Auth\Auth::createUuid();
