@@ -95,17 +95,8 @@ If you don't want to perform email verification, just omit the last parameter to
 ### Login (sign in an existing user)
 
 ```php
-if ($_POST['remember'] == 1) {
-    // keep logged in for one year
-    $rememberDuration = (int) (60 * 60 * 24 * 365.25);
-}
-else {
-    // do not keep logged in after session ends
-    $rememberDuration = null;
-}
-
 try {
-    $auth->login($_POST['email'], $_POST['password'], $rememberDuration);
+    $auth->login($_POST['email'], $_POST['password']);
 
     // user is logged in
 }
@@ -122,12 +113,6 @@ catch (\Delight\Auth\TooManyRequestsException $e) {
     // too many requests
 }
 ```
-
-The third parameter controls whether the login is persistent with a long-lived cookie. With such a persistent login, users may stay authenticated for a long time, even when the browser session has already been closed and the session cookies have expired. Typically, you'll want to keep the user logged in for weeks or months with this feature, which is known as "remember me" or "keep me logged in". Many users will find this more convenient, but it may be less secure if they leave their devices unattended.
-
-*Without* the persistent login, which is the *default* behavior, a user will only stay logged in until they close their browser, or as long as configured via `session.cookie_lifetime` and `session.gc_maxlifetime` in PHP.
-
-Omit the third parameter or set it to `null` to disable the feature. Otherwise, ask the user if they want to enable "remember me". This is usually done with a checkbox in your user interface. Use the input from that checkbox to decide between `null` and a pre-defined duration in seconds here, e.g. `60 * 60 * 24 * 365.25` for one year.
 
 ### Email verification
 
@@ -149,6 +134,31 @@ catch (\Delight\Auth\TooManyRequestsException $e) {
     // too many requests
 }
 ```
+
+### Keeping the user logged in
+
+The third parameter to `Auth#login` method controls whether the login is persistent with a long-lived cookie. With such a persistent login, users may stay authenticated for a long time, even when the browser session has already been closed and the session cookies have expired. Typically, you'll want to keep the user logged in for weeks or months with this feature, which is known as "remember me" or "keep me logged in". Many users will find this more convenient, but it may be less secure if they leave their devices unattended.
+
+```php
+if ($_POST['remember'] == 1) {
+    // keep logged in for one year
+    $rememberDuration = (int) (60 * 60 * 24 * 365.25);
+}
+else {
+    // do not keep logged in after session ends
+    $rememberDuration = null;
+}
+
+// ...
+
+$auth->login($_POST['email'], $_POST['password'], $rememberDuration);
+
+// ...
+```
+
+*Without* the persistent login, which is the *default* behavior, a user will only stay logged in until they close their browser, or as long as configured via `session.cookie_lifetime` and `session.gc_maxlifetime` in PHP.
+
+Omit the third parameter or set it to `null` to disable the feature. Otherwise, you may ask the user whether they want to enable "remember me". This is usually done with a checkbox in your user interface. Use the input from that checkbox to decide between `null` and a pre-defined duration in seconds here, e.g. `60 * 60 * 24 * 365.25` for one year.
 
 ### Password reset ("forgot password")
 
