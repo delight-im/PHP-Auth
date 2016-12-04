@@ -626,6 +626,9 @@ class Auth {
 				if (password_verify($oldPassword, $passwordInDatabase)) {
 					// update the password in the database
 					$this->updatePassword($userId, $newPassword);
+
+					// delete any remaining remember directives
+					$this->deleteRememberDirective($userId);
 				}
 				else {
 					throw new InvalidPasswordException();
@@ -847,6 +850,9 @@ class Auth {
 
 					// update the password in the database
 					$this->updatePassword($resetData['user'], $newPassword);
+
+					// delete any remaining remember directives
+					$this->deleteRememberDirective($resetData['user']);
 
 					try {
 						$this->db->delete(
