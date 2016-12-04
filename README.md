@@ -90,7 +90,7 @@ For email verification, you should build an URL with the selector and token and 
 $url = 'https://www.example.com/verify_email?selector='.urlencode($selector).'&token='.urlencode($token);
 ```
 
-If you don't want to perform email verification, just omit the last parameter to `register(...)`. The new user will be active immediately, then.
+If you don't want to perform email verification, just omit the last parameter to `Auth#register`. The new user will be active immediately, then.
 
 ### Login (sign in an existing user)
 
@@ -129,7 +129,7 @@ The third parameter controls whether the login is persistent with a long-lived c
 
 Omit the third parameter or set it to `null` to disable the feature. Otherwise, ask the user if they want to enable "remember me". This is usually done with a checkbox in your user interface. Use the input from that checkbox to decide between `null` and a pre-defined duration in seconds here, e.g. `60 * 60 * 24 * 365.25` for one year.
 
-### Perform email verification
+### Email verification
 
 Extract the selector and token from the URL that the user clicked on in the verification email.
 
@@ -150,7 +150,7 @@ catch (\Delight\Auth\TooManyRequestsException $e) {
 }
 ```
 
-### Reset a password ("forgot password")
+### Password reset ("forgot password")
 
 ```php
 try {
