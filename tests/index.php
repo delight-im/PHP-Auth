@@ -12,7 +12,7 @@ ini_set('display_errors', 'stdout');
 
 // enable assertions
 ini_set('assert.active', 1);
-ini_set('zend.assertions', 1);
+@ini_set('zend.assertions', 1);
 ini_set('assert.exception', 1);
 
 header('Content-type: text/html; charset=utf-8');
