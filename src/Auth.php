@@ -712,11 +712,14 @@ class Auth {
 			$maxOpenRequests = (int) $maxOpenRequests;
 		}
 
-		$userId = $this->getUserIdByEmailAddress($email);
-		$openRequests = (int) $this->getOpenPasswordResetRequests($userId);
+		$userData = $this->getUserDataByEmailAddress(
+			$email,
+			[ 'id' ]
+		);
+		$openRequests = (int) $this->getOpenPasswordResetRequests($userData['id']);
 
 		if ($openRequests < $maxOpenRequests) {
-			$this->createPasswordResetRequest($userId, $requestExpiresAfter, $callback);
+			$this->createPasswordResetRequest($userData['id'], $requestExpiresAfter, $callback);
 		}
 		else {
 			self::onTooManyRequests($requestExpiresAfter);
@@ -724,17 +727,21 @@ class Auth {
 	}
 
 	/**
-	 * Returns the user ID for the account with the specified email address (if any)
+	 * Returns the requested user data for the account with the specified email address (if any)
+	 *
+	 * You must never pass untrusted input to the parameter that takes the column list
 	 *
 	 * @param string $email the email address to look for
-	 * @return string the user ID (if an account was found)
+	 * @param array $requestColumns the columns to request from the user's record
+	 * @return array the user data (if an account was found)
 	 * @throws InvalidEmailException if the email address could not be found
 	 * @throws AuthError if an internal problem occurred (do *not* catch)
 	 */
-	private function getUserIdByEmailAddress($email) {
+	private function getUserDataByEmailAddress($email, array $requestColumns) {
 		try {
-			$userId = $this->db->selectValue(
-				'SELECT id FROM users WHERE email = ?',
+			$projection = implode(', ', $requestColumns);
+			$userData = $this->db->selectRow(
+				'SELECT ' . $projection . ' FROM users WHERE email = ?',
 				[ $email ]
 			);
 		}
@@ -742,8 +749,8 @@ class Auth {
 			throw new DatabaseError();
 		}
 
-		if (!empty($userId)) {
-			return $userId;
+		if (!empty($userData)) {
+			return $userData;
 		}
 		else {
 			throw new InvalidEmailException();
