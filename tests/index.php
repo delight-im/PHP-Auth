@@ -138,6 +138,9 @@ function processRequestData(\Delight\Auth\Auth $auth) {
 				catch (\Delight\Auth\InvalidEmailException $e) {
 					return 'invalid email address';
 				}
+				catch (\Delight\Auth\EmailNotVerifiedException $e) {
+					return 'email not verified';
+				}
 				catch (\Delight\Auth\TooManyRequestsException $e) {
 					return 'too many requests';
 				}

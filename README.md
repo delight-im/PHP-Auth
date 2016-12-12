@@ -173,6 +173,9 @@ try {
 catch (\Delight\Auth\InvalidEmailException $e) {
     // invalid email address
 }
+catch (\Delight\Auth\EmailNotVerifiedException $e) {
+    // email not verified
+}
 catch (\Delight\Auth\TooManyRequestsException $e) {
     // too many requests
 }

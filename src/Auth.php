@@ -690,6 +690,7 @@ class Auth {
 	 * @param int|null $requestExpiresAfter (optional) the interval in seconds after which the request should expire
 	 * @param int|null $maxOpenRequests (optional) the maximum number of unexpired and unused requests per user
 	 * @throws InvalidEmailException if the email address was invalid or could not be found
+	 * @throws EmailNotVerifiedException if the email address has not been verified yet via confirmation email
 	 * @throws TooManyRequestsException if the number of allowed attempts/requests has been exceeded
 	 * @throws AuthError if an internal problem occurred (do *not* catch)
 	 */
@@ -714,8 +715,14 @@ class Auth {
 
 		$userData = $this->getUserDataByEmailAddress(
 			$email,
-			[ 'id' ]
+			[ 'id', 'verified' ]
 		);
+
+		// ensure that the account has been verified before initiating a password reset
+		if ($userData['verified'] !== 1) {
+			throw new EmailNotVerifiedException();
+		}
+
 		$openRequests = (int) $this->getOpenPasswordResetRequests($userData['id']);
 
 		if ($openRequests < $maxOpenRequests) {
