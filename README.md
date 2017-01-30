@@ -40,7 +40,7 @@ Completely framework-agnostic and database-agnostic.
 
 ## Usage
 
-### Create a new instance
+### Creating a new instance
 
 ```php
 // $db = new PDO('mysql:dbname=my-database;host=localhost;charset=utf8mb4', 'my-username', 'my-password');
@@ -58,7 +58,7 @@ Only in the very rare case that you need access to your cookies from JavaScript,
 
 If your web server is behind a proxy server and `$_SERVER['REMOTE_ADDR']` only contains the proxy's IP address, you must pass the user's real IP address to the constructor in the fourth argument. The default is `null`.
 
-### Registration (sign up a new user)
+### Registration (sign up)
 
 ```php
 try {
@@ -92,7 +92,7 @@ $url = 'https://www.example.com/verify_email?selector='.urlencode($selector).'&t
 
 If you don't want to perform email verification, just omit the last parameter to `Auth#register`. The new user will be active immediately, then.
 
-### Login (sign in an existing user)
+### Login (sign in)
 
 ```php
 try {
