@@ -327,7 +327,7 @@ $uuid = \Delight\Auth\Auth::createUuid();
 
 ### Reading and writing session data
 
-For detailed information on how to read and write session data conveniently, please refer to [the documentation of the session library](https://github.com/delight-im/PHP-Cookie), which is included by default.
+For detailed information on how to read and write session data conveniently, please refer to [the documentation of the session library](https://github.com/delight-im/PHP-Cookie#reading-and-writing-session-data), which is included by default.
 
 ## Features
 
