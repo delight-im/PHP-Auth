@@ -248,7 +248,9 @@ $auth->logout();
 // user has been signed out
 ```
 
-### Checking if the user is signed in
+### Accessing user information
+
+#### Login state
 
 ```php
 if ($auth->isLoggedIn()) {
@@ -261,7 +263,7 @@ else {
 
 A shorthand/alias for this method is `$auth->check()`.
 
-### Getting the user's ID
+#### User ID
 
 ```php
 $id = $auth->getUserId();
@@ -271,7 +273,7 @@ If the user is not currently signed in, this returns `null`.
 
 A shorthand/alias for this method is `$auth->id()`.
 
-### Getting the user's email address
+#### Email address
 
 ```php
 $email = $auth->getEmail();
@@ -279,7 +281,7 @@ $email = $auth->getEmail();
 
 If the user is not currently signed in, this returns `null`.
 
-### Getting the user's display name
+#### Display name
 
 ```php
 $email = $auth->getUsername();
@@ -289,7 +291,7 @@ Remember that usernames are optional and there is only a username if you supplie
 
 If the user is not currently signed in, this returns `null`.
 
-### Checking if the user was "remembered"
+#### Checking whether the user was "remembered"
 
 ```php
 if ($auth->isRemembered()) {
@@ -302,7 +304,7 @@ else {
 
 If the user is not currently signed in, this returns `null`.
 
-### Getting the user's IP address
+#### IP address
 
 ```php
 $ip = $auth->getIpAddress();
