@@ -176,6 +176,8 @@ class Auth {
 	public function register($email, $password, $username = null, callable $callback = null) {
 		$this->throttle(self::THROTTLE_ACTION_REGISTER);
 
+		ignore_user_abort(true);
+
 		$email = self::validateEmailAddress($email);
 		$password = self::validatePassword($password);
 
