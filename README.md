@@ -310,6 +310,31 @@ If the user is not currently signed in, this returns `null`.
 $ip = $auth->getIpAddress();
 ```
 
+#### Additional user information
+
+In order to preserve this library's suitability for all purposes as well as its full re-usability, it doesn't come with additional bundled columns for user information. But you don't have to do without additional user information, of course:
+
+Here's how to use this library with your own tables for custom user information in a maintainable and re-usable way:
+
+ 1. Add any number of custom database tables where you store custom user information, e.g. a table named `profiles`.
+ 1. Whenever you call the `register` method (which returns the new user's ID), add your own logic afterwards that fills your custom database tables.
+ 1. If you need the custom user information only rarely, you may just retrieve it as needed. If you need it more frequently, however, you'd probably want to have it in your session data. The following method is how you can load and access your data in a reliable way:
+
+    ```php
+    function getUserInfo(\Delight\Auth\Auth $auth) {
+        if (!$auth->isLoggedIn()) {
+            return null;
+        }
+
+        if (!isset($_SESSION['_internal_user_info'])) {
+            // TODO: load your custom user information and assign it to the session variable below
+            // $_SESSION['_internal_user_info'] = ...
+        }
+
+        return $_SESSION['_internal_user_info'];
+    }
+    ```
+
 ### Utilities
 
 #### Creating a random string
