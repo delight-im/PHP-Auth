@@ -40,6 +40,27 @@ Completely framework-agnostic and database-agnostic.
 
 ## Usage
 
+ * [Creating a new instance](#creating-a-new-instance)
+ * [Registration (sign up)](#registration-sign-up)
+ * [Login (sign in)](#login-sign-in)
+ * [Email verification](#email-verification)
+ * [Keeping the user logged in](#keeping-the-user-logged-in)
+ * [Password reset ("forgot password")](#password-reset-forgot-password)
+ * [Changing the current user's password](#changing-the-current-users-password)
+ * [Logout](#logout)
+ * [Accessing user information](#accessing-user-information)
+   * [Login state](#login-state)
+   * [User ID](#user-id)
+   * [Email address](#email-address)
+   * [Display name](#display-name)
+   * [Checking whether the user was "remembered"](#checking-whether-the-user-was-remembered)
+   * [IP address](#ip-address)
+   * [Additional user information](#additional-user-information)
+ * [Utilities](#utilities)
+   * [Creating a random string](#creating-a-random-string)
+   * [Creating a UUID v4 as per RFC 4122](#creating-a-uuid-v4-as-per-rfc-4122)
+ * [Reading and writing session data](#reading-and-writing-session-data)
+
 ### Creating a new instance
 
 ```php
