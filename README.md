@@ -310,10 +310,6 @@ If the user is not currently signed in, this returns `null`.
 $ip = $auth->getIpAddress();
 ```
 
-### Reading and writing session data
-
-For detailed information on how to read and write session data conveniently, please refer to [the documentation of the session library](https://github.com/delight-im/PHP-Cookie), which is included by default.
-
 ### Utilities
 
 #### Creating a random string
@@ -328,6 +324,10 @@ $randomStr = \Delight\Auth\Auth::createRandomString($length);
 ```php
 $uuid = \Delight\Auth\Auth::createUuid();
 ```
+
+### Reading and writing session data
+
+For detailed information on how to read and write session data conveniently, please refer to [the documentation of the session library](https://github.com/delight-im/PHP-Cookie), which is included by default.
 
 ## Features
 
