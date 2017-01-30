@@ -22,7 +22,7 @@ Completely framework-agnostic and database-agnostic.
 
 ## Installation
 
- 1. Include the library via [Composer](https://getcomposer.org/)
+ 1. Include the library via [Composer](https://getcomposer.org/):
 
     ```
     $ composer require delight-im/auth
@@ -34,7 +34,7 @@ Completely framework-agnostic and database-agnostic.
     require __DIR__ . '/vendor/autoload.php';
     ```
 
- 1. Set up a database and create the required tables
+ 1. Set up a database and create the required tables:
 
     * [MySQL](Database/MySQL.sql)
 
