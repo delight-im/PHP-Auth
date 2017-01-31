@@ -420,12 +420,12 @@ This library throws two types of exceptions to indicate problems:
 
 ## General advice
 
- * Both serving the authentication pages (e.g. login and registration) and submitting the data entered by the user should only be done over TLS (HTTPS).
- * You should enforce a minimum length for passwords, e.g. 10 characters, but *no* maximum length. Moreover, you should not restrict the set of allowed characters.
- * Whenever a user was remembered ("remember me") and did not log in by entering their password, you should require re-authentication for critical features.
+ * Serve *all* pages over HTTPS only, i.e. using SSL/TLS for every single request.
+ * You should enforce a minimum length for passwords, e.g. 10 characters, but *never* any maximum length, at least not anywhere below 100 characters. Moreover, you should *not* restrict the set of allowed characters.
+ * Whenever a user was remembered through the "remember me" feature enabled or disabled during sign in, which means that they did not log in by typing their password, you should require re-authentication for critical features.
  * Encourage users to use pass*phrases*, i.e. combinations of words or even full sentences, instead of single pass*words*.
- * Do not prevent users' password managers from working correctly. Thus please use the standard form fields only and do not prevent copy and paste.
- * Before executing sensitive account operations (e.g. changing a user's email address, deleting a user's account), you should always require re-authentication, i.e. require the user to sign in once more.
+ * Do not prevent users' password managers from working correctly. Thus, use the standard form fields only and do not prevent copy and paste.
+ * Before executing sensitive account operations (e.g. changing a user's email address, deleting a user's account), you should always require re-authentication, i.e. require the user to verify their login credentials once more.
  * You should not offer an online password reset feature ("forgot password") for high-security applications.
  * For high-security applications, you should not use email addresses as identifiers. Instead, choose identifiers that are specific to the application and secret, e.g. an internal customer number.
 
