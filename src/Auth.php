@@ -174,44 +174,7 @@ class Auth {
 	 * @throws AuthError if an internal problem occurred (do *not* catch)
 	 */
 	public function register($email, $password, $username = null, callable $callback = null) {
-		$this->throttle(self::THROTTLE_ACTION_REGISTER);
-
-		ignore_user_abort(true);
-
-		$email = self::validateEmailAddress($email);
-		$password = self::validatePassword($password);
-
-		$username = isset($username) ? trim($username) : null;
-		$password = password_hash($password, PASSWORD_DEFAULT);
-		$verified = isset($callback) && is_callable($callback) ? 0 : 1;
-
-		try {
-			$this->db->insert(
-				'users',
-				[
-					'email' => $email,
-					'password' => $password,
-					'username' => $username,
-					'verified' => $verified,
-					'registered' => time()
-				]
-			);
-		}
-		catch (IntegrityConstraintViolationException $e) {
-			// if we have a duplicate entry
-			throw new UserAlreadyExistsException();
-		}
-		catch (Error $e) {
-			throw new DatabaseError();
-		}
-
-		$newUserId = (int) $this->db->getLastInsertId();
-
-		if ($verified === 0) {
-			$this->createConfirmationRequest($email, $callback);
-		}
-
-		return $newUserId;
+		return $this->createUserInternal($email, $password, $username, $callback);
 	}
 
 	/**
@@ -733,6 +696,72 @@ class Auth {
 		else {
 			self::onTooManyRequests($requestExpiresAfter);
 		}
+	}
+
+	/**
+	 * Creates a new user
+	 *
+	 * If you want the user's account to be activated by default, pass `null` as the callback
+	 *
+	 * If you want to make the user verify their email address first, pass an anonymous function as the callback
+	 *
+	 * The callback function must have the following signature:
+	 *
+	 * `function ($selector, $token)`
+	 *
+	 * Both pieces of information must be sent to the user, usually embedded in a link
+	 *
+	 * When the user wants to verify their email address as a next step, both pieces will be required again
+	 *
+	 * @param string $email the email address to register
+	 * @param string $password the password for the new account
+	 * @param string|null $username (optional) the username that will be displayed
+	 * @param callable|null $callback (optional) the function that sends the confirmation email to the user
+	 * @return int the ID of the user that has been created (if any)
+	 * @throws InvalidEmailException if the email address was invalid
+	 * @throws InvalidPasswordException if the password was invalid
+	 * @throws UserAlreadyExistsException if a user with the specified email address already exists
+	 * @throws AuthError if an internal problem occurred (do *not* catch)
+	 */
+	private function createUserInternal($email, $password, $username = null, callable $callback = null) {
+		$this->throttle(self::THROTTLE_ACTION_REGISTER);
+
+		ignore_user_abort(true);
+
+		$email = self::validateEmailAddress($email);
+		$password = self::validatePassword($password);
+
+		$username = isset($username) ? trim($username) : null;
+		$password = password_hash($password, PASSWORD_DEFAULT);
+		$verified = isset($callback) && is_callable($callback) ? 0 : 1;
+
+		try {
+			$this->db->insert(
+				'users',
+				[
+					'email' => $email,
+					'password' => $password,
+					'username' => $username,
+					'verified' => $verified,
+					'registered' => time()
+				]
+			);
+		}
+		catch (IntegrityConstraintViolationException $e) {
+			// if we have a duplicate entry
+			throw new UserAlreadyExistsException();
+		}
+		catch (Error $e) {
+			throw new DatabaseError();
+		}
+
+		$newUserId = (int) $this->db->getLastInsertId();
+
+		if ($verified === 0) {
+			$this->createConfirmationRequest($email, $callback);
+		}
+
+		return $newUserId;
 	}
 
 	/**
