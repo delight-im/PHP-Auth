@@ -151,9 +151,9 @@ class Auth {
 	/**
 	 * Attempts to sign up a user
 	 *
-	 * If you want accounts to be activated by default, pass `null` as the callback
+	 * If you want the user's account to be activated by default, pass `null` as the callback
 	 *
-	 * If you want to perform email verification, pass an anonymous function as the callback
+	 * If you want to make the user verify their email address first, pass an anonymous function as the callback
 	 *
 	 * The callback function must have the following signature:
 	 *
