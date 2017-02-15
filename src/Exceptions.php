@@ -26,6 +26,8 @@ class TokenExpiredException extends AuthException {}
 
 class TooManyRequestsException extends AuthException {}
 
+class DuplicateUsernameException extends AuthException {}
+
 class AuthError extends \Exception {}
 
 class DatabaseError extends AuthError {}
