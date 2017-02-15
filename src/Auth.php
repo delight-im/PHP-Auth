@@ -265,61 +265,7 @@ class Auth {
 	 * @throws AuthError if an internal problem occurred (do *not* catch)
 	 */
 	public function login($email, $password, $rememberDuration = null) {
-		$email = self::validateEmailAddress($email);
-		$password = self::validatePassword($password);
-
-		try {
-			$userData = $this->db->selectRow(
-				'SELECT id, password, verified, username FROM users WHERE email = ?',
-				[ $email ]
-			);
-		}
-		catch (Error $e) {
-			throw new DatabaseError();
-		}
-
-		if (!empty($userData)) {
-			if (password_verify($password, $userData['password'])) {
-				// if the password needs to be re-hashed to keep up with improving password cracking techniques
-				if (password_needs_rehash($userData['password'], PASSWORD_DEFAULT)) {
-					// create a new hash from the password and update it in the database
-					$this->updatePassword($userData['id'], $password);
-				}
-
-				if ($userData['verified'] === 1) {
-					$this->onLoginSuccessful($userData['id'], $email, $userData['username'], false);
-
-					// continue to support the old parameter format
-					if ($rememberDuration === true) {
-						$rememberDuration = 60 * 60 * 24 * 28;
-					}
-					elseif ($rememberDuration === false) {
-						$rememberDuration = null;
-					}
-
-					if ($rememberDuration !== null) {
-						$this->createRememberDirective($userData['id'], $rememberDuration);
-					}
-
-					return;
-				}
-				else {
-					throw new EmailNotVerifiedException();
-				}
-			}
-			else {
-				$this->throttle(self::THROTTLE_ACTION_LOGIN);
-				$this->throttle(self::THROTTLE_ACTION_LOGIN, $email);
-
-				throw new InvalidPasswordException();
-			}
-		}
-		else {
-			$this->throttle(self::THROTTLE_ACTION_LOGIN);
-			$this->throttle(self::THROTTLE_ACTION_LOGIN, $email);
-
-			throw new InvalidEmailException();
-		}
+		$this->authenticateUserInternal($email, $password, $rememberDuration);
 	}
 
 	/**
@@ -810,6 +756,75 @@ class Auth {
 		}
 
 		return $newUserId;
+	}
+
+	/**
+	 * Authenticates an existing user
+	 *
+	 * @param string $email the user's email address
+	 * @param string $password the user's password
+	 * @param int|bool|null $rememberDuration (optional) the duration in seconds to keep the user logged in ("remember me"), e.g. `60 * 60 * 24 * 365.25` for one year
+	 * @throws InvalidEmailException if the email address was invalid or could not be found
+	 * @throws InvalidPasswordException if the password was invalid
+	 * @throws EmailNotVerifiedException if the email address has not been verified yet via confirmation email
+	 * @throws AuthError if an internal problem occurred (do *not* catch)
+	 */
+	private function authenticateUserInternal($email, $password, $rememberDuration = null) {
+		$email = self::validateEmailAddress($email);
+		$password = self::validatePassword($password);
+
+		try {
+			$userData = $this->db->selectRow(
+				'SELECT id, password, verified, username FROM users WHERE email = ?',
+				[ $email ]
+			);
+		}
+		catch (Error $e) {
+			throw new DatabaseError();
+		}
+
+		if (!empty($userData)) {
+			if (password_verify($password, $userData['password'])) {
+				// if the password needs to be re-hashed to keep up with improving password cracking techniques
+				if (password_needs_rehash($userData['password'], PASSWORD_DEFAULT)) {
+					// create a new hash from the password and update it in the database
+					$this->updatePassword($userData['id'], $password);
+				}
+
+				if ($userData['verified'] === 1) {
+					$this->onLoginSuccessful($userData['id'], $email, $userData['username'], false);
+
+					// continue to support the old parameter format
+					if ($rememberDuration === true) {
+						$rememberDuration = 60 * 60 * 24 * 28;
+					}
+					elseif ($rememberDuration === false) {
+						$rememberDuration = null;
+					}
+
+					if ($rememberDuration !== null) {
+						$this->createRememberDirective($userData['id'], $rememberDuration);
+					}
+
+					return;
+				}
+				else {
+					throw new EmailNotVerifiedException();
+				}
+			}
+			else {
+				$this->throttle(self::THROTTLE_ACTION_LOGIN);
+				$this->throttle(self::THROTTLE_ACTION_LOGIN, $email);
+
+				throw new InvalidPasswordException();
+			}
+		}
+		else {
+			$this->throttle(self::THROTTLE_ACTION_LOGIN);
+			$this->throttle(self::THROTTLE_ACTION_LOGIN, $email);
+
+			throw new InvalidEmailException();
+		}
 	}
 
 	/**
