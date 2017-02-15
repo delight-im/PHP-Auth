@@ -174,7 +174,7 @@ class Auth {
 	 * @throws AuthError if an internal problem occurred (do *not* catch)
 	 */
 	public function register($email, $password, $username = null, callable $callback = null) {
-		return $this->createUserInternal($email, $password, $username, $callback);
+		return $this->createUserInternal(false, $email, $password, $username, $callback);
 	}
 
 	/**
@@ -713,6 +713,7 @@ class Auth {
 	 *
 	 * When the user wants to verify their email address as a next step, both pieces will be required again
 	 *
+	 * @param bool $requireUniqueUsername whether it must be ensured that the username is unique
 	 * @param string $email the email address to register
 	 * @param string $password the password for the new account
 	 * @param string|null $username (optional) the username that will be displayed
@@ -721,9 +722,10 @@ class Auth {
 	 * @throws InvalidEmailException if the email address was invalid
 	 * @throws InvalidPasswordException if the password was invalid
 	 * @throws UserAlreadyExistsException if a user with the specified email address already exists
+	 * @throws DuplicateUsernameException if it was specified that the username must be unique while it was *not*
 	 * @throws AuthError if an internal problem occurred (do *not* catch)
 	 */
-	private function createUserInternal($email, $password, $username = null, callable $callback = null) {
+	private function createUserInternal($requireUniqueUsername, $email, $password, $username = null, callable $callback = null) {
 		$this->throttle(self::THROTTLE_ACTION_REGISTER);
 
 		ignore_user_abort(true);
@@ -732,6 +734,22 @@ class Auth {
 		$password = self::validatePassword($password);
 
 		$username = isset($username) ? trim($username) : null;
+
+		// if the uniqueness of the username is to be ensured
+		if ($requireUniqueUsername) {
+			// count the number of users who do already have that specified username
+			$occurrencesOfUsername = $this->db->selectValue(
+				'SELECT COUNT(*) FROM users WHERE username = ?',
+				[ $username ]
+			);
+
+			// if any user with that username does already exist
+			if ($occurrencesOfUsername > 0) {
+				// cancel the operation and report the violation of this requirement
+				throw new DuplicateUsernameException();
+			}
+		}
+
 		$password = password_hash($password, PASSWORD_DEFAULT);
 		$verified = isset($callback) && is_callable($callback) ? 0 : 1;
 
