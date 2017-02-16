@@ -12,6 +12,8 @@ class AuthException extends \Exception {}
 
 class InvalidEmailException extends AuthException {}
 
+class UnknownUsernameException extends AuthException {}
+
 class InvalidPasswordException extends AuthException {}
 
 class EmailNotVerifiedException extends AuthException {}
