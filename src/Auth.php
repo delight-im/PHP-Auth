@@ -771,7 +771,6 @@ class Auth {
 	 */
 	private function authenticateUserInternal($password, $email, $rememberDuration = null) {
 		$email = self::validateEmailAddress($email);
-		$password = self::validatePassword($password);
 
 		try {
 			$userData = $this->db->selectRow(
@@ -784,6 +783,8 @@ class Auth {
 		}
 
 		if (!empty($userData)) {
+			$password = self::validatePassword($password);
+
 			if (password_verify($password, $userData['password'])) {
 				// if the password needs to be re-hashed to keep up with improving password cracking techniques
 				if (password_needs_rehash($userData['password'], PASSWORD_DEFAULT)) {
