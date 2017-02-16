@@ -35,3 +35,5 @@ class DatabaseError extends AuthError {}
 class MissingCallbackError extends AuthError {}
 
 class HeadersAlreadySentError extends AuthError {}
+
+class EmailOrUsernameRequiredError extends AuthError {}
