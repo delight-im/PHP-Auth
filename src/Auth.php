@@ -265,7 +265,7 @@ class Auth {
 	 * @throws AuthError if an internal problem occurred (do *not* catch)
 	 */
 	public function login($email, $password, $rememberDuration = null) {
-		$this->authenticateUserInternal($email, $password, $rememberDuration);
+		$this->authenticateUserInternal($password, $email, $rememberDuration);
 	}
 
 	/**
@@ -761,15 +761,15 @@ class Auth {
 	/**
 	 * Authenticates an existing user
 	 *
-	 * @param string $email the user's email address
 	 * @param string $password the user's password
+	 * @param string $email the user's email address
 	 * @param int|bool|null $rememberDuration (optional) the duration in seconds to keep the user logged in ("remember me"), e.g. `60 * 60 * 24 * 365.25` for one year
 	 * @throws InvalidEmailException if the email address was invalid or could not be found
 	 * @throws InvalidPasswordException if the password was invalid
 	 * @throws EmailNotVerifiedException if the email address has not been verified yet via confirmation email
 	 * @throws AuthError if an internal problem occurred (do *not* catch)
 	 */
-	private function authenticateUserInternal($email, $password, $rememberDuration = null) {
+	private function authenticateUserInternal($password, $email, $rememberDuration = null) {
 		$email = self::validateEmailAddress($email);
 		$password = self::validatePassword($password);
 
