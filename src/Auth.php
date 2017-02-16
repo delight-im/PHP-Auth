@@ -772,59 +772,58 @@ class Auth {
 	private function authenticateUserInternal($password, $email, $rememberDuration = null) {
 		$email = self::validateEmailAddress($email);
 
+		// attempt to look up the account information using the specified email address
 		try {
-			$userData = $this->db->selectRow(
-				'SELECT id, email, password, verified, username FROM users WHERE email = ?',
-				[ $email ]
+			$userData = $this->getUserDataByEmailAddress(
+				$email,
+				[ 'id', 'email', 'password', 'verified', 'username' ]
 			);
 		}
-		catch (Error $e) {
-			throw new DatabaseError();
+		// if there is no user with the specified email address
+		catch (InvalidEmailException $e) {
+			// throttle this operation
+			$this->throttle(self::THROTTLE_ACTION_LOGIN);
+			$this->throttle(self::THROTTLE_ACTION_LOGIN, $email);
+
+			// and re-throw the exception
+			throw new InvalidEmailException();
 		}
 
-		if (!empty($userData)) {
-			$password = self::validatePassword($password);
+		$password = self::validatePassword($password);
 
-			if (password_verify($password, $userData['password'])) {
-				// if the password needs to be re-hashed to keep up with improving password cracking techniques
-				if (password_needs_rehash($userData['password'], PASSWORD_DEFAULT)) {
-					// create a new hash from the password and update it in the database
-					$this->updatePassword($userData['id'], $password);
+		if (password_verify($password, $userData['password'])) {
+			// if the password needs to be re-hashed to keep up with improving password cracking techniques
+			if (password_needs_rehash($userData['password'], PASSWORD_DEFAULT)) {
+				// create a new hash from the password and update it in the database
+				$this->updatePassword($userData['id'], $password);
+			}
+
+			if ($userData['verified'] === 1) {
+				$this->onLoginSuccessful($userData['id'], $userData['email'], $userData['username'], false);
+
+				// continue to support the old parameter format
+				if ($rememberDuration === true) {
+					$rememberDuration = 60 * 60 * 24 * 28;
+				}
+				elseif ($rememberDuration === false) {
+					$rememberDuration = null;
 				}
 
-				if ($userData['verified'] === 1) {
-					$this->onLoginSuccessful($userData['id'], $userData['email'], $userData['username'], false);
-
-					// continue to support the old parameter format
-					if ($rememberDuration === true) {
-						$rememberDuration = 60 * 60 * 24 * 28;
-					}
-					elseif ($rememberDuration === false) {
-						$rememberDuration = null;
-					}
-
-					if ($rememberDuration !== null) {
-						$this->createRememberDirective($userData['id'], $rememberDuration);
-					}
-
-					return;
+				if ($rememberDuration !== null) {
+					$this->createRememberDirective($userData['id'], $rememberDuration);
 				}
-				else {
-					throw new EmailNotVerifiedException();
-				}
+
+				return;
 			}
 			else {
-				$this->throttle(self::THROTTLE_ACTION_LOGIN);
-				$this->throttle(self::THROTTLE_ACTION_LOGIN, $email);
-
-				throw new InvalidPasswordException();
+				throw new EmailNotVerifiedException();
 			}
 		}
 		else {
 			$this->throttle(self::THROTTLE_ACTION_LOGIN);
 			$this->throttle(self::THROTTLE_ACTION_LOGIN, $email);
 
-			throw new InvalidEmailException();
+			throw new InvalidPasswordException();
 		}
 	}
 
