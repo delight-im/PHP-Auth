@@ -30,6 +30,8 @@ class TooManyRequestsException extends AuthException {}
 
 class DuplicateUsernameException extends AuthException {}
 
+class AmbiguousUsernameException extends AuthException {}
+
 class AuthError extends \Exception {}
 
 class DatabaseError extends AuthError {}
