@@ -774,7 +774,7 @@ class Auth {
 
 		try {
 			$userData = $this->db->selectRow(
-				'SELECT id, password, verified, username FROM users WHERE email = ?',
+				'SELECT id, email, password, verified, username FROM users WHERE email = ?',
 				[ $email ]
 			);
 		}
@@ -793,7 +793,7 @@ class Auth {
 				}
 
 				if ($userData['verified'] === 1) {
-					$this->onLoginSuccessful($userData['id'], $email, $userData['username'], false);
+					$this->onLoginSuccessful($userData['id'], $userData['email'], $userData['username'], false);
 
 					// continue to support the old parameter format
 					if ($rememberDuration === true) {
