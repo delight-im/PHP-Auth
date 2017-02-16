@@ -834,14 +834,14 @@ class Auth {
 	 * You must never pass untrusted input to the parameter that takes the column list
 	 *
 	 * @param string $email the email address to look for
-	 * @param array $requestColumns the columns to request from the user's record
+	 * @param array $requestedColumns the columns to request from the user's record
 	 * @return array the user data (if an account was found)
 	 * @throws InvalidEmailException if the email address could not be found
 	 * @throws AuthError if an internal problem occurred (do *not* catch)
 	 */
-	private function getUserDataByEmailAddress($email, array $requestColumns) {
+	private function getUserDataByEmailAddress($email, array $requestedColumns) {
 		try {
-			$projection = implode(', ', $requestColumns);
+			$projection = implode(', ', $requestedColumns);
 			$userData = $this->db->selectRow(
 				'SELECT ' . $projection . ' FROM users WHERE email = ?',
 				[ $email ]
