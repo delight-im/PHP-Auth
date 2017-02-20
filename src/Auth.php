@@ -719,16 +719,19 @@ class Auth {
 
 		// if the uniqueness of the username is to be ensured
 		if ($requireUniqueUsername) {
-			// count the number of users who do already have that specified username
-			$occurrencesOfUsername = $this->db->selectValue(
-				'SELECT COUNT(*) FROM users WHERE username = ?',
-				[ $username ]
-			);
+			// if a username has actually been provided
+			if ($username !== null) {
+				// count the number of users who do already have that specified username
+				$occurrencesOfUsername = $this->db->selectValue(
+					'SELECT COUNT(*) FROM users WHERE username = ?',
+					[ $username ]
+				);
 
-			// if any user with that username does already exist
-			if ($occurrencesOfUsername > 0) {
-				// cancel the operation and report the violation of this requirement
-				throw new DuplicateUsernameException();
+				// if any user with that username does already exist
+				if ($occurrencesOfUsername > 0) {
+					// cancel the operation and report the violation of this requirement
+					throw new DuplicateUsernameException();
+				}
 			}
 		}
 
