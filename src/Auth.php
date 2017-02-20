@@ -265,7 +265,7 @@ class Auth {
 	 * @throws AuthError if an internal problem occurred (do *not* catch)
 	 */
 	public function login($email, $password, $rememberDuration = null) {
-		$this->authenticateUserInternal($password, $email, $rememberDuration);
+		$this->authenticateUserInternal($password, $email, null, $rememberDuration);
 	}
 
 	/**
@@ -771,31 +771,70 @@ class Auth {
 	 * Authenticates an existing user
 	 *
 	 * @param string $password the user's password
-	 * @param string $email the user's email address
+	 * @param string|null $email (optional) the user's email address
+	 * @param string|null $username (optional) the user's username
 	 * @param int|bool|null $rememberDuration (optional) the duration in seconds to keep the user logged in ("remember me"), e.g. `60 * 60 * 24 * 365.25` for one year
 	 * @throws InvalidEmailException if the email address was invalid or could not be found
+	 * @throws UnknownUsernameException if an attempt has been made to authenticate with a non-existing username
+	 * @throws AmbiguousUsernameException if an attempt has been made to authenticate with an ambiguous username
 	 * @throws InvalidPasswordException if the password was invalid
 	 * @throws EmailNotVerifiedException if the email address has not been verified yet via confirmation email
 	 * @throws AuthError if an internal problem occurred (do *not* catch)
 	 */
-	private function authenticateUserInternal($password, $email, $rememberDuration = null) {
-		$email = self::validateEmailAddress($email);
+	private function authenticateUserInternal($password, $email = null, $username = null, $rememberDuration = null) {
+		if ($email !== null) {
+			$email = self::validateEmailAddress($email);
 
-		// attempt to look up the account information using the specified email address
-		try {
-			$userData = $this->getUserDataByEmailAddress(
-				$email,
-				[ 'id', 'email', 'password', 'verified', 'username' ]
-			);
+			// attempt to look up the account information using the specified email address
+			try {
+				$userData = $this->getUserDataByEmailAddress(
+					$email,
+					[ 'id', 'email', 'password', 'verified', 'username' ]
+				);
+			}
+			// if there is no user with the specified email address
+			catch (InvalidEmailException $e) {
+				// throttle this operation
+				$this->throttle(self::THROTTLE_ACTION_LOGIN);
+				$this->throttle(self::THROTTLE_ACTION_LOGIN, $email);
+
+				// and re-throw the exception
+				throw new InvalidEmailException();
+			}
 		}
-		// if there is no user with the specified email address
-		catch (InvalidEmailException $e) {
-			// throttle this operation
-			$this->throttle(self::THROTTLE_ACTION_LOGIN);
-			$this->throttle(self::THROTTLE_ACTION_LOGIN, $email);
+		elseif ($username !== null) {
+			$username = trim($username);
 
-			// and re-throw the exception
-			throw new InvalidEmailException();
+			// attempt to look up the account information using the specified username
+			try {
+				$userData = $this->getUserDataByUsername(
+					$username,
+					[ 'id', 'email', 'password', 'verified', 'username' ]
+				);
+			}
+			// if there is no user with the specified username
+			catch (UnknownUsernameException $e) {
+				// throttle this operation
+				$this->throttle(self::THROTTLE_ACTION_LOGIN);
+				$this->throttle(self::THROTTLE_ACTION_LOGIN, $username);
+
+				// and re-throw the exception
+				throw new UnknownUsernameException();
+			}
+			// if there are multiple users with the specified username
+			catch (AmbiguousUsernameException $e) {
+				// throttle this operation
+				$this->throttle(self::THROTTLE_ACTION_LOGIN);
+				$this->throttle(self::THROTTLE_ACTION_LOGIN, $username);
+
+				// and re-throw the exception
+				throw new AmbiguousUsernameException();
+			}
+		}
+		// if neither an email address nor a username has been provided
+		else {
+			// we can't do anything here because the method call has been invalid
+			throw new EmailOrUsernameRequiredError();
 		}
 
 		$password = self::validatePassword($password);
@@ -829,9 +868,16 @@ class Auth {
 			}
 		}
 		else {
+			// throttle this operation
 			$this->throttle(self::THROTTLE_ACTION_LOGIN);
-			$this->throttle(self::THROTTLE_ACTION_LOGIN, $email);
+			if (isset($email)) {
+				$this->throttle(self::THROTTLE_ACTION_LOGIN, $email);
+			}
+			elseif (isset($username)) {
+				$this->throttle(self::THROTTLE_ACTION_LOGIN, $username);
+			}
 
+			// we cannot authenticate the user due to the password being wrong
 			throw new InvalidPasswordException();
 		}
 	}
