@@ -859,6 +859,43 @@ class Auth {
 	}
 
 	/**
+	 * Returns the requested user data for the account with the specified username (if any)
+	 *
+	 * You must never pass untrusted input to the parameter that takes the column list
+	 *
+	 * @param string $username the username to look for
+	 * @param array $requestedColumns the columns to request from the user's record
+	 * @return array the user data (if an account was found unambiguously)
+	 * @throws UnknownUsernameException if no user with the specified username has been found
+	 * @throws AmbiguousUsernameException if multiple users with the specified username have been found
+	 * @throws AuthError if an internal problem occurred (do *not* catch)
+	 */
+	private function getUserDataByUsername($username, array $requestedColumns) {
+		try {
+			$projection = implode(', ', $requestedColumns);
+			$users = $this->db->select(
+				'SELECT ' . $projection . ' FROM users WHERE username = ? LIMIT 0, 2',
+				[ $username ]
+			);
+		}
+		catch (Error $e) {
+			throw new DatabaseError();
+		}
+
+		if (empty($users)) {
+			throw new UnknownUsernameException();
+		}
+		else {
+			if (count($users) === 1) {
+				return $users[0];
+			}
+			else {
+				throw new AmbiguousUsernameException();
+			}
+		}
+	}
+
+	/**
 	 * Returns the number of open requests for a password reset by the specified user
 	 *
 	 * @param int $userId the ID of the user to check the requests for
