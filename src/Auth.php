@@ -711,6 +711,12 @@ class Auth {
 
 		$username = isset($username) ? trim($username) : null;
 
+		// if the supplied username is the empty string or has consisted of whitespace only
+		if ($username === '') {
+			// this actually means that there is no username
+			$username = null;
+		}
+
 		// if the uniqueness of the username is to be ensured
 		if ($requireUniqueUsername) {
 			// count the number of users who do already have that specified username
