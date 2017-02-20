@@ -86,7 +86,16 @@ function processRequestData(\Delight\Auth\Auth $auth) {
 						$callback = null;
 					}
 
-					return $auth->register($_POST['email'], $_POST['password'], $_POST['username'], $callback);
+					if (!isset($_POST['require_unique_username'])) {
+						$_POST['require_unique_username'] = '0';
+					}
+
+					if ($_POST['require_unique_username'] == 0) {
+						return $auth->register($_POST['email'], $_POST['password'], $_POST['username'], $callback);
+					}
+					else {
+						return $auth->registerWithUniqueUsername($_POST['email'], $_POST['password'], $_POST['username'], $callback);
+					}
 				}
 				catch (\Delight\Auth\InvalidEmailException $e) {
 					return 'invalid email address';
@@ -95,7 +104,10 @@ function processRequestData(\Delight\Auth\Auth $auth) {
 					return 'invalid password';
 				}
 				catch (\Delight\Auth\UserAlreadyExistsException $e) {
-					return 'user already exists';
+					return 'email address already exists';
+				}
+				catch (\Delight\Auth\DuplicateUsernameException $e) {
+					return 'username already exists';
 				}
 				catch (\Delight\Auth\TooManyRequestsException $e) {
 					return 'too many requests';
@@ -274,6 +286,10 @@ function showGuestUserForm() {
 	echo '<select name="require_verification" size="1">';
 	echo '<option value="0">Require email confirmation? — No</option>';
 	echo '<option value="1">Require email confirmation? — Yes</option>';
+	echo '</select> ';
+	echo '<select name="require_unique_username" size="1">';
+	echo '<option value="0">Username — Any</option>';
+	echo '<option value="1">Username — Unique</option>';
 	echo '</select> ';
 	echo '<button type="submit">Register</button>';
 	echo '</form>';
