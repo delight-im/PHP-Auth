@@ -137,6 +137,8 @@ catch (\Delight\Auth\TooManyRequestsException $e) {
 }
 ```
 
+If you want to sign in with usernames on the other hand, either in addition to the login via email address or as a replacement, that's possible as well. Simply call the method `loginWithUsername` instead of method `login`. Then, instead of catching `InvalidEmailException`, make sure to catch both `UnknownUsernameException` and `AmbiguousUsernameException`. You may also want to read the notes about the uniqueness of usernames in the section that explains how to [sign up new users](#registration-sign-up).
+
 ### Email verification
 
 Extract the selector and token from the URL that the user clicked on in the verification email.
