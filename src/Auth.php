@@ -28,9 +28,6 @@ final class Auth extends UserManager {
 	const COOKIE_CONTENT_SEPARATOR = '~';
 	const COOKIE_NAME_REMEMBER = 'auth_remember';
 	const IP_ADDRESS_HASH_ALGORITHM = 'sha256';
-	const THROTTLE_ACTION_LOGIN = 'login';
-	const THROTTLE_ACTION_REGISTER = 'register';
-	const THROTTLE_ACTION_CONSUME_TOKEN = 'confirm_email';
 	const HTTP_STATUS_CODE_TOO_MANY_REQUESTS = 429;
 
 	/** @var boolean whether HTTPS (TLS/SSL) will be used (recommended) */
@@ -1279,15 +1276,7 @@ final class Auth extends UserManager {
 		return (int) (time() / $this->throttlingTimeBucketSize);
 	}
 
-	/**
-	 * Throttles the specified action for the user to protect against too many requests
-	 *
-	 * @param string $actionType one of the `THROTTLE_ACTION_*` constants
-	 * @param mixed|null $customSelector a custom selector to use for throttling (if any), otherwise the IP address will be used
-	 * @throws TooManyRequestsException if the number of allowed attempts/requests has been exceeded
-	 * @throws AuthError if an internal problem occurred (do *not* catch)
-	 */
-	private function throttle($actionType, $customSelector = null) {
+	protected function throttle($actionType, $customSelector = null) {
 		// if a custom selector has been provided (e.g. username, user ID or confirmation token)
 		if (isset($customSelector)) {
 			// use the provided selector for throttling
