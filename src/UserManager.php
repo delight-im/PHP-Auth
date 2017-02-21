@@ -11,6 +11,7 @@ namespace Delight\Auth;
 use Delight\Db\PdoDatabase;
 use Delight\Db\PdoDsn;
 use Delight\Db\Throwable\Error;
+use Delight\Db\Throwable\IntegrityConstraintViolationException;
 
 require_once __DIR__ . '/Exceptions.php';
 
