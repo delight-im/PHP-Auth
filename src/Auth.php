@@ -33,8 +33,6 @@ final class Auth extends UserManager {
 	const THROTTLE_ACTION_CONSUME_TOKEN = 'confirm_email';
 	const HTTP_STATUS_CODE_TOO_MANY_REQUESTS = 429;
 
-	/** @var PdoDatabase the database connection that will be used */
-	private $db;
 	/** @var boolean whether HTTPS (TLS/SSL) will be used (recommended) */
 	private $useHttps;
 	/** @var boolean whether cookies should be accessible via client-side scripts (*not* recommended) */
@@ -47,24 +45,13 @@ final class Auth extends UserManager {
 	private $throttlingTimeBucketSize;
 
 	/**
-	 * @param PdoDatabase|PdoDsn|\PDO $databaseConnection the database connection that will be used
+	 * @param PdoDatabase|PdoDsn|\PDO $databaseConnection the database connection to operate on
 	 * @param bool $useHttps whether HTTPS (TLS/SSL) will be used (recommended)
 	 * @param bool $allowCookiesScriptAccess whether cookies should be accessible via client-side scripts (*not* recommended)
 	 * @param string $ipAddress the IP address that should be used instead of the default setting (if any), e.g. when behind a proxy
 	 */
 	public function __construct($databaseConnection, $useHttps = false, $allowCookiesScriptAccess = false, $ipAddress = null) {
-		if ($databaseConnection instanceof PdoDatabase) {
-			$this->db = $databaseConnection;
-		}
-		elseif ($databaseConnection instanceof PdoDsn) {
-			$this->db = PdoDatabase::fromDsn($databaseConnection);
-		}
-		elseif ($databaseConnection instanceof \PDO) {
-			$this->db = PdoDatabase::fromPdo($databaseConnection, true);
-		}
-		else {
-			throw new \InvalidArgumentException('The database connection must be an instance of either `PdoDatabase`, `PdoDsn` or `PDO`');
-		}
+		parent::__construct($databaseConnection);
 
 		$this->useHttps = $useHttps;
 		$this->allowCookiesScriptAccess = $allowCookiesScriptAccess;
