@@ -105,9 +105,9 @@ catch (\Delight\Auth\TooManyRequestsException $e) {
 }
 ```
 
-The username in the third parameter is optional. You can pass `null` here if you don't want to manage usernames.
+The username in the third parameter is optional. You can pass `null` there if you don't want to manage usernames.
 
-If you want to enforce unique usernames, on the other hand, simply call `registerWithUniqueUsername` instead of `register`, and be prepared to catch the `DuplicateUsernameException`, if necessary.
+If you want to enforce unique usernames, on the other hand, simply call `registerWithUniqueUsername` instead of `register`, and be prepared to catch the `DuplicateUsernameException`.
 
 For email verification, you should build an URL with the selector and token and send it to the user, e.g.:
 
