@@ -28,6 +28,24 @@ abstract class UserManager {
 	protected $db;
 
 	/**
+	 * Creates a random string with the given maximum length
+	 *
+	 * With the default parameter, the output should contain at least as much randomness as a UUID
+	 *
+	 * @param int $maxLength the maximum length of the output string (integer multiple of 4)
+	 * @return string the new random string
+	 */
+	public static function createRandomString($maxLength = 24) {
+		// calculate how many bytes of randomness we need for the specified string length
+		$bytes = floor(intval($maxLength) / 4) * 3;
+		// get random data
+		$data = openssl_random_pseudo_bytes($bytes);
+
+		// return the Base64-encoded result
+		return Base64::encode($data, true);
+	}
+
+	/**
 	 * @param PdoDatabase|PdoDsn|\PDO $databaseConnection the database connection to operate on
 	 */
 	protected function __construct($databaseConnection) {
