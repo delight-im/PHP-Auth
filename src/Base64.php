@@ -8,7 +8,7 @@
 
 namespace Delight\Auth;
 
-class Base64 {
+final class Base64 {
 
 	const SPECIAL_CHARS_ORIGINAL = '+/=';
 	const SPECIAL_CHARS_SAFE = '._-';
