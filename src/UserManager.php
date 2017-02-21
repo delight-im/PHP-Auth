@@ -10,6 +10,7 @@ namespace Delight\Auth;
 
 use Delight\Db\PdoDatabase;
 use Delight\Db\PdoDsn;
+use Delight\Db\Throwable\Error;
 
 require_once __DIR__ . '/Exceptions.php';
 
