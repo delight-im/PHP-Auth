@@ -272,27 +272,6 @@ final class Auth extends UserManager {
 	}
 
 	/**
-	 * Validates a password
-	 *
-	 * @param string $password the password to validate
-	 * @return string the password if it's valid
-	 * @throws InvalidPasswordException if the password was invalid
-	 */
-	private static function validatePassword($password) {
-		if (empty($password)) {
-			throw new InvalidPasswordException();
-		}
-
-		$password = trim($password);
-
-		if (strlen($password) < 1) {
-			throw new InvalidPasswordException();
-		}
-
-		return $password;
-	}
-
-	/**
 	 * Creates a new directive keeping the user logged in ("remember me")
 	 *
 	 * @param int $userId the user ID to keep signed in

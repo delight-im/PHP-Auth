@@ -87,6 +87,27 @@ abstract class UserManager {
 	}
 
 	/**
+	 * Validates a password
+	 *
+	 * @param string $password the password to validate
+	 * @return string the password if it's valid
+	 * @throws InvalidPasswordException if the password was invalid
+	 */
+	protected static function validatePassword($password) {
+		if (empty($password)) {
+			throw new InvalidPasswordException();
+		}
+
+		$password = trim($password);
+
+		if (strlen($password) < 1) {
+			throw new InvalidPasswordException();
+		}
+
+		return $password;
+	}
+
+	/**
 	 * Throttles the specified action for the user to protect against too many requests
 	 *
 	 * @param string $actionType one of the constants from this class starting with `THROTTLE_ACTION_`
