@@ -13,7 +13,11 @@ use Delight\Db\PdoDsn;
 
 require_once __DIR__ . '/Exceptions.php';
 
-/** Abstract base class for components implementing user management */
+/**
+ * Abstract base class for components implementing user management
+ *
+ * @internal
+ */
 abstract class UserManager {
 
 	const THROTTLE_ACTION_LOGIN = 'login';
