@@ -56,6 +56,8 @@ Completely framework-agnostic and database-agnostic.
    * [Checking whether the user was "remembered"](#checking-whether-the-user-was-remembered)
    * [IP address](#ip-address)
    * [Additional user information](#additional-user-information)
+ * [Administration (managing users)](administration-managing-users)
+   * [Creating new users](creating-new-users)
  * [Utilities](#utilities)
    * [Creating a random string](#creating-a-random-string)
    * [Creating a UUID v4 as per RFC 4122](#creating-a-uuid-v4-as-per-rfc-4122)
@@ -359,6 +361,35 @@ Here's how to use this library with your own tables for custom user information 
         return $_SESSION['_internal_user_info'];
     }
     ```
+
+### Administration (managing users)
+
+The administrative interface is available via `$auth->admin()`. You can call various method on this interface, as documented below.
+
+**Warning**: Do *not* forget to implement secure access control before exposing access to this interface. For example, you may provide access to this interface to logged in users with the administrator role only, or use the interface in private scripts only.
+
+#### Creating new users
+
+```php
+try {
+    $userId = $auth->admin()->createUser($_POST['email'], $_POST['password'], $_POST['username']);
+
+    // we have signed up a new user with the ID `$userId`
+}
+catch (\Delight\Auth\InvalidEmailException $e) {
+    // invalid email address
+}
+catch (\Delight\Auth\InvalidPasswordException $e) {
+    // invalid password
+}
+catch (\Delight\Auth\UserAlreadyExistsException $e) {
+    // user already exists
+}
+```
+
+The username in the third parameter is optional. You can pass `null` there if you don't want to manage usernames.
+
+If you want to enforce unique usernames, on the other hand, simply call `createUserWithUniqueUsername` instead of `createUser`, and be prepared to catch the `DuplicateUsernameException`.
 
 ### Utilities
 
