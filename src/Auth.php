@@ -19,7 +19,7 @@ require __DIR__.'/Base64.php';
 require __DIR__.'/Exceptions.php';
 
 /** Base class that provides all methods, properties and utilities for secure authentication */
-class Auth extends UserManager {
+final class Auth extends UserManager {
 
 	const SESSION_FIELD_LOGGED_IN = 'auth_logged_in';
 	const SESSION_FIELD_USER_ID = 'auth_user_id';
