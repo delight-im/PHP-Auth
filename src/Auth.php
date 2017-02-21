@@ -272,27 +272,6 @@ final class Auth extends UserManager {
 	}
 
 	/**
-	 * Validates an email address
-	 *
-	 * @param string $email the email address to validate
-	 * @return string the email address if it's valid
-	 * @throws InvalidEmailException if the email address was invalid
-	 */
-	private static function validateEmailAddress($email) {
-		if (empty($email)) {
-			throw new InvalidEmailException();
-		}
-
-		$email = trim($email);
-
-		if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-			throw new InvalidEmailException();
-		}
-
-		return $email;
-	}
-
-	/**
 	 * Validates a password
 	 *
 	 * @param string $password the password to validate

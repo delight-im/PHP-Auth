@@ -66,6 +66,27 @@ abstract class UserManager {
 	}
 
 	/**
+	 * Validates an email address
+	 *
+	 * @param string $email the email address to validate
+	 * @return string the email address if it's valid
+	 * @throws InvalidEmailException if the email address was invalid
+	 */
+	protected static function validateEmailAddress($email) {
+		if (empty($email)) {
+			throw new InvalidEmailException();
+		}
+
+		$email = trim($email);
+
+		if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+			throw new InvalidEmailException();
+		}
+
+		return $email;
+	}
+
+	/**
 	 * Throttles the specified action for the user to protect against too many requests
 	 *
 	 * @param string $actionType one of the constants from this class starting with `THROTTLE_ACTION_`
