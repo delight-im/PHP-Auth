@@ -18,7 +18,7 @@ use Delight\Db\Throwable\IntegrityConstraintViolationException;
 require __DIR__.'/Base64.php';
 require __DIR__.'/Exceptions.php';
 
-/** Base class that provides all methods, properties and utilities for secure authentication */
+/** Component that provides all features and utilities for secure authentication of individual users */
 final class Auth extends UserManager {
 
 	const SESSION_FIELD_LOGGED_IN = 'auth_logged_in';
