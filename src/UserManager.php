@@ -118,4 +118,50 @@ abstract class UserManager {
 	 */
 	abstract protected function throttle($actionType, $customSelector = null);
 
+	/**
+	 * Creates a request for email confirmation
+	 *
+	 * The callback function must have the following signature:
+	 *
+	 * `function ($selector, $token)`
+	 *
+	 * Both pieces of information must be sent to the user, usually embedded in a link
+	 *
+	 * When the user wants to verify their email address as a next step, both pieces will be required again
+	 *
+	 * @param string $email the email address to verify
+	 * @param callable $callback the function that sends the confirmation email to the user
+	 * @throws AuthError if an internal problem occurred (do *not* catch)
+	 */
+	private function createConfirmationRequest($email, callable $callback) {
+		$selector = self::createRandomString(16);
+		$token = self::createRandomString(16);
+		$tokenHashed = password_hash($token, PASSWORD_DEFAULT);
+
+		// the request shall be valid for one day
+		$expires = time() + 60 * 60 * 24;
+
+		try {
+			$this->db->insert(
+				'users_confirmations',
+				[
+					'email' => $email,
+					'selector' => $selector,
+					'token' => $tokenHashed,
+					'expires' => $expires
+				]
+			);
+		}
+		catch (Error $e) {
+			throw new DatabaseError();
+		}
+
+		if (isset($callback) && is_callable($callback)) {
+			$callback($selector, $token);
+		}
+		else {
+			throw new MissingCallbackError();
+		}
+	}
+
 }
