@@ -11,6 +11,8 @@ namespace Delight\Auth;
 use Delight\Db\PdoDatabase;
 use Delight\Db\PdoDsn;
 
+require_once __DIR__ . '/Exceptions.php';
+
 /** Abstract base class for components implementing user management */
 abstract class UserManager {
 

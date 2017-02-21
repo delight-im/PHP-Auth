@@ -15,7 +15,7 @@ use Delight\Db\PdoDsn;
 use Delight\Db\Throwable\Error;
 use Delight\Db\Throwable\IntegrityConstraintViolationException;
 
-require __DIR__.'/Exceptions.php';
+require_once __DIR__ . '/Exceptions.php';
 
 /** Component that provides all features and utilities for secure authentication of individual users */
 final class Auth extends UserManager {
