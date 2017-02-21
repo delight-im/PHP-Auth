@@ -1199,6 +1199,17 @@ final class Auth extends UserManager {
 	}
 
 	/**
+	 * Returns the component that can be used for administrative tasks
+	 *
+	 * You must offer access to this interface to authorized users only (restricted via your own access control)
+	 *
+	 * @return Administration
+	 */
+	public function admin() {
+		return new Administration($this->db);
+	}
+
+	/**
 	 * Creates the cookie settings that will be used to create and update cookies on the client
 	 *
 	 * @return array the cookie settings
