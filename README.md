@@ -58,6 +58,7 @@ Completely framework-agnostic and database-agnostic.
    * [Additional user information](#additional-user-information)
  * [Administration (managing users)](administration-managing-users)
    * [Creating new users](creating-new-users)
+   * [Deleting users](#deleting-users)
  * [Utilities](#utilities)
    * [Creating a random string](#creating-a-random-string)
    * [Creating a UUID v4 as per RFC 4122](#creating-a-uuid-v4-as-per-rfc-4122)
@@ -390,6 +391,42 @@ catch (\Delight\Auth\UserAlreadyExistsException $e) {
 The username in the third parameter is optional. You can pass `null` there if you don't want to manage usernames.
 
 If you want to enforce unique usernames, on the other hand, simply call `createUserWithUniqueUsername` instead of `createUser`, and be prepared to catch the `DuplicateUsernameException`.
+
+#### Deleting users
+
+```php
+try {
+    $auth->admin()->deleteUserById($_POST['id']);
+}
+catch (\Delight\Auth\UnknownIdException $e) {
+    // unknown ID
+}
+```
+
+or
+
+```php
+try {
+    $auth->admin()->deleteUserByEmail($_POST['email']);
+}
+catch (\Delight\Auth\InvalidEmailException $e) {
+    // unknown email address
+}
+```
+
+or
+
+```php
+try {
+    $auth->admin()->deleteUserByUsername($_POST['username']);
+}
+catch (\Delight\Auth\UnknownUsernameException $e) {
+    // unknown username
+}
+catch (\Delight\Auth\AmbiguousUsernameException $e) {
+    // ambiguous username
+}
+```
 
 ### Utilities
 

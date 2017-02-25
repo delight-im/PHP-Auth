@@ -10,6 +10,8 @@ namespace Delight\Auth;
 
 class AuthException extends \Exception {}
 
+class UnknownIdException extends AuthException {}
+
 class InvalidEmailException extends AuthException {}
 
 class UnknownUsernameException extends AuthException {}

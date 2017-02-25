@@ -56,6 +56,61 @@ final class Administration extends UserManager {
 		return $this->createUserInternal(true, $email, $password, $username, null);
 	}
 
+	/**
+	 * Deletes the user with the specified ID
+	 *
+	 * This action cannot be undone
+	 *
+	 * @param int $id the ID of the user to delete
+	 * @throws UnknownIdException if no user with the specified ID has been found
+	 * @throws AuthError if an internal problem occurred (do *not* catch)
+	 */
+	public function deleteUserById($id) {
+		$numberOfDeletedUsers = $this->deleteUsersByColumnValue('id', (int) $id);
+
+		if ($numberOfDeletedUsers === 0) {
+			throw new UnknownIdException();
+		}
+	}
+
+	/**
+	 * Deletes the user with the specified email address
+	 *
+	 * This action cannot be undone
+	 *
+	 * @param string $email the email address of the user to delete
+	 * @throws InvalidEmailException if no user with the specified email address has been found
+	 * @throws AuthError if an internal problem occurred (do *not* catch)
+	 */
+	public function deleteUserByEmail($email) {
+		$email = self::validateEmailAddress($email);
+
+		$numberOfDeletedUsers = $this->deleteUsersByColumnValue('email', $email);
+
+		if ($numberOfDeletedUsers === 0) {
+			throw new InvalidEmailException();
+		}
+	}
+
+	/**
+	 * Deletes the user with the specified username
+	 *
+	 * This action cannot be undone
+	 *
+	 * @param string $username the username of the user to delete
+	 * @throws UnknownUsernameException if no user with the specified username has been found
+	 * @throws AmbiguousUsernameException if multiple users with the specified username have been found
+	 * @throws AuthError if an internal problem occurred (do *not* catch)
+	 */
+	public function deleteUserByUsername($username) {
+		$userData = $this->getUserDataByUsername(
+			trim($username),
+			[ 'id' ]
+		);
+
+		$this->deleteUsersByColumnValue('id', (int) $userData['id']);
+	}
+
 	protected function throttle($actionType, $customSelector = null) {}
 
 	/**
