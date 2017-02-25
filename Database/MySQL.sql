@@ -12,6 +12,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   `email` varchar(249) COLLATE utf8mb4_unicode_ci NOT NULL,
   `password` varchar(255) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
   `username` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `status` tinyint(2) unsigned NOT NULL DEFAULT '0',
   `verified` tinyint(1) unsigned NOT NULL DEFAULT '0',
   `registered` int(10) unsigned NOT NULL,
   `last_login` int(10) unsigned DEFAULT NULL,
