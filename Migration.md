@@ -1,5 +1,13 @@
 # Migration
 
+## From `v3.x.x` to `v4.x.x`
+
+ * PHP 5.6.0 or higher is now required.
+
+## From `v2.x.x` to `v3.x.x`
+
+ * The license has been changed from the [Apache License 2.0](http://www.apache.org/licenses/LICENSE-2.0) to the [MIT License](https://opensource.org/licenses/MIT).
+
 ## From `v1.x.x` to `v2.x.x`
 
  * The MySQL schema has been changed from charset `utf8` to charset `utf8mb4` and from collation `utf8_general_ci` to collation `utf8mb4_unicode_ci`. Use the statements below to update the database schema:
@@ -34,11 +42,3 @@
    REPAIR TABLE users_throttling;
    OPTIMIZE TABLE users_throttling;
    ```
-
-## From `v2.x.x` to `v3.x.x`
-
- * The license has been changed from the [Apache License 2.0](http://www.apache.org/licenses/LICENSE-2.0) to the [MIT License](https://opensource.org/licenses/MIT).
-
-## From `v3.x.x` to `v4.x.x`
-
- * PHP 5.6.0 or higher is now required.
