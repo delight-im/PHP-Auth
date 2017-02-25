@@ -17,6 +17,8 @@ require_once __DIR__ . '/Exceptions.php';
 final class Administration extends UserManager {
 
 	/**
+	 * @internal
+	 *
 	 * @param PdoDatabase $databaseConnection the database connection to operate on
 	 */
 	public function __construct(PdoDatabase $databaseConnection) {
