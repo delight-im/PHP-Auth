@@ -9,6 +9,7 @@
 namespace Delight\Auth;
 
 use Delight\Db\PdoDatabase;
+use Delight\Db\Throwable\Error;
 
 require_once __DIR__ . '/Exceptions.php';
 
@@ -56,5 +57,29 @@ final class Administration extends UserManager {
 	}
 
 	protected function throttle($actionType, $customSelector = null) {}
+
+	/**
+	 * Deletes all existing users where the column with the specified name has the given value
+	 *
+	 * You must never pass untrusted input to the parameter that takes the column name
+	 *
+	 * @param string $columnName the name of the column to filter by
+	 * @param mixed $columnValue the value to look for in the selected column
+	 * @return int the number of deleted users
+	 * @throws AuthError if an internal problem occurred (do *not* catch)
+	 */
+	private function deleteUsersByColumnValue($columnName, $columnValue) {
+		try {
+			return $this->db->delete(
+				'users',
+				[
+					$columnName => $columnValue
+				]
+			);
+		}
+		catch (Error $e) {
+			throw new DatabaseError();
+		}
+	}
 
 }
