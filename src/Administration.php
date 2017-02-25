@@ -111,7 +111,9 @@ final class Administration extends UserManager {
 		$this->deleteUsersByColumnValue('id', (int) $userData['id']);
 	}
 
-	protected function throttle($actionType, $customSelector = null) {}
+	protected function throttle($actionType, $customSelector = null) {
+		// do nothing
+	}
 
 	/**
 	 * Deletes all existing users where the column with the specified name has the given value

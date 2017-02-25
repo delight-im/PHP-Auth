@@ -40,6 +40,7 @@ abstract class UserManager {
 	public static function createRandomString($maxLength = 24) {
 		// calculate how many bytes of randomness we need for the specified string length
 		$bytes = floor(intval($maxLength) / 4) * 3;
+
 		// get random data
 		$data = openssl_random_pseudo_bytes($bytes);
 
@@ -143,8 +144,8 @@ abstract class UserManager {
 				]
 			);
 		}
+		// if we have a duplicate entry
 		catch (IntegrityConstraintViolationException $e) {
-			// if we have a duplicate entry
 			throw new UserAlreadyExistsException();
 		}
 		catch (Error $e) {
@@ -175,6 +176,7 @@ abstract class UserManager {
 	protected function getUserDataByUsername($username, array $requestedColumns) {
 		try {
 			$projection = implode(', ', $requestedColumns);
+
 			$users = $this->db->select(
 				'SELECT ' . $projection . ' FROM users WHERE username = ? LIMIT 0, 2',
 				[ $username ]

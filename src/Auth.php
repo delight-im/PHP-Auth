@@ -296,17 +296,23 @@ final class Auth extends UserManager {
 		}
 
 		// set the cookie with the selector and token
+
 		$cookie = new Cookie(self::COOKIE_NAME_REMEMBER);
+
 		$cookie->setValue($content);
 		$cookie->setExpiryTime($expires);
+
 		if (!empty($params['path'])) {
 			$cookie->setPath($params['path']);
 		}
+
 		if (!empty($params['domain'])) {
 			$cookie->setDomain($params['domain']);
 		}
+
 		$cookie->setHttpOnly($params['httponly']);
 		$cookie->setSecureOnly($params['secure']);
+
 		$result = $cookie->save();
 
 		if ($result === false) {
