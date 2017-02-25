@@ -195,7 +195,7 @@ final class Auth extends UserManager {
 	 *
 	 * @param string $email the user's email address
 	 * @param string $password the user's password
-	 * @param int|bool|null $rememberDuration (optional) the duration in seconds to keep the user logged in ("remember me"), e.g. `60 * 60 * 24 * 365.25` for one year
+	 * @param int|null $rememberDuration (optional) the duration in seconds to keep the user logged in ("remember me"), e.g. `60 * 60 * 24 * 365.25` for one year
 	 * @throws InvalidEmailException if the email address was invalid or could not be found
 	 * @throws InvalidPasswordException if the password was invalid
 	 * @throws EmailNotVerifiedException if the email address has not been verified yet via confirmation email
@@ -214,7 +214,7 @@ final class Auth extends UserManager {
 	 *
 	 * @param string $username the user's username
 	 * @param string $password the user's password
-	 * @param int|bool|null $rememberDuration (optional) the duration in seconds to keep the user logged in ("remember me"), e.g. `60 * 60 * 24 * 365.25` for one year
+	 * @param int|null $rememberDuration (optional) the duration in seconds to keep the user logged in ("remember me"), e.g. `60 * 60 * 24 * 365.25` for one year
 	 * @throws UnknownUsernameException if the specified username does not exist
 	 * @throws AmbiguousUsernameException if the specified username is ambiguous, i.e. there are multiple users with that name
 	 * @throws InvalidPasswordException if the password was invalid
@@ -601,7 +601,7 @@ final class Auth extends UserManager {
 	 * @param string $password the user's password
 	 * @param string|null $email (optional) the user's email address
 	 * @param string|null $username (optional) the user's username
-	 * @param int|bool|null $rememberDuration (optional) the duration in seconds to keep the user logged in ("remember me"), e.g. `60 * 60 * 24 * 365.25` for one year
+	 * @param int|null $rememberDuration (optional) the duration in seconds to keep the user logged in ("remember me"), e.g. `60 * 60 * 24 * 365.25` for one year
 	 * @throws InvalidEmailException if the email address was invalid or could not be found
 	 * @throws UnknownUsernameException if an attempt has been made to authenticate with a non-existing username
 	 * @throws AmbiguousUsernameException if an attempt has been made to authenticate with an ambiguous username
