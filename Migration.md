@@ -1,5 +1,9 @@
 # Migration
 
+ * [From `v3.x.x` to `v4.x.x`](#from-v3xx-to-v4xx)
+ * [From `v2.x.x` to `v3.x.x`](#from-v2xx-to-v3xx)
+ * [From `v1.x.x` to `v2.x.x`](#from-v1xx-to-v2xx)
+
 ## From `v3.x.x` to `v4.x.x`
 
  * PHP 5.6.0 or higher is now required.
