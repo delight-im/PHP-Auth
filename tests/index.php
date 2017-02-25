@@ -208,6 +208,32 @@ function processRequestData(\Delight\Auth\Auth $auth) {
 
 				return 'ok';
 			}
+			else if ($_POST['action'] === 'admin.createUser') {
+				try {
+					if (!isset($_POST['require_unique_username'])) {
+						$_POST['require_unique_username'] = '0';
+					}
+
+					if ($_POST['require_unique_username'] == 0) {
+						return $auth->admin()->createUser($_POST['email'], $_POST['password'], $_POST['username']);
+					}
+					else {
+						return $auth->admin()->createUserWithUniqueUsername($_POST['email'], $_POST['password'], $_POST['username']);
+					}
+				}
+				catch (\Delight\Auth\InvalidEmailException $e) {
+					return 'invalid email address';
+				}
+				catch (\Delight\Auth\InvalidPasswordException $e) {
+					return 'invalid password';
+				}
+				catch (\Delight\Auth\UserAlreadyExistsException $e) {
+					return 'email address already exists';
+				}
+				catch (\Delight\Auth\DuplicateUsernameException $e) {
+					return 'username already exists';
+				}
+			}
 			else {
 				throw new Exception('Unexpected action: '.$_POST['action']);
 			}
@@ -281,6 +307,8 @@ function showAuthenticatedUserForm() {
 function showGuestUserForm() {
 	showGeneralForm();
 
+	echo '<h1>Public</h1>';
+
 	echo '<form action="" method="post" accept-charset="utf-8">';
 	echo '<input type="hidden" name="action" value="login" />';
 	echo '<input type="text" name="email" placeholder="Email" /> ';
@@ -338,5 +366,19 @@ function showGuestUserForm() {
 	echo '<input type="text" name="token" placeholder="Token" /> ';
 	echo '<input type="text" name="password" placeholder="New password" /> ';
 	echo '<button type="submit">Reset password</button>';
+	echo '</form>';
+
+	echo '<h1>Administration</h1>';
+
+	echo '<form action="" method="post" accept-charset="utf-8">';
+	echo '<input type="hidden" name="action" value="admin.createUser" />';
+	echo '<input type="text" name="email" placeholder="Email" /> ';
+	echo '<input type="text" name="password" placeholder="Password" /> ';
+	echo '<input type="text" name="username" placeholder="Username (optional)" /> ';
+	echo '<select name="require_unique_username" size="1">';
+	echo '<option value="0">Username — Any</option>';
+	echo '<option value="1">Username — Unique</option>';
+	echo '</select> ';
+	echo '<button type="submit">Create user</button>';
 	echo '</form>';
 }
