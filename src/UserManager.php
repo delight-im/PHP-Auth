@@ -89,8 +89,8 @@ abstract class UserManager {
 	 * @param string|null $username (optional) the username that will be displayed
 	 * @param callable|null $callback (optional) the function that sends the confirmation email to the user
 	 * @return int the ID of the user that has been created (if any)
-	 * @throws InvalidEmailException if the email address was invalid
-	 * @throws InvalidPasswordException if the password was invalid
+	 * @throws InvalidEmailException if the email address has been invalid
+	 * @throws InvalidPasswordException if the password has been invalid
 	 * @throws UserAlreadyExistsException if a user with the specified email address already exists
 	 * @throws DuplicateUsernameException if it was specified that the username must be unique while it was *not*
 	 * @throws AuthError if an internal problem occurred (do *not* catch)
@@ -203,8 +203,8 @@ abstract class UserManager {
 	 * Validates an email address
 	 *
 	 * @param string $email the email address to validate
-	 * @return string the email address if it's valid
-	 * @throws InvalidEmailException if the email address was invalid
+	 * @return string the sanitized email address
+	 * @throws InvalidEmailException if the email address has been invalid
 	 */
 	protected static function validateEmailAddress($email) {
 		if (empty($email)) {
@@ -224,8 +224,8 @@ abstract class UserManager {
 	 * Validates a password
 	 *
 	 * @param string $password the password to validate
-	 * @return string the password if it's valid
-	 * @throws InvalidPasswordException if the password was invalid
+	 * @return string the sanitized password
+	 * @throws InvalidPasswordException if the password has been invalid
 	 */
 	protected static function validatePassword($password) {
 		if (empty($password)) {
