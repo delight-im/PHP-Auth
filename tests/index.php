@@ -234,6 +234,40 @@ function processRequestData(\Delight\Auth\Auth $auth) {
 					return 'username already exists';
 				}
 			}
+			else if ($_POST['action'] === 'admin.deleteUser') {
+				if (isset($_POST['id'])) {
+					try {
+						$auth->admin()->deleteUserById($_POST['id']);
+					}
+					catch (\Delight\Auth\UnknownIdException $e) {
+						return 'unknown ID';
+					}
+				}
+				elseif (isset($_POST['email'])) {
+					try {
+						$auth->admin()->deleteUserByEmail($_POST['email']);
+					}
+					catch (\Delight\Auth\InvalidEmailException $e) {
+						return 'unknown email address';
+					}
+				}
+				elseif (isset($_POST['username'])) {
+					try {
+						$auth->admin()->deleteUserByUsername($_POST['username']);
+					}
+					catch (\Delight\Auth\UnknownUsernameException $e) {
+						return 'unknown username';
+					}
+					catch (\Delight\Auth\AmbiguousUsernameException $e) {
+						return 'ambiguous username';
+					}
+				}
+				else {
+					return 'either ID, email or username required';
+				}
+
+				return 'ok';
+			}
 			else {
 				throw new Exception('Unexpected action: '.$_POST['action']);
 			}
@@ -380,5 +414,23 @@ function showGuestUserForm() {
 	echo '<option value="1">Username — Unique</option>';
 	echo '</select> ';
 	echo '<button type="submit">Create user</button>';
+	echo '</form>';
+
+	echo '<form action="" method="post" accept-charset="utf-8">';
+	echo '<input type="hidden" name="action" value="admin.deleteUser" />';
+	echo '<input type="text" name="id" placeholder="ID" /> ';
+	echo '<button type="submit">Delete user by ID</button>';
+	echo '</form>';
+
+	echo '<form action="" method="post" accept-charset="utf-8">';
+	echo '<input type="hidden" name="action" value="admin.deleteUser" />';
+	echo '<input type="text" name="email" placeholder="Email" /> ';
+	echo '<button type="submit">Delete user by email</button>';
+	echo '</form>';
+
+	echo '<form action="" method="post" accept-charset="utf-8">';
+	echo '<input type="hidden" name="action" value="admin.deleteUser" />';
+	echo '<input type="text" name="username" placeholder="Username" /> ';
+	echo '<button type="submit">Delete user by username</button>';
 	echo '</form>';
 }
