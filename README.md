@@ -38,6 +38,10 @@ Completely framework-agnostic and database-agnostic.
 
     * [MySQL](Database/MySQL.sql)
 
+## Upgrading
+
+Migrating from an earlier version of this project? See our [upgrade guide](Migration.md) for help.
+
 ## Usage
 
  * [Creating a new instance](#creating-a-new-instance)
