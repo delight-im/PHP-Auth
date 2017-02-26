@@ -1040,6 +1040,78 @@ final class Auth extends UserManager {
 	}
 
 	/**
+	 * Returns whether the currently signed-in user is in "normal" state
+	 *
+	 * @return bool
+	 *
+	 * @see Status
+	 * @see Auth::getStatus
+	 */
+	public function isNormal() {
+		return $this->getStatus() === Status::NORMAL;
+	}
+
+	/**
+	 * Returns whether the currently signed-in user is in "archived" state
+	 *
+	 * @return bool
+	 *
+	 * @see Status
+	 * @see Auth::getStatus
+	 */
+	public function isArchived() {
+		return $this->getStatus() === Status::ARCHIVED;
+	}
+
+	/**
+	 * Returns whether the currently signed-in user is in "banned" state
+	 *
+	 * @return bool
+	 *
+	 * @see Status
+	 * @see Auth::getStatus
+	 */
+	public function isBanned() {
+		return $this->getStatus() === Status::BANNED;
+	}
+
+	/**
+	 * Returns whether the currently signed-in user is in "locked" state
+	 *
+	 * @return bool
+	 *
+	 * @see Status
+	 * @see Auth::getStatus
+	 */
+	public function isLocked() {
+		return $this->getStatus() === Status::LOCKED;
+	}
+
+	/**
+	 * Returns whether the currently signed-in user is in "pending review" state
+	 *
+	 * @return bool
+	 *
+	 * @see Status
+	 * @see Auth::getStatus
+	 */
+	public function isPendingReview() {
+		return $this->getStatus() === Status::PENDING_REVIEW;
+	}
+
+	/**
+	 * Returns whether the currently signed-in user is in "suspended" state
+	 *
+	 * @return bool
+	 *
+	 * @see Status
+	 * @see Auth::getStatus
+	 */
+	public function isSuspended() {
+		return $this->getStatus() === Status::SUSPENDED;
+	}
+
+	/**
 	 * Sets whether the currently signed-in user has been remembered by a long-lived cookie
 	 *
 	 * @param bool $remembered whether the user was remembered
