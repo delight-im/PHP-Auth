@@ -302,6 +302,12 @@ function showDebugData(\Delight\Auth\Auth $auth, $result) {
 	var_dump($auth->getEmail());
 	echo '$auth->getUsername()'."\t\t\t";
 	var_dump($auth->getUsername());
+
+	echo '$auth->getStatus()'."\t\t\t";
+	echo convertStatusToText($auth);
+	echo ' / ';
+	var_dump($auth->getStatus());
+
 	echo '$auth->isRemembered()'."\t\t\t";
 	var_dump($auth->isRemembered());
 	echo '$auth->getIpAddress()'."\t\t\t";
@@ -314,6 +320,36 @@ function showDebugData(\Delight\Auth\Auth $auth, $result) {
 	var_dump(\Delight\Auth\Auth::createUuid());
 
 	echo '</pre>';
+}
+
+function convertStatusToText(\Delight\Auth\Auth $auth) {
+	if ($auth->isLoggedIn() === true) {
+		if ($auth->getStatus() === \Delight\Auth\Status::NORMAL && $auth->isNormal()) {
+			return 'normal';
+		}
+		elseif ($auth->getStatus() === \Delight\Auth\Status::ARCHIVED && $auth->isArchived()) {
+			return 'archived';
+		}
+		elseif ($auth->getStatus() === \Delight\Auth\Status::BANNED && $auth->isBanned()) {
+			return 'banned';
+		}
+		elseif ($auth->getStatus() === \Delight\Auth\Status::LOCKED && $auth->isLocked()) {
+			return 'locked';
+		}
+		elseif ($auth->getStatus() === \Delight\Auth\Status::PENDING_REVIEW && $auth->isPendingReview()) {
+			return 'pending review';
+		}
+		elseif ($auth->getStatus() === \Delight\Auth\Status::SUSPENDED && $auth->isSuspended()) {
+			return 'suspended';
+		}
+	}
+	elseif ($auth->isLoggedIn() === false) {
+		if ($auth->getStatus() === null) {
+			return 'none';
+		}
+	}
+
+	throw new Exception('Invalid status `' . $auth->getStatus() . '`');
 }
 
 function showGeneralForm() {
