@@ -371,7 +371,7 @@ Here's how to use this library with your own tables for custom user information 
 
 The administrative interface is available via `$auth->admin()`. You can call various method on this interface, as documented below.
 
-**Warning**: Do *not* forget to implement secure access control before exposing access to this interface. For example, you may provide access to this interface to logged in users with the administrator role only, or use the interface in private scripts only.
+Do not forget to implement secure access control before exposing access to this interface. For example, you may provide access to this interface to logged in users with the administrator role only, or use the interface in private scripts only.
 
 #### Creating new users
 
@@ -398,6 +398,8 @@ If you want to enforce unique usernames, on the other hand, simply call `createU
 
 #### Deleting users
 
+Deleting users by their ID:
+
 ```php
 try {
     $auth->admin()->deleteUserById($_POST['id']);
@@ -407,7 +409,7 @@ catch (\Delight\Auth\UnknownIdException $e) {
 }
 ```
 
-or
+Deleting users by their email address:
 
 ```php
 try {
@@ -418,7 +420,7 @@ catch (\Delight\Auth\InvalidEmailException $e) {
 }
 ```
 
-or
+Deleting users by their username:
 
 ```php
 try {
