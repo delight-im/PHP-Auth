@@ -323,6 +323,34 @@ Remember that usernames are optional and there is only a username if you supplie
 
 If the user is not currently signed in, this returns `null`.
 
+#### Status information
+
+```php
+if ($auth->isNormal()) {
+    // user is in default state
+}
+
+if ($auth->isArchived()) {
+    // user has been archived
+}
+
+if ($auth->isBanned()) {
+    // user has been banned
+}
+
+if ($auth->isLocked()) {
+    // user has been locked
+}
+
+if ($auth->isPendingReview()) {
+    // user is pending review
+}
+
+if ($auth->isSuspended()) {
+    // user has been suspended
+}
+```
+
 #### Checking whether the user was "remembered"
 
 ```php
