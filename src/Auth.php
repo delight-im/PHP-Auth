@@ -613,6 +613,8 @@ final class Auth extends UserManager {
 	 * @throws AuthError if an internal problem occurred (do *not* catch)
 	 */
 	private function authenticateUserInternal($password, $email = null, $username = null, $rememberDuration = null) {
+		$columnsToFetch = [ 'id', 'email', 'password', 'verified', 'username', 'status' ];
+
 		if ($email !== null) {
 			$email = self::validateEmailAddress($email);
 
@@ -620,7 +622,7 @@ final class Auth extends UserManager {
 			try {
 				$userData = $this->getUserDataByEmailAddress(
 					$email,
-					[ 'id', 'email', 'password', 'verified', 'username', 'status' ]
+					$columnsToFetch
 				);
 			}
 			// if there is no user with the specified email address
@@ -640,7 +642,7 @@ final class Auth extends UserManager {
 			try {
 				$userData = $this->getUserDataByUsername(
 					$username,
-					[ 'id', 'email', 'password', 'verified', 'username', 'status' ]
+					$columnsToFetch
 				);
 			}
 			// if there is no user with the specified username
