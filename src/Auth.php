@@ -24,6 +24,7 @@ final class Auth extends UserManager {
 	const SESSION_FIELD_USER_ID = 'auth_user_id';
 	const SESSION_FIELD_EMAIL = 'auth_email';
 	const SESSION_FIELD_USERNAME = 'auth_username';
+	const SESSION_FIELD_STATUS = 'auth_status';
 	const SESSION_FIELD_REMEMBERED = 'auth_remembered';
 	const COOKIE_CONTENT_SEPARATOR = '~';
 	const COOKIE_NAME_REMEMBER = 'auth_remember';
@@ -111,7 +112,7 @@ final class Auth extends UserManager {
 				if (isset($parts[0]) && isset($parts[1])) {
 					try {
 						$rememberData = $this->db->selectRow(
-							'SELECT a.user, a.token, a.expires, b.email, b.username FROM users_remembered AS a JOIN users AS b ON a.user = b.id WHERE a.selector = ?',
+							'SELECT a.user, a.token, a.expires, b.email, b.username, b.status FROM users_remembered AS a JOIN users AS b ON a.user = b.id WHERE a.selector = ?',
 							[ $parts[0] ]
 						);
 					}
@@ -122,7 +123,7 @@ final class Auth extends UserManager {
 					if (!empty($rememberData)) {
 						if ($rememberData['expires'] >= time()) {
 							if (password_verify($parts[1], $rememberData['token'])) {
-								$this->onLoginSuccessful($rememberData['user'], $rememberData['email'], $rememberData['username'], true);
+								$this->onLoginSuccessful($rememberData['user'], $rememberData['email'], $rememberData['username'], $rememberData['status'], true);
 							}
 						}
 					}
@@ -326,10 +327,11 @@ final class Auth extends UserManager {
 	 * @param int $userId the ID of the user who has just logged in
 	 * @param string $email the email address of the user who has just logged in
 	 * @param string $username the username (if any)
+	 * @param int $status the status as one of the constants from the {@see Status} class
 	 * @param bool $remembered whether the user was remembered ("remember me") or logged in actively
 	 * @throws AuthError if an internal problem occurred (do *not* catch)
 	 */
-	private function onLoginSuccessful($userId, $email, $username, $remembered) {
+	private function onLoginSuccessful($userId, $email, $username, $status, $remembered) {
 		try {
 			$this->db->update(
 				'users',
@@ -349,6 +351,7 @@ final class Auth extends UserManager {
 		$this->setUserId($userId);
 		$this->setEmail($email);
 		$this->setUsername($username);
+		$this->setStatus($status);
 		$this->setRemembered($remembered);
 	}
 
@@ -617,7 +620,7 @@ final class Auth extends UserManager {
 			try {
 				$userData = $this->getUserDataByEmailAddress(
 					$email,
-					[ 'id', 'email', 'password', 'verified', 'username' ]
+					[ 'id', 'email', 'password', 'verified', 'username', 'status' ]
 				);
 			}
 			// if there is no user with the specified email address
@@ -637,7 +640,7 @@ final class Auth extends UserManager {
 			try {
 				$userData = $this->getUserDataByUsername(
 					$username,
-					[ 'id', 'email', 'password', 'verified', 'username' ]
+					[ 'id', 'email', 'password', 'verified', 'username', 'status' ]
 				);
 			}
 			// if there is no user with the specified username
@@ -675,7 +678,7 @@ final class Auth extends UserManager {
 			}
 
 			if ($userData['verified'] === 1) {
-				$this->onLoginSuccessful($userData['id'], $userData['email'], $userData['username'], false);
+				$this->onLoginSuccessful($userData['id'], $userData['email'], $userData['username'], $userData['status'], false);
 
 				// continue to support the old parameter format
 				if ($rememberDuration === true) {
@@ -1005,6 +1008,29 @@ final class Auth extends UserManager {
 	public function getUsername() {
 		if (isset($_SESSION) && isset($_SESSION[self::SESSION_FIELD_USERNAME])) {
 			return $_SESSION[self::SESSION_FIELD_USERNAME];
+		}
+		else {
+			return null;
+		}
+	}
+
+	/**
+	 * Sets the currently signed-in user's status and updates the session
+	 *
+	 * @param int $status the status as one of the constants from the {@see Status} class
+	 */
+	private function setStatus($status) {
+		$_SESSION[self::SESSION_FIELD_STATUS] = (int) $status;
+	}
+
+	/**
+	 * Returns the currently signed-in user's status by reading from the session
+	 *
+	 * @return int the status as one of the constants from the {@see Status} class
+	 */
+	public function getStatus() {
+		if (isset($_SESSION) && isset($_SESSION[self::SESSION_FIELD_STATUS])) {
+			return $_SESSION[self::SESSION_FIELD_STATUS];
 		}
 		else {
 			return null;
