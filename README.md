@@ -18,6 +18,7 @@ Completely framework-agnostic and database-agnostic.
 
  * PHP 5.6.0+
    * PDO (PHP Data Objects) extension (`pdo`)
+     * `mysqlnd` driver
    * OpenSSL extension (`openssl`)
  * MySQL 5.5.3+ **or** MariaDB 5.5.23+
 
