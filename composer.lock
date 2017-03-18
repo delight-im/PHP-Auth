@@ -4,26 +4,25 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "bd80e3e52b8bd8a4a0c74c7cf9f5bf5e",
-    "content-hash": "3f836c43e0ff2293051f2ccb739d23cf",
+    "content-hash": "c075bec19490fc0e972be01cdd02d59b",
     "packages": [
         {
             "name": "delight-im/cookie",
-            "version": "v2.1.0",
+            "version": "v2.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/delight-im/PHP-Cookie.git",
-                "reference": "3e41e0d44959b59de98722b5b1b1fb83f9f528f3"
+                "reference": "22f2c19750a6ad3dbf69a8ef3ea0e454a8e064fa"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/delight-im/PHP-Cookie/zipball/3e41e0d44959b59de98722b5b1b1fb83f9f528f3",
-                "reference": "3e41e0d44959b59de98722b5b1b1fb83f9f528f3",
+                "url": "https://api.github.com/repos/delight-im/PHP-Cookie/zipball/22f2c19750a6ad3dbf69a8ef3ea0e454a8e064fa",
+                "reference": "22f2c19750a6ad3dbf69a8ef3ea0e454a8e064fa",
                 "shasum": ""
             },
             "require": {
                 "delight-im/http": "^2.0",
-                "php": ">=5.3.0"
+                "php": ">=5.6.0"
             },
             "type": "library",
             "autoload": {
@@ -46,20 +45,20 @@
                 "samesite",
                 "xss"
             ],
-            "time": "2016-11-23 20:09:42"
+            "time": "2016-12-18T20:22:46+00:00"
         },
         {
             "name": "delight-im/db",
-            "version": "v1.0.2",
+            "version": "v1.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/delight-im/PHP-DB.git",
-                "reference": "c8d1eba6583007471d55bf7d88eb3c9d87ea849d"
+                "reference": "df99ef7c2e86c7ce206647ffe8ba74447c075b57"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/delight-im/PHP-DB/zipball/c8d1eba6583007471d55bf7d88eb3c9d87ea849d",
-                "reference": "c8d1eba6583007471d55bf7d88eb3c9d87ea849d",
+                "url": "https://api.github.com/repos/delight-im/PHP-DB/zipball/df99ef7c2e86c7ce206647ffe8ba74447c075b57",
+                "reference": "df99ef7c2e86c7ce206647ffe8ba74447c075b57",
                 "shasum": ""
             },
             "require": {
@@ -87,7 +86,7 @@
                 "sql",
                 "sqlite"
             ],
-            "time": "2016-12-01 12:40:36"
+            "time": "2017-03-18T20:51:59+00:00"
         },
         {
             "name": "delight-im/http",
@@ -123,7 +122,7 @@
                 "http",
                 "https"
             ],
-            "time": "2016-07-21 15:05:01"
+            "time": "2016-07-21T15:05:01+00:00"
         }
     ],
     "packages-dev": [],
