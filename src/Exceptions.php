@@ -38,6 +38,8 @@ class AuthError extends \Exception {}
 
 class DatabaseError extends AuthError {}
 
+class DatabaseDriverError extends DatabaseError {}
+
 class MissingCallbackError extends AuthError {}
 
 class HeadersAlreadySentError extends AuthError {}
