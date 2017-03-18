@@ -20,7 +20,7 @@ Completely framework-agnostic and database-agnostic.
    * PDO (PHP Data Objects) extension (`pdo`)
      * `mysqlnd` driver
    * OpenSSL extension (`openssl`)
- * MySQL 5.5.3+ **or** MariaDB 5.5.23+
+ * MySQL 5.5.3+ **or** MariaDB 5.5.23+ **or** other SQL databases that you create the [schema](Database) for
 
 ## Installation
 
