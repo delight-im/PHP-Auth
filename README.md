@@ -483,42 +483,6 @@ $uuid = \Delight\Auth\Auth::createUuid();
 
 For detailed information on how to read and write session data conveniently, please refer to [the documentation of the session library](https://github.com/delight-im/PHP-Cookie#reading-and-writing-session-data), which is included by default.
 
-## Features
-
- * registration
-   * secure password storage using the bcrypt algorithm
-   * email verification through message with confirmation link
-   * assurance of unique email addresses
-   * customizable password requirements and enforcement
-   * optional usernames with customizable restrictions
- * login
-   * keeping the user logged in for a long time (beyond expiration of browser session) via secure long-lived token ("remember me")
- * account management
-   * change password
-   * tracking the time of sign up and last login
-   * check if user has been logged in via "remember me" cookie
- * logout
-   * full and reliable destruction of session
- * session management
-   * protection against session hijacking via cross-site scripting (XSS)
-     * do *not* permit script-based access to cookies
-     * restrict cookies to HTTPS to prevent session hijacking via non-secure HTTP
-   * protection against session fixation attacks
-   * protection against cross-site request forgery (CSRF)
-     * works automatically (i.e. no need for CSRF tokens everywhere)
-     * do *not* use HTTP `GET` requests for "dangerous" operations
- * throttling
-   * per IP address
-   * per account
- * enhanced HTTP security
-   * prevents clickjacking
-   * prevent content sniffing (MIME sniffing)
-   * disables caching of potentially sensitive data
- * miscellaneous
-   * ready for both IPv4 and IPv6
-   * works behind proxy servers as well
-   * privacy-friendly (e.g. does *not* save readable IP addresses)
-
 ## Exceptions
 
 This library throws two types of exceptions to indicate problems:
