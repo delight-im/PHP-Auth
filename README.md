@@ -483,6 +483,32 @@ $uuid = \Delight\Auth\Auth::createUuid();
 
 For detailed information on how to read and write session data conveniently, please refer to [the documentation of the session library](https://github.com/delight-im/PHP-Cookie#reading-and-writing-session-data), which is included by default.
 
+### Custom password requirements
+
+Enforcing a minimum length for passwords is usually a good idea. Apart from that, you may want to look up whether a potential password is in some blacklist, which you could manage in a database or in a file, in order to prevent dictionary words or commonly used passwords from being used in your application.
+
+To allow for maximum flexibility and ease of use, this library has been designed so that it does *not* contain any further checks for password requirements itself, but instead allows you to wrap your own checks around the relevant calls to library methods. Example:
+
+```php
+function isPasswordAllowed($password) {
+    if (strlen($password) < 8) {
+        return false;
+    }
+
+    $blacklist = [ 'password1', '123456', 'qwerty' ];
+
+    if (in_array($password, $blacklist)) {
+        return false;
+    }
+
+    return true;
+}
+
+if (isPasswordAllowed($password)) {
+    $auth->register($email, $password);
+}
+```
+
 ## Exceptions
 
 This library throws two types of exceptions to indicate problems:
