@@ -483,7 +483,9 @@ $uuid = \Delight\Auth\Auth::createUuid();
 
 For detailed information on how to read and write session data conveniently, please refer to [the documentation of the session library](https://github.com/delight-im/PHP-Cookie#reading-and-writing-session-data), which is included by default.
 
-### Custom password requirements
+## Frequently asked questions
+
+### How can I implement custom password requirements?
 
 Enforcing a minimum length for passwords is usually a good idea. Apart from that, you may want to look up whether a potential password is in some blacklist, which you could manage in a database or in a file, in order to prevent dictionary words or commonly used passwords from being used in your application.
 
