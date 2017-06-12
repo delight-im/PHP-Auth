@@ -584,7 +584,7 @@ final class Auth extends UserManager {
 		);
 
 		// ensure that the account has been verified before initiating a password reset
-		if ($userData['verified'] !== 1) {
+		if ((int) $userData['verified'] !== 1) {
 			throw new EmailNotVerifiedException();
 		}
 
@@ -679,7 +679,7 @@ final class Auth extends UserManager {
 				$this->updatePassword($userData['id'], $password);
 			}
 
-			if ($userData['verified'] === 1) {
+			if ((int) $userData['verified'] === 1) {
 				$this->onLoginSuccessful($userData['id'], $userData['email'], $userData['username'], $userData['status'], false);
 
 				// continue to support the old parameter format
