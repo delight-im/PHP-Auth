@@ -18,9 +18,9 @@ Completely framework-agnostic and database-agnostic.
 
  * PHP 5.6.0+
    * PDO (PHP Data Objects) extension (`pdo`)
-     * MySQL Native Driver (`mysqlnd`)
+     * MySQL Native Driver (`mysqlnd`) **or** SQLite driver (`sqlite`)
    * OpenSSL extension (`openssl`)
- * MySQL 5.5.3+ **or** MariaDB 5.5.23+ **or** other SQL databases that you create the [schema](Database) for
+ * MySQL 5.5.3+ **or** MariaDB 5.5.23+ **or** SQLite 3.14.1+ **or** other SQL databases that you create the [schema](Database) for
 
 ## Installation
 
@@ -39,6 +39,7 @@ Completely framework-agnostic and database-agnostic.
  1. Set up a database and create the required tables:
 
     * [MySQL](Database/MySQL.sql)
+    * [SQLite](Database/SQLite.sql)
 
 ## Upgrading
 
@@ -75,7 +76,13 @@ Migrating from an earlier version of this project? See our [upgrade guide](Migra
 ```php
 // $db = new PDO('mysql:dbname=my-database;host=localhost;charset=utf8mb4', 'my-username', 'my-password');
 // or
+// $db = new PDO('sqlite:../Databases/my-database.sqlite');
+
+// or
+
 // $db = new \Delight\Db\PdoDsn('mysql:dbname=my-database;host=localhost;charset=utf8mb4', 'my-username', 'my-password');
+// or
+// $db = new \Delight\Db\PdoDsn('sqlite:../Databases/my-database.sqlite');
 
 $auth = new \Delight\Auth\Auth($db);
 ```
