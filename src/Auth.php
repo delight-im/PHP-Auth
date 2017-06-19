@@ -89,7 +89,7 @@ final class Auth extends UserManager {
 		// if the user is signed in
 		if ($this->isLoggedIn()) {
 			// prevent clickjacking
-			header('X-Frame-Options: sameorigin');
+			header("Content-Security-Policy: frame-ancestors 'self'");
 			// prevent content sniffing (MIME sniffing)
 			header('X-Content-Type-Options: nosniff');
 
