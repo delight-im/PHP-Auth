@@ -66,16 +66,6 @@ abstract class UserManager {
 
 			throw new \InvalidArgumentException('The database connection must be an instance of either `PdoDatabase`, `PdoDsn` or `PDO`');
 		}
-
-		$this->db->addOnConnectListener(function (PdoDatabase $db) {
-			// if a MySQL database is used
-			if ($db->getDriverName() === 'MySQL') {
-				// if the required MySQL Native Driver (mysqlnd) is not used (but instead the older MySQL Client Library (libmysqlclient))
-				if (\extension_loaded('mysqlnd') === false && \stripos($db->getClientVersion(), 'mysqlnd') === false) {
-					throw new WrongMysqlDatabaseDriverError('You must use PDO with the newer \'mysqlnd\' driver instead of the older \'libmysqlclient\' driver');
-				}
-			}
-		});
 	}
 
 	/**
