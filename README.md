@@ -526,6 +526,14 @@ if (isPasswordAllowed($password)) {
 }
 ```
 
+### Why are other sites not able to frame or embed my site?
+
+If you want to let others include your site in a `<frame>`, `<iframe>`, `<object>`, `<embed>` or `<applet>` element, you have to disable the default clickjacking prevention:
+
+```php
+\header_remove('X-Frame-Options');
+```
+
 ## Exceptions
 
 This library throws two types of exceptions to indicate problems:
