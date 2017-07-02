@@ -526,6 +526,10 @@ if (isPasswordAllowed($password)) {
 }
 ```
 
+### Why are there problems when using other libraries that work with sessions?
+
+You might try loading this library first, and creating the `Auth` instance first, *before* loading the other libraries. Apart from that, there's probably not much we can do here.
+
 ### Why are other sites not able to frame or embed my site?
 
 If you want to let others include your site in a `<frame>`, `<iframe>`, `<object>`, `<embed>` or `<applet>` element, you have to disable the default clickjacking prevention:
