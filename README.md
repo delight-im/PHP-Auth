@@ -70,6 +70,7 @@ Migrating from an earlier version of this project? See our [upgrade guide](Migra
    * [Creating a random string](#creating-a-random-string)
    * [Creating a UUID v4 as per RFC 4122](#creating-a-uuid-v4-as-per-rfc-4122)
  * [Reading and writing session data](#reading-and-writing-session-data)
+ * [Implementing multi-factor authentication](#implementing-multi-factor-authentication)
 
 ### Creating a new instance
 
@@ -489,6 +490,24 @@ $uuid = \Delight\Auth\Auth::createUuid();
 ### Reading and writing session data
 
 For detailed information on how to read and write session data conveniently, please refer to [the documentation of the session library](https://github.com/delight-im/PHP-Cookie#reading-and-writing-session-data), which is included by default.
+
+### Implementing multi-factor authentication
+
+You can pass a callback, e.g. an anonymous function, to the two methods `login` or `loginWithUsername` as their fourth parameter. Such a callback could look like this:
+
+```php
+function ($userId) {
+    // ...
+
+    return false;
+    // or
+    // return true;
+}
+```
+
+The callback will be executed if (and only if) authentication is successful, but it will run *right before* completing authentication. This lets you hook into the login flow.
+
+In that callback, you receive the authenticating user's ID as the only parameter. Return `true` from the callback to let authentication proceed, or return `false` to cancel the attempt. Be ready to catch the `AttemptCancelledException` in the latter case.
 
 ## Frequently asked questions
 

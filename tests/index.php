@@ -49,12 +49,16 @@ function processRequestData(\Delight\Auth\Auth $auth) {
 					$rememberDuration = null;
 				}
 
+				$onBeforeSuccess = function ($userId) {
+					return \mt_rand(1, 100) <= 50;
+				};
+
 				try {
 					if (isset($_POST['email'])) {
-						$auth->login($_POST['email'], $_POST['password'], $rememberDuration);
+						$auth->login($_POST['email'], $_POST['password'], $rememberDuration, $onBeforeSuccess);
 					}
 					elseif (isset($_POST['username'])) {
-						$auth->loginWithUsername($_POST['username'], $_POST['password'], $rememberDuration);
+						$auth->loginWithUsername($_POST['username'], $_POST['password'], $rememberDuration, $onBeforeSuccess);
 					}
 					else {
 						return 'either email address or username required';
@@ -76,6 +80,9 @@ function processRequestData(\Delight\Auth\Auth $auth) {
 				}
 				catch (\Delight\Auth\EmailNotVerifiedException $e) {
 					return 'email not verified';
+				}
+				catch (\Delight\Auth\AttemptCancelledException $e) {
+					return 'attempt cancelled';
 				}
 				catch (\Delight\Auth\TooManyRequestsException $e) {
 					return 'too many requests';
