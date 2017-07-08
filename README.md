@@ -24,7 +24,7 @@ Completely framework-agnostic and database-agnostic.
 
 ## Installation
 
- 1. Include the library via [Composer](https://getcomposer.org/):
+ 1. Include the library via Composer [[?]](https://github.com/delight-im/Knowledge/blob/master/Composer%20(PHP).md):
 
     ```
     $ composer require delight-im/auth
