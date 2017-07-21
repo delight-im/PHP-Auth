@@ -94,7 +94,7 @@ final class Auth extends UserManager {
 			header('X-Content-Type-Options: nosniff');
 
 			// disable caching of potentially sensitive data
-			header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0', true);
+			header('Cache-Control: no-store, no-cache, must-revalidate', true);
 			header('Expires: Thu, 19 Nov 1981 00:00:00 GMT', true);
 			header('Pragma: no-cache', true);
 		}
