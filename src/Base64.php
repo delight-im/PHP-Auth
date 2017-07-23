@@ -11,7 +11,7 @@ namespace Delight\Auth;
 final class Base64 {
 
 	const SPECIAL_CHARS_ORIGINAL = '+/=';
-	const SPECIAL_CHARS_SAFE = '._-';
+	const SPECIAL_CHARS_SAFE = '~_-';
 
 	public static function encode($data, $safeChars = false) {
 		$result = base64_encode($data);
