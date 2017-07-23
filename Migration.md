@@ -8,6 +8,8 @@
 
 ## From `v5.x.x` to `v6.x.x`
 
+ * The outputs produced by the `Base64` class are not compatible with those from previous versions anymore.
+
 ## From `v4.x.x` to `v5.x.x`
 
  * The MySQL database schema has changed. Use the statement below to update your database:
