@@ -8,6 +8,7 @@
 
 namespace Delight\Auth;
 
+use Delight\Base64\Base64;
 use Delight\Cookie\Cookie;
 use Delight\Cookie\Session;
 use Delight\Db\PdoDatabase;
@@ -1154,7 +1155,7 @@ final class Auth extends UserManager {
 	private static function hash($data) {
 		$hashRaw = hash(self::IP_ADDRESS_HASH_ALGORITHM, $data, true);
 
-		return base64_encode($hashRaw);
+		return Base64::encode($hashRaw);
 	}
 
 	/**

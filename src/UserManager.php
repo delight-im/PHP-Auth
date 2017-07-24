@@ -8,6 +8,7 @@
 
 namespace Delight\Auth;
 
+use Delight\Base64\Base64;
 use Delight\Db\PdoDatabase;
 use Delight\Db\PdoDsn;
 use Delight\Db\Throwable\Error;
@@ -45,7 +46,7 @@ abstract class UserManager {
 		$data = openssl_random_pseudo_bytes($bytes);
 
 		// return the Base64-encoded result
-		return Base64::encode($data, true);
+		return Base64::encodeUrlSafe($data);
 	}
 
 	/**
