@@ -8,21 +8,21 @@
     "packages": [
         {
             "name": "delight-im/cookie",
-            "version": "v2.1.1",
+            "version": "v2.1.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/delight-im/PHP-Cookie.git",
-                "reference": "22f2c19750a6ad3dbf69a8ef3ea0e454a8e064fa"
+                "reference": "e1ab463ec804ef2decf4cbeaa9cf407413398bcd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/delight-im/PHP-Cookie/zipball/22f2c19750a6ad3dbf69a8ef3ea0e454a8e064fa",
-                "reference": "22f2c19750a6ad3dbf69a8ef3ea0e454a8e064fa",
+                "url": "https://api.github.com/repos/delight-im/PHP-Cookie/zipball/e1ab463ec804ef2decf4cbeaa9cf407413398bcd",
+                "reference": "e1ab463ec804ef2decf4cbeaa9cf407413398bcd",
                 "shasum": ""
             },
             "require": {
                 "delight-im/http": "^2.0",
-                "php": ">=5.6.0"
+                "php": ">=5.4.0"
             },
             "type": "library",
             "autoload": {
@@ -45,7 +45,7 @@
                 "samesite",
                 "xss"
             ],
-            "time": "2016-12-18T20:22:46+00:00"
+            "time": "2017-06-11T22:03:56+00:00"
         },
         {
             "name": "delight-im/db",
