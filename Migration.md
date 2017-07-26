@@ -9,6 +9,7 @@
 ## From `v5.x.x` to `v6.x.x`
 
  * The outputs produced by the `Base64` class are not compatible with those from previous versions anymore.
+
  * The `Base64` class is now an external module and has been moved from the namespace `Delight\Auth` to the namespace `Delight\Base64`.
 
 ## From `v4.x.x` to `v5.x.x`
