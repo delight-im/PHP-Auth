@@ -73,7 +73,7 @@ Migrating from an earlier version of this project? See our [upgrade guide](Migra
    * [Deleting users](#deleting-users)
    * [Assigning roles to users](#assigning-roles-to-users)
    * [Taking roles away from users](#taking-roles-away-from-users)
-   * [Checking roles](#checking-roles)
+   * [Checking roles](#checking-roles-1)
  * [Utilities](#utilities)
    * [Creating a random string](#creating-a-random-string)
    * [Creating a UUID v4 as per RFC 4122](#creating-a-uuid-v4-as-per-rfc-4122)
