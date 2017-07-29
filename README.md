@@ -63,6 +63,7 @@ Migrating from an earlier version of this project? See our [upgrade guide](Migra
    * [Checking whether the user was "remembered"](#checking-whether-the-user-was-remembered)
    * [IP address](#ip-address)
    * [Additional user information](#additional-user-information)
+ * [Reconfirming the user's password](#reconfirming-the-users-password)
  * [Roles (or groups)](#roles-or-groups)
    * [Checking roles](#checking-roles)
    * [Available roles](#available-roles)
@@ -414,6 +415,26 @@ Here's how to use this library with your own tables for custom user information 
         return $_SESSION['_internal_user_info'];
     }
     ```
+
+### Reconfirming the user's password
+
+Whenever you want to confirm the user’s identity again, e.g. before the user is allowed to perform some “dangerous” action, you should verify their password again to confirm that they actually are who they claim to be.
+
+For example, when a user has been remembered by a long-lived cookie and thus `Auth#isRemembered` returns `true`, this means that the user probably has not entered their password for quite some time anymore. You may want to reconfirm their password in that case.
+
+```php
+try {
+    if ($auth->reconfirmPassword($_POST['password'])) {
+        // the user really seems to be who they claim to be
+    }
+    else {
+        // we can't say if the user is who they claim to be
+    }
+}
+catch (\Delight\Auth\NotLoggedInException $e) {
+    // the user is not signed in
+}
+```
 
 ### Roles (or groups)
 
