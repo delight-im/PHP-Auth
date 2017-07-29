@@ -33,9 +33,7 @@ $ composer update delight-im/auth
          ADD COLUMN "roles_mask" INTEGER NOT NULL CHECK ("roles_mask" >= 0) DEFAULT "0";
      ```
 
- * The outputs produced by the `Base64` class are not compatible with those from previous versions anymore.
-
- * The `Base64` class is now an external module and has been moved from the namespace `Delight\Auth` to the namespace `Delight\Base64`.
+ * The `Base64` class is now an external module and has been moved from the namespace `Delight\Auth` to the namespace `Delight\Base64`. The interface and the return values are not compatible with those from previous versions anymore.
 
 ## From `v4.x.x` to `v5.x.x`
 
