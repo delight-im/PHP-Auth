@@ -104,6 +104,8 @@ Only in the very rare case that you need access to your cookies from JavaScript,
 
 If your web server is behind a proxy server and `$_SERVER['REMOTE_ADDR']` only contains the proxy's IP address, you must pass the user's real IP address to the constructor in the fourth argument. The default is `null`.
 
+Should your database tables for this library need a common prefix, e.g. `my_users` instead of `users` (and likewise for the other tables), pass the prefix (e.g. `my_`) as the fifth parameter to the constructor. This is optional and the prefix is empty by default.
+
 ### Registration (sign up)
 
 ```php
