@@ -325,6 +325,19 @@ function showDebugData(\Delight\Auth\Auth $auth, $result) {
 	echo ' / ';
 	var_dump($auth->getStatus());
 
+	echo "\n";
+
+	echo 'Roles (super moderator)'."\t\t\t";
+	var_dump($auth->hasRole(\Delight\Auth\Role::SUPER_MODERATOR));
+
+	echo 'Roles (developer *or* manager)'."\t\t";
+	var_dump($auth->hasAnyRole(\Delight\Auth\Role::DEVELOPER, \Delight\Auth\Role::MANAGER));
+
+	echo 'Roles (developer *and* manager)'."\t\t";
+	var_dump($auth->hasAllRoles(\Delight\Auth\Role::DEVELOPER, \Delight\Auth\Role::MANAGER));
+
+	echo "\n";
+
 	echo '$auth->isRemembered()'."\t\t\t";
 	var_dump($auth->isRemembered());
 	echo '$auth->getIpAddress()'."\t\t\t";
