@@ -113,6 +113,79 @@ final class Administration extends UserManager {
 		$this->deleteUsersByColumnValue('id', (int) $userData['id']);
 	}
 
+	/**
+	 * Assigns the specified role to the user with the given ID
+	 *
+	 * A user may have any number of roles (i.e. no role at all, a single role, or any combination of roles)
+	 *
+	 * @param int $userId the ID of the user to assign the role to
+	 * @param int $role the role as one of the constants from the {@see Role} class
+	 * @throws UnknownIdException if no user with the specified ID has been found
+	 *
+	 * @see Role
+	 */
+	public function addRoleForUserById($userId, $role) {
+		$userFound = $this->addRoleForUserByColumnValue(
+			'id',
+			(int) $userId,
+			$role
+		);
+
+		if ($userFound === false) {
+			throw new UnknownIdException();
+		}
+	}
+
+	/**
+	 * Assigns the specified role to the user with the given email address
+	 *
+	 * A user may have any number of roles (i.e. no role at all, a single role, or any combination of roles)
+	 *
+	 * @param string $userEmail the email address of the user to assign the role to
+	 * @param int $role the role as one of the constants from the {@see Role} class
+	 * @throws InvalidEmailException if no user with the specified email address has been found
+	 *
+	 * @see Role
+	 */
+	public function addRoleForUserByEmail($userEmail, $role) {
+		$userEmail = self::validateEmailAddress($userEmail);
+
+		$userFound = $this->addRoleForUserByColumnValue(
+			'email',
+			$userEmail,
+			$role
+		);
+
+		if ($userFound === false) {
+			throw new InvalidEmailException();
+		}
+	}
+
+	/**
+	 * Assigns the specified role to the user with the given username
+	 *
+	 * A user may have any number of roles (i.e. no role at all, a single role, or any combination of roles)
+	 *
+	 * @param string $username the username of the user to assign the role to
+	 * @param int $role the role as one of the constants from the {@see Role} class
+	 * @throws UnknownUsernameException if no user with the specified username has been found
+	 * @throws AmbiguousUsernameException if multiple users with the specified username have been found
+	 *
+	 * @see Role
+	 */
+	public function addRoleForUserByUsername($username, $role) {
+		$userData = $this->getUserDataByUsername(
+			\trim($username),
+			[ 'id' ]
+		);
+
+		$this->addRoleForUserByColumnValue(
+			'id',
+			(int) $userData['id'],
+			$role
+		);
+	}
+
 	protected function throttle($actionType, $customSelector = null) {
 		// do nothing
 	}
