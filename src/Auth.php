@@ -1136,6 +1136,61 @@ final class Auth extends UserManager {
 	}
 
 	/**
+	 * Returns whether the currently signed-in user has the specified role
+	 *
+	 * @param int $role the role as one of the constants from the {@see Role} class
+	 * @return bool
+	 *
+	 * @see Role
+	 */
+	public function hasRole($role) {
+		$role = (int) $role;
+
+		if (isset($_SESSION) && isset($_SESSION[self::SESSION_FIELD_ROLES])) {
+			return (((int) $_SESSION[self::SESSION_FIELD_ROLES]) & $role) === $role;
+		}
+		else {
+			return false;
+		}
+	}
+
+	/**
+	 * Returns whether the currently signed-in user has *any* of the specified roles
+	 *
+	 * @param int[] ...$roles the roles as constants from the {@see Role} class
+	 * @return bool
+	 *
+	 * @see Role
+	 */
+	public function hasAnyRole(...$roles) {
+		foreach ($roles as $role) {
+			if ($this->hasRole($role)) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Returns whether the currently signed-in user has *all* of the specified roles
+	 *
+	 * @param int[] ...$roles the roles as constants from the {@see Role} class
+	 * @return bool
+	 *
+	 * @see Role
+	 */
+	public function hasAllRoles(...$roles) {
+		foreach ($roles as $role) {
+			if (!$this->hasRole($role)) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	/**
 	 * Sets whether the currently signed-in user has been remembered by a long-lived cookie
 	 *
 	 * @param bool $remembered whether the user was remembered
