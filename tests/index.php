@@ -324,6 +324,45 @@ function processRequestData(\Delight\Auth\Auth $auth) {
 
 				return 'ok';
 			}
+			else if ($_POST['action'] === 'admin.removeRole') {
+				if (isset($_POST['role'])) {
+					if (isset($_POST['id'])) {
+						try {
+							$auth->admin()->removeRoleForUserById($_POST['id'], $_POST['role']);
+						}
+						catch (\Delight\Auth\UnknownIdException $e) {
+							return 'unknown ID';
+						}
+					}
+					elseif (isset($_POST['email'])) {
+						try {
+							$auth->admin()->removeRoleForUserByEmail($_POST['email'], $_POST['role']);
+						}
+						catch (\Delight\Auth\InvalidEmailException $e) {
+							return 'unknown email address';
+						}
+					}
+					elseif (isset($_POST['username'])) {
+						try {
+							$auth->admin()->removeRoleForUserByUsername($_POST['username'], $_POST['role']);
+						}
+						catch (\Delight\Auth\UnknownUsernameException $e) {
+							return 'unknown username';
+						}
+						catch (\Delight\Auth\AmbiguousUsernameException $e) {
+							return 'ambiguous username';
+						}
+					}
+					else {
+						return 'either ID, email or username required';
+					}
+				}
+				else {
+					return 'role required';
+				}
+
+				return 'ok';
+			}
 			else {
 				throw new Exception('Unexpected action: '.$_POST['action']);
 			}
@@ -558,6 +597,27 @@ function showGuestUserForm() {
 	echo '<input type="text" name="username" placeholder="Username" /> ';
 	echo '<select name="role">' . createRolesOptions() . '</select>';
 	echo '<button type="submit">Add role for user by username</button>';
+	echo '</form>';
+
+	echo '<form action="" method="post" accept-charset="utf-8">';
+	echo '<input type="hidden" name="action" value="admin.removeRole" />';
+	echo '<input type="text" name="id" placeholder="ID" /> ';
+	echo '<select name="role">' . createRolesOptions() . '</select>';
+	echo '<button type="submit">Remove role for user by ID</button>';
+	echo '</form>';
+
+	echo '<form action="" method="post" accept-charset="utf-8">';
+	echo '<input type="hidden" name="action" value="admin.removeRole" />';
+	echo '<input type="text" name="email" placeholder="Email" /> ';
+	echo '<select name="role">' . createRolesOptions() . '</select>';
+	echo '<button type="submit">Remove role for user by email</button>';
+	echo '</form>';
+
+	echo '<form action="" method="post" accept-charset="utf-8">';
+	echo '<input type="hidden" name="action" value="admin.removeRole" />';
+	echo '<input type="text" name="username" placeholder="Username" /> ';
+	echo '<select name="role">' . createRolesOptions() . '</select>';
+	echo '<button type="submit">Remove role for user by username</button>';
 	echo '</form>';
 }
 
