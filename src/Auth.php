@@ -234,6 +234,53 @@ final class Auth extends UserManager {
 	}
 
 	/**
+	 * Attempts to confirm the currently signed-in user's password again
+	 *
+	 * Whenever you want to confirm the user's identity again, e.g. before
+	 * the user is allowed to perform some "dangerous" action, you should
+	 * use this method to confirm that the user is who they claim to be.
+	 *
+	 * For example, when a user has been remembered by a long-lived cookie
+	 * and thus {@see isRemembered} returns `true`, this means that the
+	 * user has not entered their password for quite some time anymore.
+	 *
+	 * @param string $password the user's password
+	 * @return bool whether the supplied password has been correct
+	 * @throws NotLoggedInException if the user is not currently signed in
+	 * @throws AuthError if an internal problem occurred (do *not* catch)
+	 */
+	public function reconfirmPassword($password) {
+		if ($this->isLoggedIn()) {
+			try {
+				$password = self::validatePassword($password);
+			}
+			catch (InvalidPasswordException $e) {
+				return false;
+			}
+
+			try {
+				$expectedHash = $this->db->selectValue(
+					'SELECT password FROM ' . $this->dbTablePrefix . 'users WHERE id = ?',
+					[ $this->getUserId() ]
+				);
+			}
+			catch (Error $e) {
+				throw new DatabaseError();
+			}
+
+			if (!empty($expectedHash)) {
+				return \password_verify($password, $expectedHash);
+			}
+			else {
+				throw new NotLoggedInException();
+			}
+		}
+		else {
+			throw new NotLoggedInException();
+		}
+	}
+
+	/**
 	 * Creates a new directive keeping the user logged in ("remember me")
 	 *
 	 * @param int $userId the user ID to keep signed in
