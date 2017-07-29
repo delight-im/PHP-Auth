@@ -10,6 +10,13 @@
 
  * The database schema has changed.
 
+   * The MySQL database schema has changed. Use the statement below to update your database:
+
+     ```sql
+     ALTER TABLE users
+         ADD COLUMN roles_mask INT(10) UNSIGNED NOT NULL DEFAULT 0 AFTER verified;
+     ```
+
  * The outputs produced by the `Base64` class are not compatible with those from previous versions anymore.
 
  * The `Base64` class is now an external module and has been moved from the namespace `Delight\Auth` to the namespace `Delight\Base64`.
