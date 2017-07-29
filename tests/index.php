@@ -363,6 +363,24 @@ function processRequestData(\Delight\Auth\Auth $auth) {
 
 				return 'ok';
 			}
+			else if ($_POST['action'] === 'admin.hasRole') {
+				if (isset($_POST['id'])) {
+					if (isset($_POST['role'])) {
+						try {
+							return $auth->admin()->doesUserHaveRole($_POST['id'], $_POST['role']) ? 'yes' : 'no';
+						}
+						catch (\Delight\Auth\UnknownIdException $e) {
+							return 'unknown ID';
+						}
+					}
+					else {
+						return 'role required';
+					}
+				}
+				else {
+					return 'ID required';
+				}
+			}
 			else {
 				throw new Exception('Unexpected action: '.$_POST['action']);
 			}
@@ -618,6 +636,13 @@ function showGuestUserForm() {
 	echo '<input type="text" name="username" placeholder="Username" /> ';
 	echo '<select name="role">' . createRolesOptions() . '</select>';
 	echo '<button type="submit">Remove role for user by username</button>';
+	echo '</form>';
+
+	echo '<form action="" method="post" accept-charset="utf-8">';
+	echo '<input type="hidden" name="action" value="admin.hasRole" />';
+	echo '<input type="text" name="id" placeholder="ID" /> ';
+	echo '<select name="role">' . createRolesOptions() . '</select>';
+	echo '<button type="submit">Does user have role?</button>';
 	echo '</form>';
 }
 
