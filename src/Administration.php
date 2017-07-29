@@ -259,6 +259,32 @@ final class Administration extends UserManager {
 		);
 	}
 
+	/**
+	 * Returns whether the user with the given ID has the specified role
+	 *
+	 * @param int $userId the ID of the user to check the roles for
+	 * @param int $role the role as one of the constants from the {@see Role} class
+	 * @return bool
+	 * @throws UnknownIdException if no user with the specified ID has been found
+	 *
+	 * @see Role
+	 */
+	public function doesUserHaveRole($userId, $role) {
+		$userId = (int) $userId;
+		$role = (int) $role;
+
+		$rolesBitmask = $this->db->selectValue(
+			'SELECT roles_mask FROM users WHERE id = ?',
+			[ $userId ]
+		);
+
+		if ($rolesBitmask === null) {
+			throw new UnknownIdException();
+		}
+
+		return ($rolesBitmask & $role) === $role;
+	}
+
 	protected function throttle($actionType, $customSelector = null) {
 		// do nothing
 	}
