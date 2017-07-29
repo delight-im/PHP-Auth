@@ -26,6 +26,7 @@ final class Auth extends UserManager {
 	const SESSION_FIELD_EMAIL = 'auth_email';
 	const SESSION_FIELD_USERNAME = 'auth_username';
 	const SESSION_FIELD_STATUS = 'auth_status';
+	const SESSION_FIELD_ROLES = 'auth_roles';
 	const SESSION_FIELD_REMEMBERED = 'auth_remembered';
 	const COOKIE_CONTENT_SEPARATOR = '~';
 	const COOKIE_NAME_REMEMBER = 'auth_remember';
@@ -113,7 +114,7 @@ final class Auth extends UserManager {
 				if (isset($parts[0]) && isset($parts[1])) {
 					try {
 						$rememberData = $this->db->selectRow(
-							'SELECT a.user, a.token, a.expires, b.email, b.username, b.status FROM users_remembered AS a JOIN users AS b ON a.user = b.id WHERE a.selector = ?',
+							'SELECT a.user, a.token, a.expires, b.email, b.username, b.status, b.roles_mask FROM users_remembered AS a JOIN users AS b ON a.user = b.id WHERE a.selector = ?',
 							[ $parts[0] ]
 						);
 					}
@@ -124,7 +125,7 @@ final class Auth extends UserManager {
 					if (!empty($rememberData)) {
 						if ($rememberData['expires'] >= time()) {
 							if (password_verify($parts[1], $rememberData['token'])) {
-								$this->onLoginSuccessful($rememberData['user'], $rememberData['email'], $rememberData['username'], $rememberData['status'], true);
+								$this->onLoginSuccessful($rememberData['user'], $rememberData['email'], $rememberData['username'], $rememberData['status'], $rememberData['roles_mask'], true);
 							}
 						}
 					}
@@ -333,10 +334,11 @@ final class Auth extends UserManager {
 	 * @param string $email the email address of the user who has just logged in
 	 * @param string $username the username (if any)
 	 * @param int $status the status as one of the constants from the {@see Status} class
+	 * @param int $roles the bitmask containing the roles of the user
 	 * @param bool $remembered whether the user was remembered ("remember me") or logged in actively
 	 * @throws AuthError if an internal problem occurred (do *not* catch)
 	 */
-	private function onLoginSuccessful($userId, $email, $username, $status, $remembered) {
+	private function onLoginSuccessful($userId, $email, $username, $status, $roles, $remembered) {
 		try {
 			$this->db->update(
 				'users',
@@ -357,6 +359,7 @@ final class Auth extends UserManager {
 		$this->setEmail($email);
 		$this->setUsername($username);
 		$this->setStatus($status);
+		$this->setRoles($roles);
 		$this->setRemembered($remembered);
 	}
 
@@ -620,7 +623,7 @@ final class Auth extends UserManager {
 	 * @throws AuthError if an internal problem occurred (do *not* catch)
 	 */
 	private function authenticateUserInternal($password, $email = null, $username = null, $rememberDuration = null, callable $onBeforeSuccess = null) {
-		$columnsToFetch = [ 'id', 'email', 'password', 'verified', 'username', 'status' ];
+		$columnsToFetch = [ 'id', 'email', 'password', 'verified', 'username', 'status', 'roles_mask' ];
 
 		if ($email !== null) {
 			$email = self::validateEmailAddress($email);
@@ -688,7 +691,7 @@ final class Auth extends UserManager {
 
 			if ((int) $userData['verified'] === 1) {
 				if (!isset($onBeforeSuccess) || (\is_callable($onBeforeSuccess) && $onBeforeSuccess($userData['id']) === true)) {
-					$this->onLoginSuccessful($userData['id'], $userData['email'], $userData['username'], $userData['status'], false);
+					$this->onLoginSuccessful($userData['id'], $userData['email'], $userData['username'], $userData['status'], $userData['roles_mask'], false);
 
 					// continue to support the old parameter format
 					if ($rememberDuration === true) {
@@ -1035,6 +1038,15 @@ final class Auth extends UserManager {
 	 */
 	private function setStatus($status) {
 		$_SESSION[self::SESSION_FIELD_STATUS] = (int) $status;
+	}
+
+	/**
+	 * Sets the currently signed-in user's roles and updates the session
+	 *
+	 * @param int $roles the bitmask containing the roles
+	 */
+	private function setRoles($roles) {
+		$_SESSION[self::SESSION_FIELD_ROLES] = (int) $roles;
 	}
 
 	/**
