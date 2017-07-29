@@ -71,6 +71,9 @@ Migrating from an earlier version of this project? See our [upgrade guide](Migra
  * [Administration (managing users)](#administration-managing-users)
    * [Creating new users](#creating-new-users)
    * [Deleting users](#deleting-users)
+   * [Assigning roles to users](#assigning-roles-to-users)
+   * [Taking roles away from users](#taking-roles-away-from-users)
+   * [Checking roles](#checking-roles)
  * [Utilities](#utilities)
    * [Creating a random string](#creating-a-random-string)
    * [Creating a UUID v4 as per RFC 4122](#creating-a-uuid-v4-as-per-rfc-4122)
@@ -607,6 +610,86 @@ catch (\Delight\Auth\UnknownUsernameException $e) {
 }
 catch (\Delight\Auth\AmbiguousUsernameException $e) {
     // ambiguous username
+}
+```
+
+#### Assigning roles to users
+
+```php
+try {
+    $auth->admin()->addRoleForUserById($userId, \Delight\Auth\Role::ADMIN);
+}
+catch (\Delight\Auth\UnknownIdException $e) {
+    // unknown user ID
+}
+
+// or
+
+try {
+    $auth->admin()->addRoleForUserByEmail($userEmail, \Delight\Auth\Role::ADMIN);
+}
+catch (\Delight\Auth\InvalidEmailException $e) {
+    // unknown email address
+}
+
+// or
+
+try {
+    $auth->admin()->addRoleForUserByUsername($username, \Delight\Auth\Role::ADMIN);
+}
+catch (\Delight\Auth\UnknownUsernameException $e) {
+    // unknown username
+}
+catch (\Delight\Auth\AmbiguousUsernameException $e) {
+    // ambiguous username
+}
+```
+
+#### Taking roles away from users
+
+```php
+try {
+    $auth->admin()->removeRoleForUserById($userId, \Delight\Auth\Role::ADMIN);
+}
+catch (\Delight\Auth\UnknownIdException $e) {
+    // unknown user ID
+}
+
+// or
+
+try {
+    $auth->admin()->removeRoleForUserByEmail($userEmail, \Delight\Auth\Role::ADMIN);
+}
+catch (\Delight\Auth\InvalidEmailException $e) {
+    // unknown email address
+}
+
+// or
+
+try {
+    $auth->admin()->removeRoleForUserByUsername($username, \Delight\Auth\Role::ADMIN);
+}
+catch (\Delight\Auth\UnknownUsernameException $e) {
+    // unknown username
+}
+catch (\Delight\Auth\AmbiguousUsernameException $e) {
+    // ambiguous username
+}
+```
+
+#### Checking roles
+
+```php
+try {
+    if ($auth->admin()->doesUserHaveRole($userId, \Delight\Auth\Role::ADMIN)) {
+        // the specified user is an administrator
+    }
+    else {
+        // the specified user is *not* an administrator
+    }
+}
+catch (\Delight\Auth\UnknownIdException $e) {
+    // unknown user ID
 }
 ```
 
