@@ -1,10 +1,19 @@
 # Migration
 
+ * [General](#general)
  * [From `v5.x.x` to `v6.x.x`](#from-v5xx-to-v6xx)
  * [From `v4.x.x` to `v5.x.x`](#from-v4xx-to-v5xx)
  * [From `v3.x.x` to `v4.x.x`](#from-v3xx-to-v4xx)
  * [From `v2.x.x` to `v3.x.x`](#from-v2xx-to-v3xx)
  * [From `v1.x.x` to `v2.x.x`](#from-v1xx-to-v2xx)
+
+## General
+
+Update your version of this library via Composer [[?]](https://github.com/delight-im/Knowledge/blob/master/Composer%20(PHP).md):
+
+```
+$ composer update delight-im/auth
+```
 
 ## From `v5.x.x` to `v6.x.x`
 
