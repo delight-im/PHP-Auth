@@ -141,4 +141,98 @@ final class Administration extends UserManager {
 		}
 	}
 
+	/**
+	 * Modifies the roles for the user where the column with the specified name has the given value
+	 *
+	 * You must never pass untrusted input to the parameter that takes the column name
+	 *
+	 * @param string $columnName the name of the column to filter by
+	 * @param mixed $columnValue the value to look for in the selected column
+	 * @param callable $modification the modification to apply to the existing bitmask of roles
+	 * @return bool whether any user with the given column constraints has been found
+	 * @throws AuthError if an internal problem occurred (do *not* catch)
+	 *
+	 * @see Role
+	 */
+	private function modifyRolesForUserByColumnValue($columnName, $columnValue, callable $modification) {
+		try {
+			$userData = $this->db->selectRow(
+				'SELECT id, roles_mask FROM users WHERE ' . $columnName . ' = ?',
+				[ $columnValue ]
+			);
+		}
+		catch (Error $e) {
+			throw new DatabaseError();
+		}
+
+		if ($userData === null) {
+			return false;
+		}
+
+		$newRolesBitmask = $modification($userData['roles_mask']);
+
+		try {
+			$this->db->exec(
+				'UPDATE users SET roles_mask = ? WHERE id = ?',
+				[
+					$newRolesBitmask,
+					(int) $userData['id']
+				]
+			);
+
+			return true;
+		}
+		catch (Error $e) {
+			throw new DatabaseError();
+		}
+	}
+
+	/**
+	 * Assigns the specified role to the user where the column with the specified name has the given value
+	 *
+	 * You must never pass untrusted input to the parameter that takes the column name
+	 *
+	 * @param string $columnName the name of the column to filter by
+	 * @param mixed $columnValue the value to look for in the selected column
+	 * @param int $role the role as one of the constants from the {@see Role} class
+	 * @return bool whether any user with the given column constraints has been found
+	 *
+	 * @see Role
+	 */
+	private function addRoleForUserByColumnValue($columnName, $columnValue, $role) {
+		$role = (int) $role;
+
+		return $this->modifyRolesForUserByColumnValue(
+			$columnName,
+			$columnValue,
+			function ($oldRolesBitmask) use ($role) {
+				return $oldRolesBitmask | $role;
+			}
+		);
+	}
+
+	/**
+	 * Takes away the specified role from the user where the column with the specified name has the given value
+	 *
+	 * You must never pass untrusted input to the parameter that takes the column name
+	 *
+	 * @param string $columnName the name of the column to filter by
+	 * @param mixed $columnValue the value to look for in the selected column
+	 * @param int $role the role as one of the constants from the {@see Role} class
+	 * @return bool whether any user with the given column constraints has been found
+	 *
+	 * @see Role
+	 */
+	private function removeRoleForUserByColumnValue($columnName, $columnValue, $role) {
+		$role = (int) $role;
+
+		return $this->modifyRolesForUserByColumnValue(
+			$columnName,
+			$columnValue,
+			function ($oldRolesBitmask) use ($role) {
+				return $oldRolesBitmask & ~$role;
+			}
+		);
+	}
+
 }
