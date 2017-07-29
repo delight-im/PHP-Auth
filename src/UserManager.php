@@ -29,6 +29,8 @@ abstract class UserManager {
 
 	/** @var PdoDatabase the database connection to operate on */
 	protected $db;
+	/** @var string the prefix for the names of all database tables used by this component */
+	protected $dbTablePrefix;
 
 	/**
 	 * Creates a random string with the given maximum length
@@ -51,8 +53,9 @@ abstract class UserManager {
 
 	/**
 	 * @param PdoDatabase|PdoDsn|\PDO $databaseConnection the database connection to operate on
+	 * @param string|null $dbTablePrefix (optional) the prefix for the names of all database tables used by this component
 	 */
-	protected function __construct($databaseConnection) {
+	protected function __construct($databaseConnection, $dbTablePrefix = null) {
 		if ($databaseConnection instanceof PdoDatabase) {
 			$this->db = $databaseConnection;
 		}
@@ -67,6 +70,8 @@ abstract class UserManager {
 
 			throw new \InvalidArgumentException('The database connection must be an instance of either `PdoDatabase`, `PdoDsn` or `PDO`');
 		}
+
+		$this->dbTablePrefix = (string) $dbTablePrefix;
 	}
 
 	/**
@@ -118,7 +123,7 @@ abstract class UserManager {
 			if ($username !== null) {
 				// count the number of users who do already have that specified username
 				$occurrencesOfUsername = $this->db->selectValue(
-					'SELECT COUNT(*) FROM users WHERE username = ?',
+					'SELECT COUNT(*) FROM ' . $this->dbTablePrefix . 'users WHERE username = ?',
 					[ $username ]
 				);
 
@@ -135,7 +140,7 @@ abstract class UserManager {
 
 		try {
 			$this->db->insert(
-				'users',
+				$this->dbTablePrefix . 'users',
 				[
 					'email' => $email,
 					'password' => $password,
@@ -179,7 +184,7 @@ abstract class UserManager {
 			$projection = implode(', ', $requestedColumns);
 
 			$users = $this->db->select(
-				'SELECT ' . $projection . ' FROM users WHERE username = ? LIMIT 0, 2',
+				'SELECT ' . $projection . ' FROM ' . $this->dbTablePrefix . 'users WHERE username = ? LIMIT 0, 2',
 				[ $username ]
 			);
 		}
@@ -277,7 +282,7 @@ abstract class UserManager {
 
 		try {
 			$this->db->insert(
-				'users_confirmations',
+				$this->dbTablePrefix . 'users_confirmations',
 				[
 					'email' => $email,
 					'selector' => $selector,

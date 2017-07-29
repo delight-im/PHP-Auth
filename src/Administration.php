@@ -20,9 +20,10 @@ final class Administration extends UserManager {
 	 * @internal
 	 *
 	 * @param PdoDatabase $databaseConnection the database connection to operate on
+	 * @param string|null $dbTablePrefix (optional) the prefix for the names of all database tables used by this component
 	 */
-	public function __construct(PdoDatabase $databaseConnection) {
-		parent::__construct($databaseConnection);
+	public function __construct(PdoDatabase $databaseConnection, $dbTablePrefix = null) {
+		parent::__construct($databaseConnection, $dbTablePrefix);
 	}
 
 	/**
@@ -274,7 +275,7 @@ final class Administration extends UserManager {
 		$role = (int) $role;
 
 		$rolesBitmask = $this->db->selectValue(
-			'SELECT roles_mask FROM users WHERE id = ?',
+			'SELECT roles_mask FROM ' . $this->dbTablePrefix . 'users WHERE id = ?',
 			[ $userId ]
 		);
 
@@ -302,7 +303,7 @@ final class Administration extends UserManager {
 	private function deleteUsersByColumnValue($columnName, $columnValue) {
 		try {
 			return $this->db->delete(
-				'users',
+				$this->dbTablePrefix . 'users',
 				[
 					$columnName => $columnValue
 				]
@@ -329,7 +330,7 @@ final class Administration extends UserManager {
 	private function modifyRolesForUserByColumnValue($columnName, $columnValue, callable $modification) {
 		try {
 			$userData = $this->db->selectRow(
-				'SELECT id, roles_mask FROM users WHERE ' . $columnName . ' = ?',
+				'SELECT id, roles_mask FROM ' . $this->dbTablePrefix . 'users WHERE ' . $columnName . ' = ?',
 				[ $columnValue ]
 			);
 		}
@@ -345,7 +346,7 @@ final class Administration extends UserManager {
 
 		try {
 			$this->db->exec(
-				'UPDATE users SET roles_mask = ? WHERE id = ?',
+				'UPDATE ' . $this->dbTablePrefix . 'users SET roles_mask = ? WHERE id = ?',
 				[
 					$newRolesBitmask,
 					(int) $userData['id']

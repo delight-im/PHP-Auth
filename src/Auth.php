@@ -49,9 +49,10 @@ final class Auth extends UserManager {
 	 * @param bool $useHttps whether HTTPS (TLS/SSL) will be used (recommended)
 	 * @param bool $allowCookiesScriptAccess whether cookies should be accessible via client-side scripts (*not* recommended)
 	 * @param string $ipAddress the IP address that should be used instead of the default setting (if any), e.g. when behind a proxy
+	 * @param string|null $dbTablePrefix (optional) the prefix for the names of all database tables used by this component
 	 */
-	public function __construct($databaseConnection, $useHttps = false, $allowCookiesScriptAccess = false, $ipAddress = null) {
-		parent::__construct($databaseConnection);
+	public function __construct($databaseConnection, $useHttps = false, $allowCookiesScriptAccess = false, $ipAddress = null, $dbTablePrefix = null) {
+		parent::__construct($databaseConnection, $dbTablePrefix);
 
 		$this->useHttps = $useHttps;
 		$this->allowCookiesScriptAccess = $allowCookiesScriptAccess;
@@ -114,7 +115,7 @@ final class Auth extends UserManager {
 				if (isset($parts[0]) && isset($parts[1])) {
 					try {
 						$rememberData = $this->db->selectRow(
-							'SELECT a.user, a.token, a.expires, b.email, b.username, b.status, b.roles_mask FROM users_remembered AS a JOIN users AS b ON a.user = b.id WHERE a.selector = ?',
+							'SELECT a.user, a.token, a.expires, b.email, b.username, b.status, b.roles_mask FROM ' . $this->dbTablePrefix . 'users_remembered AS a JOIN ' . $this->dbTablePrefix . 'users AS b ON a.user = b.id WHERE a.selector = ?',
 							[ $parts[0] ]
 						);
 					}
@@ -247,7 +248,7 @@ final class Auth extends UserManager {
 
 		try {
 			$this->db->insert(
-				'users_remembered',
+				$this->dbTablePrefix . 'users_remembered',
 				[
 					'user' => $userId,
 					'selector' => $selector,
@@ -272,7 +273,7 @@ final class Auth extends UserManager {
 	private function deleteRememberDirective($userId) {
 		try {
 			$this->db->delete(
-				'users_remembered',
+				$this->dbTablePrefix . 'users_remembered',
 				[ 'user' => $userId ]
 			);
 		}
@@ -341,7 +342,7 @@ final class Auth extends UserManager {
 	private function onLoginSuccessful($userId, $email, $username, $status, $roles, $remembered) {
 		try {
 			$this->db->update(
-				'users',
+				$this->dbTablePrefix . 'users',
 				[ 'last_login' => time() ],
 				[ 'id' => $userId ]
 			);
@@ -433,7 +434,7 @@ final class Auth extends UserManager {
 
 		try {
 			$confirmationData = $this->db->selectRow(
-				'SELECT id, email, token, expires FROM users_confirmations WHERE selector = ?',
+				'SELECT id, email, token, expires FROM ' . $this->dbTablePrefix . 'users_confirmations WHERE selector = ?',
 				[ $selector ]
 			);
 		}
@@ -446,7 +447,7 @@ final class Auth extends UserManager {
 				if ($confirmationData['expires'] >= time()) {
 					try {
 						$this->db->update(
-							'users',
+							$this->dbTablePrefix . 'users',
 							[ 'verified' => 1 ],
 							[ 'email' => $confirmationData['email'] ]
 						);
@@ -457,7 +458,7 @@ final class Auth extends UserManager {
 
 					try {
 						$this->db->delete(
-							'users_confirmations',
+							$this->dbTablePrefix . 'users_confirmations',
 							[ 'id' => $confirmationData['id'] ]
 						);
 					}
@@ -496,7 +497,7 @@ final class Auth extends UserManager {
 
 			try {
 				$passwordInDatabase = $this->db->selectValue(
-					'SELECT password FROM users WHERE id = ?',
+					'SELECT password FROM ' . $this->dbTablePrefix . 'users WHERE id = ?',
 					[ $userId ]
 				);
 			}
@@ -537,7 +538,7 @@ final class Auth extends UserManager {
 
 		try {
 			$this->db->update(
-				'users',
+				$this->dbTablePrefix . 'users',
 				[ 'password' => $newPassword ],
 				[ 'id' => $userId ]
 			);
@@ -745,7 +746,7 @@ final class Auth extends UserManager {
 		try {
 			$projection = implode(', ', $requestedColumns);
 			$userData = $this->db->selectRow(
-				'SELECT ' . $projection . ' FROM users WHERE email = ?',
+				'SELECT ' . $projection . ' FROM ' . $this->dbTablePrefix . 'users WHERE email = ?',
 				[ $email ]
 			);
 		}
@@ -771,7 +772,7 @@ final class Auth extends UserManager {
 	private function getOpenPasswordResetRequests($userId) {
 		try {
 			$requests = $this->db->selectValue(
-				'SELECT COUNT(*) FROM users_resets WHERE user = ? AND expires > ?',
+				'SELECT COUNT(*) FROM ' . $this->dbTablePrefix . 'users_resets WHERE user = ? AND expires > ?',
 				[
 					$userId,
 					time()
@@ -814,7 +815,7 @@ final class Auth extends UserManager {
 
 		try {
 			$this->db->insert(
-				'users_resets',
+				$this->dbTablePrefix . 'users_resets',
 				[
 					'user' => $userId,
 					'selector' => $selector,
@@ -855,7 +856,7 @@ final class Auth extends UserManager {
 
 		try {
 			$resetData = $this->db->selectRow(
-				'SELECT id, user, token, expires FROM users_resets WHERE selector = ?',
+				'SELECT id, user, token, expires FROM ' . $this->dbTablePrefix . 'users_resets WHERE selector = ?',
 				[ $selector ]
 			);
 		}
@@ -876,7 +877,7 @@ final class Auth extends UserManager {
 
 					try {
 						$this->db->delete(
-							'users_resets',
+							$this->dbTablePrefix . 'users_resets',
 							[ 'id' => $resetData['id'] ]
 						);
 					}
@@ -1260,7 +1261,7 @@ final class Auth extends UserManager {
 
 		try {
 			$this->db->insert(
-				'users_throttling',
+				$this->dbTablePrefix . 'users_throttling',
 				[
 					'action_type' => $actionType,
 					'selector' => $selector,
@@ -1273,7 +1274,7 @@ final class Auth extends UserManager {
 			// if we have a duplicate entry, update the old entry
 			try {
 				$this->db->exec(
-					'UPDATE users_throttling SET attempts = attempts+1 WHERE action_type = ? AND selector = ? AND time_bucket = ?',
+					'UPDATE ' . $this->dbTablePrefix . 'users_throttling SET attempts = attempts+1 WHERE action_type = ? AND selector = ? AND time_bucket = ?',
 					[
 						$actionType,
 						$selector,
@@ -1291,7 +1292,7 @@ final class Auth extends UserManager {
 
 		try {
 			$attempts = $this->db->selectValue(
-				'SELECT attempts FROM users_throttling WHERE action_type = ? AND selector = ? AND time_bucket = ?',
+				'SELECT attempts FROM ' . $this->dbTablePrefix . 'users_throttling WHERE action_type = ? AND selector = ? AND time_bucket = ?',
 				[
 					$actionType,
 					$selector,
@@ -1354,7 +1355,7 @@ final class Auth extends UserManager {
 	 * @return Administration
 	 */
 	public function admin() {
-		return new Administration($this->db);
+		return new Administration($this->db, $this->dbTablePrefix);
 	}
 
 	/**
