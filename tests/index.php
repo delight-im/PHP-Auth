@@ -57,16 +57,12 @@ function processRequestData(\Delight\Auth\Auth $auth) {
 					$rememberDuration = null;
 				}
 
-				$onBeforeSuccess = function ($userId) {
-					return \mt_rand(1, 100) <= 50;
-				};
-
 				try {
 					if (isset($_POST['email'])) {
-						$auth->login($_POST['email'], $_POST['password'], $rememberDuration, $onBeforeSuccess);
+						$auth->login($_POST['email'], $_POST['password'], $rememberDuration);
 					}
 					elseif (isset($_POST['username'])) {
-						$auth->loginWithUsername($_POST['username'], $_POST['password'], $rememberDuration, $onBeforeSuccess);
+						$auth->loginWithUsername($_POST['username'], $_POST['password'], $rememberDuration);
 					}
 					else {
 						return 'either email address or username required';
