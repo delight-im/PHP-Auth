@@ -63,6 +63,11 @@ Migrating from an earlier version of this project? See our [upgrade guide](Migra
    * [Checking whether the user was "remembered"](#checking-whether-the-user-was-remembered)
    * [IP address](#ip-address)
    * [Additional user information](#additional-user-information)
+ * [Roles (or groups)](#roles-or-groups)
+   * [Checking roles](#checking-roles)
+   * [Available roles](#available-roles)
+   * [Permissions (or access rights, privileges or capabilities)](#permissions-or-access-rights-privileges-or-capabilities)
+   * [Custom role names](#custom-role-names)
  * [Administration (managing users)](#administration-managing-users)
    * [Creating new users](#creating-new-users)
    * [Deleting users](#deleting-users)
@@ -404,6 +409,139 @@ Here's how to use this library with your own tables for custom user information 
         return $_SESSION['_internal_user_info'];
     }
     ```
+
+### Roles (or groups)
+
+Every user can have any number of roles, which you can use to implement authorization and to refine your access controls.
+
+Users may have no role at all (which they do by default), exactly one role, or any arbitrary combination of roles.
+
+#### Checking roles
+
+```php
+if ($auth->hasRole(\Delight\Auth\Role::SUPER_MODERATOR)) {
+    // the user is a super moderator
+}
+
+// or
+
+if ($auth->hasAnyRole(\Delight\Auth\Role::DEVELOPER, \Delight\Auth\Role::MANAGER)) {
+    // the user is either a developer, or a manager, or both
+}
+
+// or
+
+if ($auth->hasAllRoles(\Delight\Auth\Role::DEVELOPER, \Delight\Auth\Role::MANAGER)) {
+    // the user is both a developer and a manager
+}
+```
+
+While the method `hasRole` takes exactly one role as its argument, the two methods `hasAnyRole` and `hasAllRoles` can take any number of roles that you would like to check for.
+
+#### Available roles
+
+```php
+\Delight\Auth\Role::ADMIN;
+\Delight\Auth\Role::AUTHOR;
+\Delight\Auth\Role::COLLABORATOR;
+\Delight\Auth\Role::CONSULTANT;
+\Delight\Auth\Role::CONSUMER;
+\Delight\Auth\Role::CONTRIBUTOR;
+\Delight\Auth\Role::COORDINATOR;
+\Delight\Auth\Role::CREATOR;
+\Delight\Auth\Role::DEVELOPER;
+\Delight\Auth\Role::DIRECTOR;
+\Delight\Auth\Role::EDITOR;
+\Delight\Auth\Role::EMPLOYEE;
+\Delight\Auth\Role::MAINTAINER;
+\Delight\Auth\Role::MANAGER;
+\Delight\Auth\Role::MODERATOR;
+\Delight\Auth\Role::PUBLISHER;
+\Delight\Auth\Role::REVIEWER;
+\Delight\Auth\Role::SUBSCRIBER;
+\Delight\Auth\Role::SUPER_ADMIN;
+\Delight\Auth\Role::SUPER_EDITOR;
+\Delight\Auth\Role::SUPER_MODERATOR;
+\Delight\Auth\Role::TRANSLATOR;
+```
+
+You can use any of these roles and ignore those that you don't need.
+
+#### Permissions (or access rights, privileges or capabilities)
+
+The permissions of each user are encoded in the way that role requirements are specified throughout your code base. If those requirements are evaluated with a specific user's set of roles, implicitly checked permissions are the result.
+
+For larger projects, it is often recommended to maintain the definition of permissions in a single place. You then don’t check for *roles* in your business logic, but you check for *individual permissions*. You could implement that concept as follows:
+
+```php
+function canEditArticle(\Delight\Auth\Auth $auth) {
+    return $auth->hasAnyRole(
+        \Delight\Auth\Role::MODERATOR,
+        \Delight\Auth\Role::SUPER_MODERATOR,
+        \Delight\Auth\Role::ADMIN,
+        \Delight\Auth\Role::SUPER_ADMIN
+    );
+}
+
+// ...
+
+if (canEditArticle($app->auth())) {
+    // the user can edit articles here
+}
+
+// ...
+
+if (canEditArticle($app->auth())) {
+    // ... and here
+}
+
+// ...
+
+if (canEditArticle($app->auth())) {
+    // ... and here
+}
+```
+
+As you can see, the permission of whether a certain user can edit an article is stored at a central location. This implementation has two major advantages:
+
+If you *want to know* which users can edit articles, you don’t have to check your business logic in various places, but you only have to look where the specific permission is defined. And if you want to *change* who can edit an article, you only have to do this in one single place as well, not throughout your whole code base.
+
+But this also comes with slightly more overhead when implementing the access restrictions for the first time, which may or may not be worth it for your project.
+
+#### Custom role names
+
+If the names of the included roles don’t work for you, you can alias any number of roles using your own identifiers, e.g. like this:
+
+```php
+namespace My\Namespace;
+
+final class MyRole {
+
+    const CUSTOMER_SERVICE_AGENT = \Delight\Auth\Role::REVIEWER;
+    const FINANCIAL_DIRECTOR = \Delight\Auth\Role::COORDINATOR;
+
+    private function __construct() {}
+
+}
+```
+
+The example above would allow you to use
+
+```php
+\My\Namespace\MyRole::CUSTOMER_SERVICE_AGENT;
+// and
+\My\Namespace\MyRole::FINANCIAL_DIRECTOR;
+```
+
+instead of
+
+```php
+\Delight\Auth\Role::REVIEWER;
+// and
+\Delight\Auth\Role::COORDINATOR;
+```
+
+Just remember *not* to alias a *single* included role to *multiple* roles with custom names.
 
 ### Administration (managing users)
 
