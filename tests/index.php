@@ -500,3 +500,15 @@ function showGuestUserForm() {
 	echo '<button type="submit">Delete user by username</button>';
 	echo '</form>';
 }
+
+function createRolesOptions() {
+	$roleReflection = new ReflectionClass(\Delight\Auth\Role::class);
+
+	$out = '';
+
+	foreach ($roleReflection->getConstants() as $roleName => $roleValue) {
+		$out .= '<option value="' . $roleValue . '">' . $roleName . '</option>';
+	}
+
+	return $out;
+}
