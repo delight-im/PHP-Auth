@@ -203,6 +203,14 @@ function processRequestData(\Delight\Auth\Auth $auth) {
 					return 'too many requests';
 				}
 			}
+			else if ($_POST['action'] === 'reconfirmPassword') {
+				try {
+					return $auth->reconfirmPassword($_POST['password']) ? 'correct' : 'wrong';
+				}
+				catch (\Delight\Auth\NotLoggedInException $e) {
+					return 'not logged in';
+				}
+			}
 			else if ($_POST['action'] === 'changePassword') {
 				try {
 					$auth->changePassword($_POST['oldPassword'], $_POST['newPassword']);
@@ -482,6 +490,12 @@ function showGeneralForm() {
 
 function showAuthenticatedUserForm() {
 	showGeneralForm();
+
+	echo '<form action="" method="post" accept-charset="utf-8">';
+	echo '<input type="hidden" name="action" value="reconfirmPassword" />';
+	echo '<input type="text" name="password" placeholder="Password" /> ';
+	echo '<button type="submit">Reconfirm password</button>';
+	echo '</form>';
 
 	echo '<form action="" method="post" accept-charset="utf-8">';
 	echo '<input type="hidden" name="action" value="changePassword" />';
