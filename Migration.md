@@ -52,6 +52,8 @@ $ composer update delight-im/auth
      ) WHERE user_id IS NULL;
      ```
 
+ * The two methods `confirmEmail` and `confirmEmailAndSignIn` may now throw an additional `\Delight\Auth\UserAlreadyExistsException` if an attempt has been made to change the email address to an address that has become occupied in the meantime.
+
  * The two methods `forgotPassword` and `resetPassword` may now throw an additional `\Delight\Auth\ResetDisabledException` if the user has disabled password resets for their account.
 
  * The `Base64` class is now an external module and has been moved from the namespace `Delight\Auth` to the namespace `Delight\Base64`. The interface and the return values are not compatible with those from previous versions anymore.
