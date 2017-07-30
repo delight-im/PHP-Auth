@@ -69,6 +69,7 @@ Migrating from an earlier version of this project? See our [upgrade guide](Migra
    * [Available roles](#available-roles)
    * [Permissions (or access rights, privileges or capabilities)](#permissions-or-access-rights-privileges-or-capabilities)
    * [Custom role names](#custom-role-names)
+ * [Enabling or disabling password resets](#enabling-or-disabling-password-resets)
  * [Administration (managing users)](#administration-managing-users)
    * [Creating new users](#creating-new-users)
    * [Deleting users](#deleting-users)
@@ -576,6 +577,31 @@ instead of
 ```
 
 Just remember *not* to alias a *single* included role to *multiple* roles with custom names.
+
+### Enabling or disabling password resets
+
+While password resets via email are a convenient feature that most users find helpful from time to time, the availability of this feature implies that accounts on your service are only ever as secure as the user’s associated email account.
+
+You may provide security-conscious (and experienced) users with the possibility to disable password resets for their accounts (and to enable them again later) for enhanced security:
+
+```php
+try {
+    $auth->setPasswordResetEnabled($_POST['enabled'] == 1);
+
+    // the settings have been changed
+}
+catch (\Delight\Auth\NotLoggedInException $e) {
+    // the user is not signed in
+}
+```
+
+In order to check the current value of this setting, use the return value from
+
+```php
+$auth->isPasswordResetEnabled();
+```
+
+for the correct default option in your user interface. You don’t need to check this value for restrictions of the feature, which are enforced automatically.
 
 ### Administration (managing users)
 
