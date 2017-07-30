@@ -35,6 +35,8 @@ $ composer update delight-im/auth
          ADD COLUMN "resettable" INTEGER NOT NULL CHECK ("resettable" >= 0) DEFAULT "1";
      ```
 
+ * The two methods `forgotPassword` and `resetPassword` may now throw an additional `\Delight\Auth\ResetDisabledException` if the user has disabled password resets for their account.
+
  * The `Base64` class is now an external module and has been moved from the namespace `Delight\Auth` to the namespace `Delight\Base64`. The interface and the return values are not compatible with those from previous versions anymore.
 
 ## From `v4.x.x` to `v5.x.x`
