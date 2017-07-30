@@ -36,6 +36,8 @@ class AmbiguousUsernameException extends AuthException {}
 
 class AttemptCancelledException extends AuthException {}
 
+class ResetDisabledException extends AuthException {}
+
 class AuthError extends \Exception {}
 
 class DatabaseError extends AuthError {}
