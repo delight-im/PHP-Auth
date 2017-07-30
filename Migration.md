@@ -31,7 +31,8 @@ $ composer update delight-im/auth
 
      ```sql
      ALTER TABLE users
-         ADD COLUMN "roles_mask" INTEGER NOT NULL CHECK ("roles_mask" >= 0) DEFAULT "0";
+         ADD COLUMN "roles_mask" INTEGER NOT NULL CHECK ("roles_mask" >= 0) DEFAULT "0",
+         ADD COLUMN "resettable" INTEGER NOT NULL CHECK ("resettable" >= 0) DEFAULT "1";
      ```
 
  * The `Base64` class is now an external module and has been moved from the namespace `Delight\Auth` to the namespace `Delight\Base64`. The interface and the return values are not compatible with those from previous versions anymore.
