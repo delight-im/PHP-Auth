@@ -655,6 +655,68 @@ final class Auth extends UserManager {
 	}
 
 	/**
+	 * Attempts to change the email address of the currently signed-in user (which requires confirmation)
+	 *
+	 * The callback function must have the following signature:
+	 *
+	 * `function ($selector, $token)`
+	 *
+	 * Both pieces of information must be sent to the user, usually embedded in a link
+	 *
+	 * When the user wants to verify their email address as a next step, both pieces will be required again
+	 *
+	 * @param string $newEmail the desired new email address
+	 * @param callable $callback the function that sends the confirmation email to the user
+	 * @throws InvalidEmailException if the desired new email address is invalid
+	 * @throws UserAlreadyExistsException if a user with the desired new email address already exists
+	 * @throws EmailNotVerifiedException if the current (old) email address has not been verified yet
+	 * @throws NotLoggedInException if the user is not currently signed in
+	 * @throws AuthError if an internal problem occurred (do *not* catch)
+	 *
+	 * @see confirmEmail
+	 * @see confirmEmailAndSignIn
+	 */
+	public function changeEmail($newEmail, callable $callback) {
+		if ($this->isLoggedIn()) {
+			$newEmail = self::validateEmailAddress($newEmail);
+
+			try {
+				$existingUsersWithNewEmail = $this->db->selectValue(
+					'SELECT COUNT(*) FROM ' . $this->dbTablePrefix . 'users WHERE email = ?',
+					[ $newEmail ]
+				);
+			}
+			catch (Error $e) {
+				throw new DatabaseError();
+			}
+
+			if ((int) $existingUsersWithNewEmail !== 0) {
+				throw new UserAlreadyExistsException();
+			}
+
+			try {
+				$verified = $this->db->selectValue(
+					'SELECT verified FROM ' . $this->dbTablePrefix . 'users WHERE id = ?',
+					[ $this->getUserId() ]
+				);
+			}
+			catch (Error $e) {
+				throw new DatabaseError();
+			}
+
+			// ensure that at least the current (old) email address has been verified before proceeding
+			if ((int) $verified !== 1) {
+				throw new EmailNotVerifiedException();
+			}
+
+			$this->createConfirmationRequest($this->getUserId(), $newEmail, $callback);
+		}
+		else {
+			throw new NotLoggedInException();
+		}
+	}
+
+	/**
 	 * Initiates a password reset request for the user with the specified email address
 	 *
 	 * The callback function must have the following signature:
