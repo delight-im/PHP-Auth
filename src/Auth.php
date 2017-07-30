@@ -530,6 +530,45 @@ final class Auth extends UserManager {
 	}
 
 	/**
+	 * Confirms an email address and activates the account by supplying the correct selector/token pair
+	 *
+	 * The selector/token pair must have been generated previously by registering a new account
+	 *
+	 * The user will be automatically signed in if this operation is successful
+	 *
+	 * @param string $selector the selector from the selector/token pair
+	 * @param string $token the token from the selector/token pair
+	 * @param int|null $rememberDuration (optional) the duration in seconds to keep the user logged in ("remember me"), e.g. `60 * 60 * 24 * 365.25` for one year
+	 * @return string the email address that has successfully been verified
+	 * @throws InvalidSelectorTokenPairException if either the selector or the token was not correct
+	 * @throws TokenExpiredException if the token has already expired
+	 * @throws InvalidEmailException if the email address has been invalid
+	 * @throws AuthError if an internal problem occurred (do *not* catch)
+	 */
+	public function confirmEmailAndSignIn($selector, $token, $rememberDuration = null) {
+		$verifiedEmail = $this->confirmEmail($selector, $token);
+
+		if (!$this->isLoggedIn()) {
+			if ($verifiedEmail !== null) {
+				$verifiedEmail = self::validateEmailAddress($verifiedEmail);
+
+				$userData = $this->getUserDataByEmailAddress(
+					$verifiedEmail,
+					[ 'id', 'email', 'username', 'status', 'roles_mask' ]
+				);
+
+				$this->onLoginSuccessful($userData['id'], $userData['email'], $userData['username'], $userData['status'], $userData['roles_mask'], true);
+
+				if ($rememberDuration !== null) {
+					$this->createRememberDirective($userData['id'], $rememberDuration);
+				}
+			}
+		}
+
+		return $verifiedEmail;
+	}
+
+	/**
 	 * Changes the (currently logged-in) user's password
 	 *
 	 * @param string $oldPassword the old password to verify account ownership
