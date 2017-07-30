@@ -1029,6 +1029,63 @@ final class Auth extends UserManager {
 	}
 
 	/**
+	 * Sets whether password resets should be permitted for the account of the currently signed-in user
+	 *
+	 * @param bool $enabled whether password resets should be enabled for the user's account
+	 * @throws NotLoggedInException if the user is not currently signed in
+	 * @throws AuthError if an internal problem occurred (do *not* catch)
+	 */
+	public function setPasswordResetEnabled($enabled) {
+		$enabled = (bool) $enabled;
+
+		if ($this->isLoggedIn()) {
+			try {
+				$this->db->update(
+					$this->dbTablePrefix . 'users',
+					[
+						'resettable' => $enabled ? 1 : 0
+					],
+					[
+						'id' => $this->getUserId()
+					]
+				);
+			}
+			catch (Error $e) {
+				throw new DatabaseError();
+			}
+		}
+		else {
+			throw new NotLoggedInException();
+		}
+	}
+
+	/**
+	 * Returns whether password resets are permitted for the account of the currently signed-in user
+	 *
+	 * @return bool
+	 * @throws NotLoggedInException if the user is not currently signed in
+	 * @throws AuthError if an internal problem occurred (do *not* catch)
+	 */
+	public function isPasswordResetEnabled() {
+		if ($this->isLoggedIn()) {
+			try {
+				$enabled = $this->db->selectValue(
+					'SELECT resettable FROM ' . $this->dbTablePrefix . 'users WHERE id = ?',
+					[ $this->getUserId() ]
+				);
+
+				return (int) $enabled === 1;
+			}
+			catch (Error $e) {
+				throw new DatabaseError();
+			}
+		}
+		else {
+			throw new NotLoggedInException();
+		}
+	}
+
+	/**
 	 * Sets whether the user is currently logged in and updates the session
 	 *
 	 * @param bool $loggedIn whether the user is logged in or not
