@@ -165,6 +165,9 @@ function processRequestData(\Delight\Auth\Auth $auth) {
 				catch (\Delight\Auth\TokenExpiredException $e) {
 					return 'token expired';
 				}
+				catch (\Delight\Auth\UserAlreadyExistsException $e) {
+					return 'email address already exists';
+				}
 				catch (\Delight\Auth\TooManyRequestsException $e) {
 					return 'too many requests';
 				}
