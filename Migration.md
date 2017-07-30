@@ -43,6 +43,13 @@ $ composer update delight-im/auth
      ALTER TABLE users
          ADD COLUMN "roles_mask" INTEGER NOT NULL CHECK ("roles_mask" >= 0) DEFAULT "0",
          ADD COLUMN "resettable" INTEGER NOT NULL CHECK ("resettable" >= 0) DEFAULT "1";
+
+     ALTER TABLE users_confirmations
+         ADD COLUMN "user_id" INTEGER CHECK ("user_id" >= 0);
+
+     UPDATE users_confirmations SET user_id = (
+         SELECT id FROM users WHERE email = users_confirmations.email
+     ) WHERE user_id IS NULL;
      ```
 
  * The two methods `forgotPassword` and `resetPassword` may now throw an additional `\Delight\Auth\ResetDisabledException` if the user has disabled password resets for their account.
