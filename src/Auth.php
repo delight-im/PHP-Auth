@@ -654,6 +654,7 @@ final class Auth extends UserManager {
 	 * @param int|null $maxOpenRequests (optional) the maximum number of unexpired and unused requests per user
 	 * @throws InvalidEmailException if the email address was invalid or could not be found
 	 * @throws EmailNotVerifiedException if the email address has not been verified yet via confirmation email
+	 * @throws ResetDisabledException if the user has explicitly disabled password resets for their account
 	 * @throws TooManyRequestsException if the number of allowed attempts/requests has been exceeded
 	 * @throws AuthError if an internal problem occurred (do *not* catch)
 	 */
@@ -678,12 +679,17 @@ final class Auth extends UserManager {
 
 		$userData = $this->getUserDataByEmailAddress(
 			$email,
-			[ 'id', 'verified' ]
+			[ 'id', 'verified', 'resettable' ]
 		);
 
 		// ensure that the account has been verified before initiating a password reset
 		if ((int) $userData['verified'] !== 1) {
 			throw new EmailNotVerifiedException();
+		}
+
+		// do not allow a password reset if the user has explicitly disabled this feature
+		if ((int) $userData['resettable'] !== 1) {
+			throw new ResetDisabledException();
 		}
 
 		$openRequests = (int) $this->getOpenPasswordResetRequests($userData['id']);
