@@ -20,6 +20,7 @@ CREATE TABLE "users" (
 
 CREATE TABLE "users_confirmations" (
 	"id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL CHECK ("id" >= 0),
+	"user_id" INTEGER NOT NULL CHECK ("user_id" >= 0),
 	"email" VARCHAR(249) NOT NULL,
 	"selector" VARCHAR(16) NOT NULL,
 	"token" VARCHAR(255) NOT NULL,
