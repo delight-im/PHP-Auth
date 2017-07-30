@@ -511,6 +511,15 @@ final class Auth extends UserManager {
 						throw new DatabaseError();
 					}
 
+					// if the user is currently signed in
+					if ($this->isLoggedIn()) {
+						// if the user has just confirmed an email address for their own account
+						if ($this->getUserId() === $confirmationData['user_id']) {
+							// immediately update the email address in the current session as well
+							$this->setEmail($confirmationData['email']);
+						}
+					}
+
 					try {
 						$this->db->delete(
 							$this->dbTablePrefix . 'users_confirmations',
