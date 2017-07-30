@@ -159,6 +159,9 @@ final class Auth extends UserManager {
 	 * @throws InvalidPasswordException if the password was invalid
 	 * @throws UserAlreadyExistsException if a user with the specified email address already exists
 	 * @throws AuthError if an internal problem occurred (do *not* catch)
+	 *
+	 * @see confirmEmail
+	 * @see confirmEmailAndSignIn
 	 */
 	public function register($email, $password, $username = null, callable $callback = null) {
 		return $this->createUserInternal(false, $email, $password, $username, $callback);
@@ -189,6 +192,9 @@ final class Auth extends UserManager {
 	 * @throws UserAlreadyExistsException if a user with the specified email address already exists
 	 * @throws DuplicateUsernameException if the specified username wasn't unique
 	 * @throws AuthError if an internal problem occurred (do *not* catch)
+	 *
+	 * @see confirmEmail
+	 * @see confirmEmailAndSignIn
 	 */
 	public function registerWithUniqueUsername($email, $password, $username = null, callable $callback = null) {
 		return $this->createUserInternal(true, $email, $password, $username, $callback);

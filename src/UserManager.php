@@ -100,6 +100,9 @@ abstract class UserManager {
 	 * @throws UserAlreadyExistsException if a user with the specified email address already exists
 	 * @throws DuplicateUsernameException if it was specified that the username must be unique while it was *not*
 	 * @throws AuthError if an internal problem occurred (do *not* catch)
+	 *
+	 * @see confirmEmail
+	 * @see confirmEmailAndSignIn
 	 */
 	protected function createUserInternal($requireUniqueUsername, $email, $password, $username = null, callable $callback = null) {
 		$this->throttle(self::THROTTLE_ACTION_REGISTER);
