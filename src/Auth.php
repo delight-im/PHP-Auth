@@ -941,6 +941,7 @@ final class Auth extends UserManager {
 	 * @param string $newPassword the new password to set for the account
 	 * @throws InvalidSelectorTokenPairException if either the selector or the token was not correct
 	 * @throws TokenExpiredException if the token has already expired
+	 * @throws ResetDisabledException if the user has explicitly disabled password resets for their account
 	 * @throws InvalidPasswordException if the new password was invalid
 	 * @throws TooManyRequestsException if the number of allowed attempts/requests has been exceeded
 	 * @throws AuthError if an internal problem occurred (do *not* catch)
@@ -951,7 +952,7 @@ final class Auth extends UserManager {
 
 		try {
 			$resetData = $this->db->selectRow(
-				'SELECT id, user, token, expires FROM ' . $this->dbTablePrefix . 'users_resets WHERE selector = ?',
+				'SELECT a.id, a.user, a.token, a.expires, b.resettable FROM ' . $this->dbTablePrefix . 'users_resets AS a JOIN ' . $this->dbTablePrefix . 'users AS b ON b.id = a.user WHERE a.selector = ?',
 				[ $selector ]
 			);
 		}
@@ -960,32 +961,37 @@ final class Auth extends UserManager {
 		}
 
 		if (!empty($resetData)) {
-			if (password_verify($token, $resetData['token'])) {
-				if ($resetData['expires'] >= time()) {
-					$newPassword = self::validatePassword($newPassword);
+			if ((int) $resetData['resettable'] === 1) {
+				if (password_verify($token, $resetData['token'])) {
+					if ($resetData['expires'] >= time()) {
+						$newPassword = self::validatePassword($newPassword);
 
-					// update the password in the database
-					$this->updatePassword($resetData['user'], $newPassword);
+						// update the password in the database
+						$this->updatePassword($resetData['user'], $newPassword);
 
-					// delete any remaining remember directives
-					$this->deleteRememberDirective($resetData['user']);
+						// delete any remaining remember directives
+						$this->deleteRememberDirective($resetData['user']);
 
-					try {
-						$this->db->delete(
-							$this->dbTablePrefix . 'users_resets',
-							[ 'id' => $resetData['id'] ]
-						);
+						try {
+							$this->db->delete(
+								$this->dbTablePrefix . 'users_resets',
+								[ 'id' => $resetData['id'] ]
+							);
+						}
+						catch (Error $e) {
+							throw new DatabaseError();
+						}
 					}
-					catch (Error $e) {
-						throw new DatabaseError();
+					else {
+						throw new TokenExpiredException();
 					}
 				}
 				else {
-					throw new TokenExpiredException();
+					throw new InvalidSelectorTokenPairException();
 				}
 			}
 			else {
-				throw new InvalidSelectorTokenPairException();
+				throw new ResetDisabledException();
 			}
 		}
 		else {
