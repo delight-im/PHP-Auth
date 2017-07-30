@@ -243,6 +243,16 @@ function processRequestData(\Delight\Auth\Auth $auth) {
 					return 'invalid password(s)';
 				}
 			}
+			else if ($_POST['action'] === 'setPasswordResetEnabled') {
+				try {
+					$auth->setPasswordResetEnabled($_POST['enabled'] == 1);
+
+					return 'ok';
+				}
+				catch (\Delight\Auth\NotLoggedInException $e) {
+					return 'not logged in';
+				}
+			}
 			else if ($_POST['action'] === 'logout') {
 				$auth->logout();
 
@@ -521,6 +531,15 @@ function showAuthenticatedUserForm(\Delight\Auth\Auth $auth) {
 	echo '<input type="text" name="oldPassword" placeholder="Old password" /> ';
 	echo '<input type="text" name="newPassword" placeholder="New password" /> ';
 	echo '<button type="submit">Change password</button>';
+	echo '</form>';
+
+	echo '<form action="" method="post" accept-charset="utf-8">';
+	echo '<input type="hidden" name="action" value="setPasswordResetEnabled" />';
+	echo '<select name="enabled" size="1">';
+	echo '<option value="0"' . ($auth->isPasswordResetEnabled() ? '' : ' selected="selected"') . '>Disabled</option>';
+	echo '<option value="1"' . ($auth->isPasswordResetEnabled() ? ' selected="selected"' : '') . '>Enabled</option>';
+	echo '</select> ';
+	echo '<button type="submit">Control password resets</button>';
 	echo '</form>';
 
 	echo '<form action="" method="post" accept-charset="utf-8">';
