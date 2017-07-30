@@ -38,7 +38,7 @@ $result = processRequestData($auth);
 showDebugData($auth, $result);
 
 if ($auth->check()) {
-	showAuthenticatedUserForm();
+	showAuthenticatedUserForm($auth);
 }
 else {
 	showGuestUserForm();
@@ -507,7 +507,7 @@ function showGeneralForm() {
 	echo '</form>';
 }
 
-function showAuthenticatedUserForm() {
+function showAuthenticatedUserForm(\Delight\Auth\Auth $auth) {
 	showGeneralForm();
 
 	echo '<form action="" method="post" accept-charset="utf-8">';
