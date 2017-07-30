@@ -231,6 +231,9 @@ catch (\Delight\Auth\InvalidEmailException $e) {
 catch (\Delight\Auth\EmailNotVerifiedException $e) {
     // email not verified
 }
+catch (\Delight\Auth\ResetDisabledException $e) {
+    // password reset is disabled
+}
 catch (\Delight\Auth\TooManyRequestsException $e) {
     // too many requests
 }
@@ -268,6 +271,9 @@ catch (\Delight\Auth\InvalidSelectorTokenPairException $e) {
 }
 catch (\Delight\Auth\TokenExpiredException $e) {
     // token expired
+}
+catch (\Delight\Auth\ResetDisabledException $e) {
+    // password reset is disabled
 }
 catch (\Delight\Auth\InvalidPasswordException $e) {
     // invalid password
