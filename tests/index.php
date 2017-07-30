@@ -246,6 +246,37 @@ function processRequestData(\Delight\Auth\Auth $auth) {
 					return 'invalid password(s)';
 				}
 			}
+			else if ($_POST['action'] === 'changeEmail') {
+				try {
+					$auth->changeEmail($_POST['newEmail'], function ($selector, $token) {
+						echo '<pre>';
+						echo 'Email confirmation';
+						echo "\n";
+						echo '  >  Selector';
+						echo "\t\t\t\t";
+						echo htmlspecialchars($selector);
+						echo "\n";
+						echo '  >  Token';
+						echo "\t\t\t\t";
+						echo htmlspecialchars($token);
+						echo '</pre>';
+					});
+
+					return 'ok';
+				}
+				catch (\Delight\Auth\InvalidEmailException $e) {
+					return 'invalid email address';
+				}
+				catch (\Delight\Auth\UserAlreadyExistsException $e) {
+					return 'email address already exists';
+				}
+				catch (\Delight\Auth\EmailNotVerifiedException $e) {
+					return 'account not verified';
+				}
+				catch (\Delight\Auth\NotLoggedInException $e) {
+					return 'not logged in';
+				}
+			}
 			else if ($_POST['action'] === 'setPasswordResetEnabled') {
 				try {
 					$auth->setPasswordResetEnabled($_POST['enabled'] == 1);
@@ -534,6 +565,12 @@ function showAuthenticatedUserForm(\Delight\Auth\Auth $auth) {
 	echo '<input type="text" name="oldPassword" placeholder="Old password" /> ';
 	echo '<input type="text" name="newPassword" placeholder="New password" /> ';
 	echo '<button type="submit">Change password</button>';
+	echo '</form>';
+
+	echo '<form action="" method="post" accept-charset="utf-8">';
+	echo '<input type="hidden" name="action" value="changeEmail" />';
+	echo '<input type="text" name="newEmail" placeholder="New email address" /> ';
+	echo '<button type="submit">Change email address</button>';
 	echo '</form>';
 
 	showConfirmEmailForm();
