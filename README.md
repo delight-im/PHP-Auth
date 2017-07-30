@@ -184,6 +184,9 @@ catch (\Delight\Auth\InvalidSelectorTokenPairException $e) {
 catch (\Delight\Auth\TokenExpiredException $e) {
     // token expired
 }
+catch (\Delight\Auth\UserAlreadyExistsException $e) {
+    // email address already exists
+}
 catch (\Delight\Auth\TooManyRequestsException $e) {
     // too many requests
 }
