@@ -161,7 +161,7 @@ abstract class UserManager {
 		$newUserId = (int) $this->db->getLastInsertId();
 
 		if ($verified === 0) {
-			$this->createConfirmationRequest($email, $callback);
+			$this->createConfirmationRequest($newUserId, $email, $callback);
 		}
 
 		return $newUserId;
@@ -268,11 +268,12 @@ abstract class UserManager {
 	 *
 	 * When the user wants to verify their email address as a next step, both pieces will be required again
 	 *
+	 * @param int $userId the user's ID
 	 * @param string $email the email address to verify
 	 * @param callable $callback the function that sends the confirmation email to the user
 	 * @throws AuthError if an internal problem occurred (do *not* catch)
 	 */
-	protected function createConfirmationRequest($email, callable $callback) {
+	protected function createConfirmationRequest($userId, $email, callable $callback) {
 		$selector = self::createRandomString(16);
 		$token = self::createRandomString(16);
 		$tokenHashed = password_hash($token, PASSWORD_DEFAULT);
@@ -284,6 +285,7 @@ abstract class UserManager {
 			$this->db->insert(
 				$this->dbTablePrefix . 'users_confirmations',
 				[
+					'user_id' => (int) $userId,
 					'email' => $email,
 					'selector' => $selector,
 					'token' => $tokenHashed,
