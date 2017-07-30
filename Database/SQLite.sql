@@ -11,6 +11,7 @@ CREATE TABLE "users" (
 	"username" VARCHAR(100) DEFAULT NULL,
 	"status" INTEGER NOT NULL CHECK ("status" >= 0) DEFAULT "0",
 	"verified" INTEGER NOT NULL CHECK ("verified" >= 0) DEFAULT "0",
+	"resettable" INTEGER NOT NULL CHECK ("resettable" >= 0) DEFAULT "1",
 	"roles_mask" INTEGER NOT NULL CHECK ("roles_mask" >= 0) DEFAULT "0",
 	"registered" INTEGER NOT NULL CHECK ("registered" >= 0),
 	"last_login" INTEGER CHECK ("last_login" >= 0) DEFAULT NULL,
