@@ -272,7 +272,7 @@ abstract class UserManager {
 	 * @param callable $callback the function that sends the confirmation email to the user
 	 * @throws AuthError if an internal problem occurred (do *not* catch)
 	 */
-	private function createConfirmationRequest($email, callable $callback) {
+	protected function createConfirmationRequest($email, callable $callback) {
 		$selector = self::createRandomString(16);
 		$token = self::createRandomString(16);
 		$tokenHashed = password_hash($token, PASSWORD_DEFAULT);
