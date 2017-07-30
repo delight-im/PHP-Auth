@@ -142,7 +142,20 @@ function processRequestData(\Delight\Auth\Auth $auth) {
 			}
 			else if ($_POST['action'] === 'confirmEmail') {
 				try {
-					$auth->confirmEmail($_POST['selector'], $_POST['token']);
+					if (isset($_POST['login']) && $_POST['login'] > 0) {
+						if ($_POST['login'] == 2) {
+							// keep logged in for one year
+							$rememberDuration = (int) (60 * 60 * 24 * 365.25);
+						}
+						else {
+							// do not keep logged in after session ends
+							$rememberDuration = null;
+						}
+						$auth->confirmEmailAndSignIn($_POST['selector'], $_POST['token'], $rememberDuration);
+					}
+					else {
+						$auth->confirmEmail($_POST['selector'], $_POST['token']);
+					}
 
 					return 'ok';
 				}
@@ -557,6 +570,11 @@ function showGuestUserForm() {
 	echo '<input type="hidden" name="action" value="confirmEmail" />';
 	echo '<input type="text" name="selector" placeholder="Selector" /> ';
 	echo '<input type="text" name="token" placeholder="Token" /> ';
+	echo '<select name="login" size="1">';
+	echo '<option value="0">Sign in automatically? — No</option>';
+	echo '<option value="1">Sign in automatically? — Yes</option>';
+	echo '<option value="2">Sign in automatically? — Yes (and remember)</option>';
+	echo '</select> ';
 	echo '<button type="submit">Confirm email</button>';
 	echo '</form>';
 
