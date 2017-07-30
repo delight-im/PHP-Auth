@@ -594,17 +594,7 @@ function showGuestUserForm() {
 	echo '<button type="submit">Register</button>';
 	echo '</form>';
 
-	echo '<form action="" method="post" accept-charset="utf-8">';
-	echo '<input type="hidden" name="action" value="confirmEmail" />';
-	echo '<input type="text" name="selector" placeholder="Selector" /> ';
-	echo '<input type="text" name="token" placeholder="Token" /> ';
-	echo '<select name="login" size="1">';
-	echo '<option value="0">Sign in automatically? — No</option>';
-	echo '<option value="1">Sign in automatically? — Yes</option>';
-	echo '<option value="2">Sign in automatically? — Yes (and remember)</option>';
-	echo '</select> ';
-	echo '<button type="submit">Confirm email</button>';
-	echo '</form>';
+	showConfirmEmailForm();
 
 	echo '<form action="" method="post" accept-charset="utf-8">';
 	echo '<input type="hidden" name="action" value="forgotPassword" />';
@@ -699,6 +689,20 @@ function showGuestUserForm() {
 	echo '<input type="text" name="id" placeholder="ID" /> ';
 	echo '<select name="role">' . createRolesOptions() . '</select>';
 	echo '<button type="submit">Does user have role?</button>';
+	echo '</form>';
+}
+
+function showConfirmEmailForm() {
+	echo '<form action="" method="post" accept-charset="utf-8">';
+	echo '<input type="hidden" name="action" value="confirmEmail" />';
+	echo '<input type="text" name="selector" placeholder="Selector" /> ';
+	echo '<input type="text" name="token" placeholder="Token" /> ';
+	echo '<select name="login" size="1">';
+	echo '<option value="0">Sign in automatically? — No</option>';
+	echo '<option value="1">Sign in automatically? — Yes</option>';
+	echo '<option value="2">Sign in automatically? — Yes (and remember)</option>';
+	echo '</select> ';
+	echo '<button type="submit">Confirm email</button>';
 	echo '</form>';
 }
 
