@@ -23,7 +23,8 @@ $ composer update delight-im/auth
 
      ```sql
      ALTER TABLE users
-         ADD COLUMN roles_mask INT(10) UNSIGNED NOT NULL DEFAULT 0 AFTER verified;
+         ADD COLUMN roles_mask INT(10) UNSIGNED NOT NULL DEFAULT 0 AFTER verified,
+         ADD COLUMN resettable TINYINT(1) UNSIGNED NOT NULL DEFAULT 1 AFTER verified;
      ```
 
    * The SQLite database schema has changed. Use the statement below to update your database:
