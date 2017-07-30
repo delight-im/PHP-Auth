@@ -465,7 +465,7 @@ final class Auth extends UserManager {
 	}
 
 	/**
-	 * Confirms an email address and activates the account by supplying the correct selector/token pair
+	 * Confirms an email address (and activates the account) by supplying the correct selector/token pair
 	 *
 	 * The selector/token pair must have been generated previously by registering a new account
 	 *
@@ -474,6 +474,7 @@ final class Auth extends UserManager {
 	 * @return string the email address that has successfully been verified
 	 * @throws InvalidSelectorTokenPairException if either the selector or the token was not correct
 	 * @throws TokenExpiredException if the token has already expired
+	 * @throws UserAlreadyExistsException if an attempt has been made to change the email address to a (now) occupied address
 	 * @throws AuthError if an internal problem occurred (do *not* catch)
 	 */
 	public function confirmEmail($selector, $token) {
@@ -496,9 +497,15 @@ final class Auth extends UserManager {
 					try {
 						$this->db->update(
 							$this->dbTablePrefix . 'users',
-							[ 'verified' => 1 ],
+							[
+								'email' => $confirmationData['email'],
+								'verified' => 1
+							],
 							[ 'id' => $confirmationData['user_id'] ]
 						);
+					}
+					catch (IntegrityConstraintViolationException $e) {
+						throw new UserAlreadyExistsException();
 					}
 					catch (Error $e) {
 						throw new DatabaseError();
@@ -542,6 +549,7 @@ final class Auth extends UserManager {
 	 * @return string the email address that has successfully been verified
 	 * @throws InvalidSelectorTokenPairException if either the selector or the token was not correct
 	 * @throws TokenExpiredException if the token has already expired
+	 * @throws UserAlreadyExistsException if an attempt has been made to change the email address to a (now) occupied address
 	 * @throws InvalidEmailException if the email address has been invalid
 	 * @throws AuthError if an internal problem occurred (do *not* catch)
 	 */
