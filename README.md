@@ -54,6 +54,7 @@ Migrating from an earlier version of this project? See our [upgrade guide](Migra
  * [Keeping the user logged in](#keeping-the-user-logged-in)
  * [Password reset ("forgot password")](#password-reset-forgot-password)
  * [Changing the current user's password](#changing-the-current-users-password)
+ * [Changing the current user's email address](#changing-the-current-users-email-address)
  * [Logout](#logout)
  * [Accessing user information](#accessing-user-information)
    * [Login state](#login-state)
@@ -303,6 +304,38 @@ catch (\Delight\Auth\NotLoggedInException $e) {
 catch (\Delight\Auth\InvalidPasswordException $e) {
     // invalid password(s)
 }
+```
+
+### Changing the current user's email address
+
+If a user is currently logged in, they may change their email address.
+
+```php
+try {
+    $auth->changeEmail($_POST['newEmail'], function ($selector, $token) {
+        // send `$selector` and `$token` to the user (e.g. via email)
+    });
+
+    // the change will take effect as soon as the email address has been confirmed
+}
+catch (\Delight\Auth\InvalidEmailException $e) {
+    // invalid email address
+}
+catch (\Delight\Auth\UserAlreadyExistsException $e) {
+    // email address already exists
+}
+catch (\Delight\Auth\EmailNotVerifiedException $e) {
+    // account not verified
+}
+catch (\Delight\Auth\NotLoggedInException $e) {
+    // not logged in
+}
+```
+
+For email verification, you should build an URL with the selector and token and send it to the user, e.g.:
+
+```php
+$url = 'https://www.example.com/verify_email?selector='.urlencode($selector).'&token='.urlencode($token);
 ```
 
 ### Logout
