@@ -25,6 +25,16 @@ $ composer update delight-im/auth
      ALTER TABLE users
          ADD COLUMN roles_mask INT(10) UNSIGNED NOT NULL DEFAULT 0 AFTER verified,
          ADD COLUMN resettable TINYINT(1) UNSIGNED NOT NULL DEFAULT 1 AFTER verified;
+
+     ALTER TABLE users_confirmations
+         ADD COLUMN user_id INT(10) UNSIGNED NULL DEFAULT NULL AFTER id;
+
+     UPDATE users_confirmations SET user_id = (
+         SELECT id FROM users WHERE email = users_confirmations.email
+     ) WHERE user_id IS NULL;
+
+     ALTER TABLE users_confirmations
+         CHANGE COLUMN user_id user_id INT(10) UNSIGNED NOT NULL;
      ```
 
    * The SQLite database schema has changed. Use the statement below to update your database:
