@@ -536,6 +536,8 @@ function showAuthenticatedUserForm(\Delight\Auth\Auth $auth) {
 	echo '<button type="submit">Change password</button>';
 	echo '</form>';
 
+	showConfirmEmailForm();
+
 	echo '<form action="" method="post" accept-charset="utf-8">';
 	echo '<input type="hidden" name="action" value="setPasswordResetEnabled" />';
 	echo '<select name="enabled" size="1">';
