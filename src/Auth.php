@@ -471,6 +471,7 @@ final class Auth extends UserManager {
 	 *
 	 * @param string $selector the selector from the selector/token pair
 	 * @param string $token the token from the selector/token pair
+	 * @return string the email address that has successfully been verified
 	 * @throws InvalidSelectorTokenPairException if either the selector or the token was not correct
 	 * @throws TokenExpiredException if the token has already expired
 	 * @throws AuthError if an internal problem occurred (do *not* catch)
@@ -512,6 +513,8 @@ final class Auth extends UserManager {
 					catch (Error $e) {
 						throw new DatabaseError();
 					}
+
+					return $confirmationData['email'];
 				}
 				else {
 					throw new TokenExpiredException();
