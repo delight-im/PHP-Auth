@@ -482,7 +482,7 @@ final class Auth extends UserManager {
 
 		try {
 			$confirmationData = $this->db->selectRow(
-				'SELECT id, email, token, expires FROM ' . $this->dbTablePrefix . 'users_confirmations WHERE selector = ?',
+				'SELECT id, user_id, email, token, expires FROM ' . $this->dbTablePrefix . 'users_confirmations WHERE selector = ?',
 				[ $selector ]
 			);
 		}
@@ -497,7 +497,7 @@ final class Auth extends UserManager {
 						$this->db->update(
 							$this->dbTablePrefix . 'users',
 							[ 'verified' => 1 ],
-							[ 'email' => $confirmationData['email'] ]
+							[ 'id' => $confirmationData['user_id'] ]
 						);
 					}
 					catch (Error $e) {
