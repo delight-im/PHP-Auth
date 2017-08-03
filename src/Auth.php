@@ -592,49 +592,20 @@ final class Auth extends UserManager {
 	}
 
 	/**
-	 * Changes the (currently logged-in) user's password
+	 * Changes the currently signed-in user's password while requiring the old password for verification
 	 *
 	 * @param string $oldPassword the old password to verify account ownership
-	 * @param string $newPassword the new password that should be used
-	 * @throws NotLoggedInException if the user is not currently logged in
-	 * @throws InvalidPasswordException if either the old password was wrong or the new password was invalid
+	 * @param string $newPassword the new password that should be set
+	 * @throws NotLoggedInException if the user is not currently signed in
+	 * @throws InvalidPasswordException if either the old password has been wrong or the desired new one has been invalid
 	 * @throws AuthError if an internal problem occurred (do *not* catch)
 	 */
 	public function changePassword($oldPassword, $newPassword) {
-		if ($this->isLoggedIn()) {
-			$oldPassword = self::validatePassword($oldPassword);
-			$newPassword = self::validatePassword($newPassword);
-
-			$userId = $this->getUserId();
-
-			try {
-				$passwordInDatabase = $this->db->selectValue(
-					'SELECT password FROM ' . $this->dbTablePrefix . 'users WHERE id = ?',
-					[ $userId ]
-				);
-			}
-			catch (Error $e) {
-				throw new DatabaseError();
-			}
-
-			if (!empty($passwordInDatabase)) {
-				if (password_verify($oldPassword, $passwordInDatabase)) {
-					// update the password in the database
-					$this->updatePassword($userId, $newPassword);
-
-					// delete any remaining remember directives
-					$this->deleteRememberDirective($userId);
-				}
-				else {
-					throw new InvalidPasswordException();
-				}
-			}
-			else {
-				throw new NotLoggedInException();
-			}
+		if ($this->reconfirmPassword($oldPassword)) {
+			$this->changePasswordWithoutOldPassword($newPassword);
 		}
 		else {
-			throw new NotLoggedInException();
+			throw new InvalidPasswordException();
 		}
 	}
 
