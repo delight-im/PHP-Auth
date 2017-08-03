@@ -246,6 +246,19 @@ function processRequestData(\Delight\Auth\Auth $auth) {
 					return 'invalid password(s)';
 				}
 			}
+			else if ($_POST['action'] === 'changePasswordWithoutOldPassword') {
+				try {
+					$auth->changePasswordWithoutOldPassword($_POST['newPassword']);
+
+					return 'ok';
+				}
+				catch (\Delight\Auth\NotLoggedInException $e) {
+					return 'not logged in';
+				}
+				catch (\Delight\Auth\InvalidPasswordException $e) {
+					return 'invalid password';
+				}
+			}
 			else if ($_POST['action'] === 'changeEmail') {
 				try {
 					$auth->changeEmail($_POST['newEmail'], function ($selector, $token) {
@@ -565,6 +578,12 @@ function showAuthenticatedUserForm(\Delight\Auth\Auth $auth) {
 	echo '<input type="text" name="oldPassword" placeholder="Old password" /> ';
 	echo '<input type="text" name="newPassword" placeholder="New password" /> ';
 	echo '<button type="submit">Change password</button>';
+	echo '</form>';
+
+	echo '<form action="" method="post" accept-charset="utf-8">';
+	echo '<input type="hidden" name="action" value="changePasswordWithoutOldPassword" />';
+	echo '<input type="text" name="newPassword" placeholder="New password" /> ';
+	echo '<button type="submit">Change password without old password</button>';
 	echo '</form>';
 
 	echo '<form action="" method="post" accept-charset="utf-8">';
