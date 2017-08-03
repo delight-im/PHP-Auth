@@ -305,6 +305,24 @@ catch (\Delight\Auth\InvalidPasswordException $e) {
 }
 ```
 
+Asking the user for their current (and soon *old*) password and requiring it for verification is the recommended way to handle password changes. This is shown above.
+
+If you’re sure that you don’t need that confirmation, however, you may use the following method instead:
+
+```php
+try {
+    $auth->changePasswordWithoutOldPassword($_POST['newPassword']);
+
+    // password has been changed
+}
+catch (\Delight\Auth\NotLoggedInException $e) {
+    // not logged in
+}
+catch (\Delight\Auth\InvalidPasswordException $e) {
+    // invalid password
+}
+```
+
 ### Changing the current user's email address
 
 If a user is currently logged in, they may change their email address.
