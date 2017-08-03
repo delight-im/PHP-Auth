@@ -639,6 +639,26 @@ final class Auth extends UserManager {
 	}
 
 	/**
+	 * Changes the currently signed-in user's password without requiring the old password for verification
+	 *
+	 * @param string $newPassword the new password that should be set
+	 * @throws NotLoggedInException if the user is not currently signed in
+	 * @throws InvalidPasswordException if the desired new password has been invalid
+	 * @throws AuthError if an internal problem occurred (do *not* catch)
+	 */
+	public function changePasswordWithoutOldPassword($newPassword) {
+		if ($this->isLoggedIn()) {
+			$newPassword = self::validatePassword($newPassword);
+			$userId = $this->getUserId();
+			$this->updatePassword($userId, $newPassword);
+			$this->deleteRememberDirective($userId);
+		}
+		else {
+			throw new NotLoggedInException();
+		}
+	}
+
+	/**
 	 * Updates the given user's password by setting it to the new specified password
 	 *
 	 * @param int $userId the ID of the user whose password should be updated
