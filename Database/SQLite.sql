@@ -51,10 +51,9 @@ CREATE TABLE "users_resets" (
 CREATE INDEX "users_resets.user_expires" ON "users_resets" ("user", "expires");
 
 CREATE TABLE "users_throttling" (
-	"id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL CHECK ("id" >= 0),
-	"action_type" TEXT NOT NULL CHECK ("action_type" IN ("login", "register", "confirm_email")),
-	"selector" VARCHAR(44) DEFAULT NULL,
-	"time_bucket" INTEGER NOT NULL CHECK ("time_bucket" >= 0),
-	"attempts" INTEGER NOT NULL CHECK ("attempts" >= 0) DEFAULT "1",
-	CONSTRAINT "action_type_selector_time_bucket" UNIQUE ("action_type", "selector", "time_bucket")
+	"bucket" VARCHAR(44) PRIMARY KEY NOT NULL,
+	"tokens" REAL NOT NULL CHECK ("tokens" >= 0),
+	"replenished_at" INTEGER NOT NULL CHECK ("replenished_at" >= 0),
+	"expires_at" INTEGER NOT NULL CHECK ("expires_at" >= 0)
 );
+CREATE INDEX "users_throttling.expires_at" ON "users_throttling" ("expires_at");
