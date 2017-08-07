@@ -172,6 +172,56 @@ function processRequestData(\Delight\Auth\Auth $auth) {
 					return 'too many requests';
 				}
 			}
+			else if ($_POST['action'] === 'resendConfirmationForEmail') {
+				try {
+					$auth->resendConfirmationForEmail($_POST['email'], function ($selector, $token) {
+						echo '<pre>';
+						echo 'Email confirmation';
+						echo "\n";
+						echo '  >  Selector';
+						echo "\t\t\t\t";
+						echo htmlspecialchars($selector);
+						echo "\n";
+						echo '  >  Token';
+						echo "\t\t\t\t";
+						echo htmlspecialchars($token);
+						echo '</pre>';
+					});
+
+					return 'ok';
+				}
+				catch (\Delight\Auth\ConfirmationRequestNotFound $e) {
+					return 'no request found';
+				}
+				catch (\Delight\Auth\TooManyRequestsException $e) {
+					return 'too many requests';
+				}
+			}
+			else if ($_POST['action'] === 'resendConfirmationForUserId') {
+				try {
+					$auth->resendConfirmationForUserId($_POST['userId'], function ($selector, $token) {
+						echo '<pre>';
+						echo 'Email confirmation';
+						echo "\n";
+						echo '  >  Selector';
+						echo "\t\t\t\t";
+						echo htmlspecialchars($selector);
+						echo "\n";
+						echo '  >  Token';
+						echo "\t\t\t\t";
+						echo htmlspecialchars($token);
+						echo '</pre>';
+					});
+
+					return 'ok';
+				}
+				catch (\Delight\Auth\ConfirmationRequestNotFound $e) {
+					return 'no request found';
+				}
+				catch (\Delight\Auth\TooManyRequestsException $e) {
+					return 'too many requests';
+				}
+			}
 			else if ($_POST['action'] === 'forgotPassword') {
 				try {
 					$auth->forgotPassword($_POST['email'], function ($selector, $token) {
@@ -761,6 +811,18 @@ function showConfirmEmailForm() {
 	echo '<option value="2">Sign in automatically? — Yes (and remember)</option>';
 	echo '</select> ';
 	echo '<button type="submit">Confirm email</button>';
+	echo '</form>';
+
+	echo '<form action="" method="post" accept-charset="utf-8">';
+	echo '<input type="hidden" name="action" value="resendConfirmationForEmail" />';
+	echo '<input type="text" name="email" placeholder="Email" /> ';
+	echo '<button type="submit">Re-send confirmation</button>';
+	echo '</form>';
+
+	echo '<form action="" method="post" accept-charset="utf-8">';
+	echo '<input type="hidden" name="action" value="resendConfirmationForUserId" />';
+	echo '<input type="text" name="userId" placeholder="User ID" /> ';
+	echo '<button type="submit">Re-send confirmation</button>';
 	echo '</form>';
 }
 
