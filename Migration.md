@@ -53,6 +53,8 @@ $ composer update delight-im/auth
      UPDATE users_confirmations SET user_id = (
          SELECT id FROM users WHERE email = users_confirmations.email
      ) WHERE user_id IS NULL;
+
+     CREATE INDEX "users_confirmations.user_id" ON "users_confirmations" ("user_id");
      ```
 
  * The two methods `confirmEmail` and `confirmEmailAndSignIn` may now throw an additional `\Delight\Auth\UserAlreadyExistsException` if an attempt has been made to change the email address to an address that has become occupied in the meantime.
