@@ -31,7 +31,8 @@ CREATE TABLE IF NOT EXISTS `users_confirmations` (
   `expires` int(10) unsigned NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `selector` (`selector`),
-  KEY `email_expires` (`email`,`expires`)
+  KEY `email_expires` (`email`,`expires`),
+  KEY `user_id` (`user_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS `users_remembered` (
