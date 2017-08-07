@@ -35,6 +35,9 @@ $ composer update delight-im/auth
 
      ALTER TABLE users_confirmations
          CHANGE COLUMN user_id user_id INT(10) UNSIGNED NOT NULL;
+
+     ALTER TABLE users_confirmations
+         ADD INDEX user_id (user_id ASC);
      ```
 
    * The SQLite database schema has changed. Use the statement below to update your database:
