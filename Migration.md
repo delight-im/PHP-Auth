@@ -66,6 +66,17 @@ $ composer update delight-im/auth
      ) WHERE user_id IS NULL;
 
      CREATE INDEX "users_confirmations.user_id" ON "users_confirmations" ("user_id");
+
+     DROP TABLE users_throttling;
+
+     CREATE TABLE "users_throttling" (
+         "bucket" VARCHAR(44) PRIMARY KEY NOT NULL,
+         "tokens" REAL NOT NULL CHECK ("tokens" >= 0),
+         "replenished_at" INTEGER NOT NULL CHECK ("replenished_at" >= 0),
+         "expires_at" INTEGER NOT NULL CHECK ("expires_at" >= 0)
+     );
+
+     CREATE INDEX "users_throttling.expires_at" ON "users_throttling" ("expires_at");
      ```
 
  * The two methods `confirmEmail` and `confirmEmailAndSignIn` may now throw an additional `\Delight\Auth\UserAlreadyExistsException` if an attempt has been made to change the email address to an address that has become occupied in the meantime.
