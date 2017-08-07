@@ -55,6 +55,7 @@ Migrating from an earlier version of this project? See our [upgrade guide](Migra
  * [Password reset ("forgot password")](#password-reset-forgot-password)
  * [Changing the current user's password](#changing-the-current-users-password)
  * [Changing the current user's email address](#changing-the-current-users-email-address)
+ * [Re-sending confirmation requests](#re-sending-confirmation-requests)
  * [Logout](#logout)
  * [Accessing user information](#accessing-user-information)
    * [Login state](#login-state)
@@ -353,6 +354,50 @@ For email verification, you should build an URL with the selector and token and 
 
 ```php
 $url = 'https://www.example.com/verify_email?selector='.urlencode($selector).'&token='.urlencode($token);
+```
+
+### Re-sending confirmation requests
+
+If an earlier confirmation request could not be delivered to the user, or if the user missed that request, or if they just don’t want to wait any longer, you may re-send an earlier request like this:
+
+```php
+try {
+    $auth->resendConfirmationForEmail($_POST['email'], function ($selector, $token) {
+        // send `$selector` and `$token` to the user (e.g. via email)
+    });
+
+    // the user may now respond to the confirmation request (usually by clicking a link)
+}
+catch (\Delight\Auth\ConfirmationRequestNotFound $e) {
+    // no earlier request found that could be re-sent
+}
+catch (\Delight\Auth\TooManyRequestsException $e) {
+    // there have been too many requests -- try again later
+}
+```
+
+If you want to specify the user by their ID instead of by their email address, this is possible as well:
+
+```php
+try {
+    $auth->resendConfirmationForUserId($_POST['userId'], function ($selector, $token) {
+        // send `$selector` and `$token` to the user (e.g. via email)
+    });
+
+    // the user may now respond to the confirmation request (usually by clicking a link)
+}
+catch (\Delight\Auth\ConfirmationRequestNotFound $e) {
+    // no earlier request found that could be re-sent
+}
+catch (\Delight\Auth\TooManyRequestsException $e) {
+    // there have been too many requests -- try again later
+}
+```
+
+Usually, you should build an URL with the selector and token and send it to the user, e.g. as follows:
+
+```php
+$url = 'https://www.example.com/verify_email?selector=' . urlencode($selector) . '&token=' . urlencode($token);
 ```
 
 ### Logout
