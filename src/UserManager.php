@@ -26,6 +26,7 @@ abstract class UserManager {
 	const THROTTLE_ACTION_LOGIN = 'login';
 	const THROTTLE_ACTION_REGISTER = 'register';
 	const THROTTLE_ACTION_CONSUME_TOKEN = 'confirm_email';
+	const CONFIRMATION_REQUESTS_TTL_IN_SECONDS = 60 * 60 * 24;
 
 	/** @var PdoDatabase the database connection to operate on */
 	protected $db;
@@ -282,7 +283,7 @@ abstract class UserManager {
 		$tokenHashed = password_hash($token, PASSWORD_DEFAULT);
 
 		// the request shall be valid for one day
-		$expires = time() + 60 * 60 * 24;
+		$expires = time() + self::CONFIRMATION_REQUESTS_TTL_IN_SECONDS;
 
 		try {
 			$this->db->insert(
