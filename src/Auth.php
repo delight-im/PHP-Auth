@@ -714,6 +714,94 @@ final class Auth extends UserManager {
 	}
 
 	/**
+	 * Attempts to re-send an earlier confirmation request for the user with the specified email address
+	 *
+	 * The callback function must have the following signature:
+	 *
+	 * `function ($selector, $token)`
+	 *
+	 * Both pieces of information must be sent to the user, usually embedded in a link
+	 *
+	 * When the user wants to verify their email address as a next step, both pieces will be required again
+	 *
+	 * @param string $email the email address of the user to re-send the confirmation request for
+	 * @param callable $callback the function that sends the confirmation request to the user
+	 * @throws ConfirmationRequestNotFound if no previous request has been found that could be re-sent
+	 * @throws TooManyRequestsException if the number of allowed attempts/requests has been exceeded
+	 */
+	public function resendConfirmationForEmail($email, callable $callback) {
+		$this->resendConfirmationForColumnValue('email', $email, $callback);
+	}
+
+	/**
+	 * Attempts to re-send an earlier confirmation request for the user with the specified ID
+	 *
+	 * The callback function must have the following signature:
+	 *
+	 * `function ($selector, $token)`
+	 *
+	 * Both pieces of information must be sent to the user, usually embedded in a link
+	 *
+	 * When the user wants to verify their email address as a next step, both pieces will be required again
+	 *
+	 * @param int $userId the ID of the user to re-send the confirmation request for
+	 * @param callable $callback the function that sends the confirmation request to the user
+	 * @throws ConfirmationRequestNotFound if no previous request has been found that could be re-sent
+	 * @throws TooManyRequestsException if the number of allowed attempts/requests has been exceeded
+	 */
+	public function resendConfirmationForUserId($userId, callable $callback) {
+		$this->resendConfirmationForColumnValue('user_id', $userId, $callback);
+	}
+
+	/**
+	 * Attempts to re-send an earlier confirmation request
+	 *
+	 * The callback function must have the following signature:
+	 *
+	 * `function ($selector, $token)`
+	 *
+	 * Both pieces of information must be sent to the user, usually embedded in a link
+	 *
+	 * When the user wants to verify their email address as a next step, both pieces will be required again
+	 *
+	 * You must never pass untrusted input to the parameter that takes the column name
+	 *
+	 * @param string $columnName the name of the column to filter by
+	 * @param mixed $columnValue the value to look for in the selected column
+	 * @param callable $callback the function that sends the confirmation request to the user
+	 * @throws ConfirmationRequestNotFound if no previous request has been found that could be re-sent
+	 * @throws TooManyRequestsException if the number of allowed attempts/requests has been exceeded
+	 * @throws AuthError if an internal problem occurred (do *not* catch)
+	 */
+	private function resendConfirmationForColumnValue($columnName, $columnValue, callable $callback) {
+		try {
+			$latestAttempt = $this->db->selectRow(
+				'SELECT user_id, email, expires FROM ' . $this->dbTablePrefix . 'users_confirmations WHERE ' . $columnName . ' = ? ORDER BY id DESC LIMIT 1 OFFSET 0',
+				[ $columnValue ]
+			);
+		}
+		catch (Error $e) {
+			throw new DatabaseError();
+		}
+
+		if ($latestAttempt === null) {
+			throw new ConfirmationRequestNotFound();
+		}
+
+		$retryAt = $latestAttempt['expires'] - 0.75 * self::CONFIRMATION_REQUESTS_TTL_IN_SECONDS;
+
+		if ($retryAt > \time()) {
+			self::onTooManyRequests($retryAt - \time());
+		}
+
+		$this->createConfirmationRequest(
+			$latestAttempt['user_id'],
+			$latestAttempt['email'],
+			$callback
+		);
+	}
+
+	/**
 	 * Initiates a password reset request for the user with the specified email address
 	 *
 	 * The callback function must have the following signature:
