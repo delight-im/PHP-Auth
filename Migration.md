@@ -38,6 +38,17 @@ $ composer update delight-im/auth
 
      ALTER TABLE users_confirmations
          ADD INDEX user_id (user_id ASC);
+
+     DROP TABLE users_throttling;
+
+     CREATE TABLE users_throttling (
+         bucket varchar(44) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
+         tokens float unsigned NOT NULL,
+         replenished_at int(10) unsigned NOT NULL,
+         expires_at int(10) unsigned NOT NULL,
+         PRIMARY KEY (bucket),
+         KEY expires_at (expires_at)
+     ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
      ```
 
    * The SQLite database schema has changed. Use the statement below to update your database:
