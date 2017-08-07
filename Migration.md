@@ -19,7 +19,7 @@ $ composer update delight-im/auth
 
  * The database schema has changed.
 
-   * The MySQL database schema has changed. Use the statement below to update your database:
+   * The MySQL database schema has changed. Use the statements below to update your database:
 
      ```sql
      ALTER TABLE users
@@ -51,7 +51,7 @@ $ composer update delight-im/auth
      ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
      ```
 
-   * The SQLite database schema has changed. Use the statement below to update your database:
+   * The SQLite database schema has changed. Use the statements below to update your database:
 
      ```sql
      ALTER TABLE users
