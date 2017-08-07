@@ -38,6 +38,8 @@ class AttemptCancelledException extends AuthException {}
 
 class ResetDisabledException extends AuthException {}
 
+class ConfirmationRequestNotFound extends AuthException {}
+
 class AuthError extends \Exception {}
 
 class DatabaseError extends AuthError {}
