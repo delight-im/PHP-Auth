@@ -28,6 +28,7 @@ CREATE TABLE "users_confirmations" (
 	CONSTRAINT "selector" UNIQUE ("selector")
 );
 CREATE INDEX "users_confirmations.email_expires" ON "users_confirmations" ("email", "expires");
+CREATE INDEX "users_confirmations.user_id" ON "users_confirmations" ("user_id");
 
 CREATE TABLE "users_remembered" (
 	"id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL CHECK ("id" >= 0),
