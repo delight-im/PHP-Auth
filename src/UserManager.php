@@ -188,7 +188,7 @@ abstract class UserManager {
 			$projection = implode(', ', $requestedColumns);
 
 			$users = $this->db->select(
-				'SELECT ' . $projection . ' FROM ' . $this->dbTablePrefix . 'users WHERE username = ? LIMIT 0, 2',
+				'SELECT ' . $projection . ' FROM ' . $this->dbTablePrefix . 'users WHERE username = ? LIMIT 2 OFFSET 0',
 				[ $username ]
 			);
 		}
