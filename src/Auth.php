@@ -590,7 +590,6 @@ final class Auth extends UserManager {
 	 * @throws InvalidSelectorTokenPairException if either the selector or the token was not correct
 	 * @throws TokenExpiredException if the token has already expired
 	 * @throws UserAlreadyExistsException if an attempt has been made to change the email address to a (now) occupied address
-	 * @throws InvalidEmailException if the email address has been invalid
 	 * @throws TooManyRequestsException if the number of allowed attempts/requests has been exceeded
 	 * @throws AuthError if an internal problem occurred (do *not* catch)
 	 */
