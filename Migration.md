@@ -79,6 +79,10 @@ $ composer update delight-im/auth
      CREATE INDEX "users_throttling.expires_at" ON "users_throttling" ("expires_at");
      ```
 
+ * The method `setThrottlingOptions` has been removed.
+
+ * The method `changePassword` may now throw an additional `\Delight\Auth\TooManyRequestsException` if too many attempts have been made without the correct old password.
+
  * The two methods `confirmEmail` and `confirmEmailAndSignIn` may now throw an additional `\Delight\Auth\UserAlreadyExistsException` if an attempt has been made to change the email address to an address that has become occupied in the meantime.
 
  * The two methods `forgotPassword` and `resetPassword` may now throw an additional `\Delight\Auth\ResetDisabledException` if the user has disabled password resets for their account.
