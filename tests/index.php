@@ -282,6 +282,9 @@ function processRequestData(\Delight\Auth\Auth $auth) {
 				catch (\Delight\Auth\NotLoggedInException $e) {
 					return 'not logged in';
 				}
+				catch (\Delight\Auth\TooManyRequestsException $e) {
+					return 'too many requests';
+				}
 			}
 			else if ($_POST['action'] === 'changePassword') {
 				try {
@@ -294,6 +297,9 @@ function processRequestData(\Delight\Auth\Auth $auth) {
 				}
 				catch (\Delight\Auth\InvalidPasswordException $e) {
 					return 'invalid password(s)';
+				}
+				catch (\Delight\Auth\TooManyRequestsException $e) {
+					return 'too many requests';
 				}
 			}
 			else if ($_POST['action'] === 'changePasswordWithoutOldPassword') {
@@ -338,6 +344,9 @@ function processRequestData(\Delight\Auth\Auth $auth) {
 				}
 				catch (\Delight\Auth\NotLoggedInException $e) {
 					return 'not logged in';
+				}
+				catch (\Delight\Auth\TooManyRequestsException $e) {
+					return 'too many requests';
 				}
 			}
 			else if ($_POST['action'] === 'setPasswordResetEnabled') {

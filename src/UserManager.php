@@ -23,9 +23,6 @@ require_once __DIR__ . '/Exceptions.php';
  */
 abstract class UserManager {
 
-	const THROTTLE_ACTION_LOGIN = 'login';
-	const THROTTLE_ACTION_REGISTER = 'register';
-	const THROTTLE_ACTION_CONSUME_TOKEN = 'confirm_email';
 	const CONFIRMATION_REQUESTS_TTL_IN_SECONDS = 60 * 60 * 24;
 
 	/** @var PdoDatabase the database connection to operate on */
@@ -106,8 +103,6 @@ abstract class UserManager {
 	 * @see confirmEmailAndSignIn
 	 */
 	protected function createUserInternal($requireUniqueUsername, $email, $password, $username = null, callable $callback = null) {
-		$this->throttle(self::THROTTLE_ACTION_REGISTER);
-
 		ignore_user_abort(true);
 
 		$email = self::validateEmailAddress($email);
@@ -250,16 +245,6 @@ abstract class UserManager {
 
 		return $password;
 	}
-
-	/**
-	 * Throttles the specified action for the user to protect against too many requests
-	 *
-	 * @param string $actionType one of the constants from this class starting with `THROTTLE_ACTION_`
-	 * @param mixed|null $customSelector a custom selector to use for throttling (if any), otherwise the IP address will be used
-	 * @throws TooManyRequestsException if the number of allowed attempts/requests has been exceeded
-	 * @throws AuthError if an internal problem occurred (do *not* catch)
-	 */
-	abstract protected function throttle($actionType, $customSelector = null);
 
 	/**
 	 * Creates a request for email confirmation

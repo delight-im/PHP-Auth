@@ -30,8 +30,6 @@ final class Auth extends UserManager {
 	const SESSION_FIELD_REMEMBERED = 'auth_remembered';
 	const COOKIE_CONTENT_SEPARATOR = '~';
 	const COOKIE_NAME_REMEMBER = 'auth_remember';
-	const IP_ADDRESS_HASH_ALGORITHM = 'sha256';
-	const HTTP_STATUS_CODE_TOO_MANY_REQUESTS = 429;
 
 	/** @var boolean whether HTTPS (TLS/SSL) will be used (recommended) */
 	private $useHttps;
@@ -39,10 +37,6 @@ final class Auth extends UserManager {
 	private $allowCookiesScriptAccess;
 	/** @var string the user's current IP address */
 	private $ipAddress;
-	/** @var int the number of actions allowed (in throttling) per time bucket */
-	private $throttlingActionsPerTimeBucket;
-	/** @var int the size of the time buckets (used for throttling) in seconds */
-	private $throttlingTimeBucketSize;
 
 	/**
 	 * @param PdoDatabase|PdoDsn|\PDO $databaseConnection the database connection to operate on
@@ -57,8 +51,6 @@ final class Auth extends UserManager {
 		$this->useHttps = $useHttps;
 		$this->allowCookiesScriptAccess = $allowCookiesScriptAccess;
 		$this->ipAddress = empty($ipAddress) ? $_SERVER['REMOTE_ADDR'] : $ipAddress;
-		$this->throttlingActionsPerTimeBucket = 20;
-		$this->throttlingTimeBucketSize = 3600;
 
 		$this->initSession();
 		$this->enhanceHttpSecurity();
@@ -158,13 +150,21 @@ final class Auth extends UserManager {
 	 * @throws InvalidEmailException if the email address was invalid
 	 * @throws InvalidPasswordException if the password was invalid
 	 * @throws UserAlreadyExistsException if a user with the specified email address already exists
+	 * @throws TooManyRequestsException if the number of allowed attempts/requests has been exceeded
 	 * @throws AuthError if an internal problem occurred (do *not* catch)
 	 *
 	 * @see confirmEmail
 	 * @see confirmEmailAndSignIn
 	 */
 	public function register($email, $password, $username = null, callable $callback = null) {
-		return $this->createUserInternal(false, $email, $password, $username, $callback);
+		$this->throttle([ 'enumerateUsers', $this->getIpAddress() ], 1, (60 * 60), 75);
+		$this->throttle([ 'createNewAccount', $this->getIpAddress() ], 1, (60 * 60 * 12), 5, true);
+
+		$newUserId = $this->createUserInternal(false, $email, $password, $username, $callback);
+
+		$this->throttle([ 'createNewAccount', $this->getIpAddress() ], 1, (60 * 60 * 12), 5, false);
+
+		return $newUserId;
 	}
 
 	/**
@@ -191,13 +191,21 @@ final class Auth extends UserManager {
 	 * @throws InvalidPasswordException if the password was invalid
 	 * @throws UserAlreadyExistsException if a user with the specified email address already exists
 	 * @throws DuplicateUsernameException if the specified username wasn't unique
+	 * @throws TooManyRequestsException if the number of allowed attempts/requests has been exceeded
 	 * @throws AuthError if an internal problem occurred (do *not* catch)
 	 *
 	 * @see confirmEmail
 	 * @see confirmEmailAndSignIn
 	 */
 	public function registerWithUniqueUsername($email, $password, $username = null, callable $callback = null) {
-		return $this->createUserInternal(true, $email, $password, $username, $callback);
+		$this->throttle([ 'enumerateUsers', $this->getIpAddress() ], 1, (60 * 60), 75);
+		$this->throttle([ 'createNewAccount', $this->getIpAddress() ], 1, (60 * 60 * 12), 5, true);
+
+		$newUserId = $this->createUserInternal(true, $email, $password, $username, $callback);
+
+		$this->throttle([ 'createNewAccount', $this->getIpAddress() ], 1, (60 * 60 * 12), 5, false);
+
+		return $newUserId;
 	}
 
 	/**
@@ -211,9 +219,12 @@ final class Auth extends UserManager {
 	 * @throws InvalidPasswordException if the password was invalid
 	 * @throws EmailNotVerifiedException if the email address has not been verified yet via confirmation email
 	 * @throws AttemptCancelledException if the attempt has been cancelled by the supplied callback that is executed before success
+	 * @throws TooManyRequestsException if the number of allowed attempts/requests has been exceeded
 	 * @throws AuthError if an internal problem occurred (do *not* catch)
 	 */
 	public function login($email, $password, $rememberDuration = null, callable $onBeforeSuccess = null) {
+		$this->throttle([ 'attemptToLogin', 'email', $email ], 500, (60 * 60 * 24), null, true);
+
 		$this->authenticateUserInternal($password, $email, null, $rememberDuration, $onBeforeSuccess);
 	}
 
@@ -233,9 +244,12 @@ final class Auth extends UserManager {
 	 * @throws InvalidPasswordException if the password was invalid
 	 * @throws EmailNotVerifiedException if the email address has not been verified yet via confirmation email
 	 * @throws AttemptCancelledException if the attempt has been cancelled by the supplied callback that is executed before success
+	 * @throws TooManyRequestsException if the number of allowed attempts/requests has been exceeded
 	 * @throws AuthError if an internal problem occurred (do *not* catch)
 	 */
 	public function loginWithUsername($username, $password, $rememberDuration = null, callable $onBeforeSuccess = null) {
+		$this->throttle([ 'attemptToLogin', 'username', $username ], 500, (60 * 60 * 24), null, true);
+
 		$this->authenticateUserInternal($password, null, $username, $rememberDuration, $onBeforeSuccess);
 	}
 
@@ -253,6 +267,7 @@ final class Auth extends UserManager {
 	 * @param string $password the user's password
 	 * @return bool whether the supplied password has been correct
 	 * @throws NotLoggedInException if the user is not currently signed in
+	 * @throws TooManyRequestsException if the number of allowed attempts/requests has been exceeded
 	 * @throws AuthError if an internal problem occurred (do *not* catch)
 	 */
 	public function reconfirmPassword($password) {
@@ -263,6 +278,8 @@ final class Auth extends UserManager {
 			catch (InvalidPasswordException $e) {
 				return false;
 			}
+
+			$this->throttle([ 'reconfirmPassword', $this->getIpAddress() ], 3, (60 * 60), 4, true);
 
 			try {
 				$expectedHash = $this->db->selectValue(
@@ -275,7 +292,13 @@ final class Auth extends UserManager {
 			}
 
 			if (!empty($expectedHash)) {
-				return \password_verify($password, $expectedHash);
+				$validated = \password_verify($password, $expectedHash);
+
+				if (!$validated) {
+					$this->throttle([ 'reconfirmPassword', $this->getIpAddress() ], 3, (60 * 60), 4, false);
+				}
+
+				return $validated;
 			}
 			else {
 				throw new NotLoggedInException();
@@ -481,11 +504,13 @@ final class Auth extends UserManager {
 	 * @throws InvalidSelectorTokenPairException if either the selector or the token was not correct
 	 * @throws TokenExpiredException if the token has already expired
 	 * @throws UserAlreadyExistsException if an attempt has been made to change the email address to a (now) occupied address
+	 * @throws TooManyRequestsException if the number of allowed attempts/requests has been exceeded
 	 * @throws AuthError if an internal problem occurred (do *not* catch)
 	 */
 	public function confirmEmail($selector, $token) {
-		$this->throttle(self::THROTTLE_ACTION_CONSUME_TOKEN);
-		$this->throttle(self::THROTTLE_ACTION_CONSUME_TOKEN, $selector);
+		$this->throttle([ 'confirmEmail', $this->getIpAddress() ], 5, (60 * 60), 10);
+		$this->throttle([ 'confirmEmail', 'selector', $selector ], 3, (60 * 60), 10);
+		$this->throttle([ 'confirmEmail', 'token', $token ], 3, (60 * 60), 10);
 
 		try {
 			$confirmationData = $this->db->selectRow(
@@ -566,6 +591,7 @@ final class Auth extends UserManager {
 	 * @throws TokenExpiredException if the token has already expired
 	 * @throws UserAlreadyExistsException if an attempt has been made to change the email address to a (now) occupied address
 	 * @throws InvalidEmailException if the email address has been invalid
+	 * @throws TooManyRequestsException if the number of allowed attempts/requests has been exceeded
 	 * @throws AuthError if an internal problem occurred (do *not* catch)
 	 */
 	public function confirmEmailAndSignIn($selector, $token, $rememberDuration = null) {
@@ -598,6 +624,7 @@ final class Auth extends UserManager {
 	 * @param string $newPassword the new password that should be set
 	 * @throws NotLoggedInException if the user is not currently signed in
 	 * @throws InvalidPasswordException if either the old password has been wrong or the desired new one has been invalid
+	 * @throws TooManyRequestsException if the number of allowed attempts/requests has been exceeded
 	 * @throws AuthError if an internal problem occurred (do *not* catch)
 	 */
 	public function changePassword($oldPassword, $newPassword) {
@@ -668,6 +695,7 @@ final class Auth extends UserManager {
 	 * @throws UserAlreadyExistsException if a user with the desired new email address already exists
 	 * @throws EmailNotVerifiedException if the current (old) email address has not been verified yet
 	 * @throws NotLoggedInException if the user is not currently signed in
+	 * @throws TooManyRequestsException if the number of allowed attempts/requests has been exceeded
 	 * @throws AuthError if an internal problem occurred (do *not* catch)
 	 *
 	 * @see confirmEmail
@@ -676,6 +704,8 @@ final class Auth extends UserManager {
 	public function changeEmail($newEmail, callable $callback) {
 		if ($this->isLoggedIn()) {
 			$newEmail = self::validateEmailAddress($newEmail);
+
+			$this->throttle([ 'enumerateUsers', $this->getIpAddress() ], 1, (60 * 60), 75);
 
 			try {
 				$existingUsersWithNewEmail = $this->db->selectValue(
@@ -706,6 +736,9 @@ final class Auth extends UserManager {
 				throw new EmailNotVerifiedException();
 			}
 
+			$this->throttle([ 'requestEmailChange', $this->getIpAddress() ], 1, (60 * 60 * 24), 3);
+			$this->throttle([ 'requestEmailChange', 'user', $this->getUserId() ], 1, (60 * 60 * 24), 3);
+
 			$this->createConfirmationRequest($this->getUserId(), $newEmail, $callback);
 		}
 		else {
@@ -730,6 +763,8 @@ final class Auth extends UserManager {
 	 * @throws TooManyRequestsException if the number of allowed attempts/requests has been exceeded
 	 */
 	public function resendConfirmationForEmail($email, callable $callback) {
+		$this->throttle([ 'enumerateUsers', $this->getIpAddress() ], 1, (60 * 60), 75);
+
 		$this->resendConfirmationForColumnValue('email', $email, $callback);
 	}
 
@@ -791,8 +826,11 @@ final class Auth extends UserManager {
 		$retryAt = $latestAttempt['expires'] - 0.75 * self::CONFIRMATION_REQUESTS_TTL_IN_SECONDS;
 
 		if ($retryAt > \time()) {
-			self::onTooManyRequests($retryAt - \time());
+			throw new TooManyRequestsException('', $retryAt - \time());
 		}
+
+		$this->throttle([ 'resendConfirmation', $this->getIpAddress() ], 4, (60 * 60 * 24 * 7), 2);
+		$this->throttle([ 'resendConfirmation', 'user', $latestAttempt['user_id'] ], 4, (60 * 60 * 24 * 7), 2);
 
 		$this->createConfirmationRequest(
 			$latestAttempt['user_id'],
@@ -824,6 +862,8 @@ final class Auth extends UserManager {
 	 */
 	public function forgotPassword($email, callable $callback, $requestExpiresAfter = null, $maxOpenRequests = null) {
 		$email = self::validateEmailAddress($email);
+
+		$this->throttle([ 'enumerateUsers', $this->getIpAddress() ], 1, (60 * 60), 75);
 
 		if ($requestExpiresAfter === null) {
 			// use six hours as the default
@@ -859,10 +899,13 @@ final class Auth extends UserManager {
 		$openRequests = (int) $this->getOpenPasswordResetRequests($userData['id']);
 
 		if ($openRequests < $maxOpenRequests) {
+			$this->throttle([ 'requestPasswordReset', $this->getIpAddress() ], 4, (60 * 60 * 24 * 7), 2);
+			$this->throttle([ 'requestPasswordReset', 'user', $userData['id'] ], 4, (60 * 60 * 24 * 7), 2);
+
 			$this->createPasswordResetRequest($userData['id'], $requestExpiresAfter, $callback);
 		}
 		else {
-			self::onTooManyRequests($requestExpiresAfter);
+			throw new TooManyRequestsException('', $requestExpiresAfter);
 		}
 	}
 
@@ -880,59 +923,32 @@ final class Auth extends UserManager {
 	 * @throws InvalidPasswordException if the password was invalid
 	 * @throws EmailNotVerifiedException if the email address has not been verified yet via confirmation email
 	 * @throws AttemptCancelledException if the attempt has been cancelled by the supplied callback that is executed before success
+	 * @throws TooManyRequestsException if the number of allowed attempts/requests has been exceeded
 	 * @throws AuthError if an internal problem occurred (do *not* catch)
 	 */
 	private function authenticateUserInternal($password, $email = null, $username = null, $rememberDuration = null, callable $onBeforeSuccess = null) {
+		$this->throttle([ 'enumerateUsers', $this->getIpAddress() ], 1, (60 * 60), 75);
+		$this->throttle([ 'attemptToLogin', $this->getIpAddress() ], 4, (60 * 60), 5, true);
+
 		$columnsToFetch = [ 'id', 'email', 'password', 'verified', 'username', 'status', 'roles_mask' ];
 
 		if ($email !== null) {
 			$email = self::validateEmailAddress($email);
 
 			// attempt to look up the account information using the specified email address
-			try {
-				$userData = $this->getUserDataByEmailAddress(
-					$email,
-					$columnsToFetch
-				);
-			}
-			// if there is no user with the specified email address
-			catch (InvalidEmailException $e) {
-				// throttle this operation
-				$this->throttle(self::THROTTLE_ACTION_LOGIN);
-				$this->throttle(self::THROTTLE_ACTION_LOGIN, $email);
-
-				// and re-throw the exception
-				throw new InvalidEmailException();
-			}
+			$userData = $this->getUserDataByEmailAddress(
+				$email,
+				$columnsToFetch
+			);
 		}
 		elseif ($username !== null) {
 			$username = trim($username);
 
 			// attempt to look up the account information using the specified username
-			try {
-				$userData = $this->getUserDataByUsername(
-					$username,
-					$columnsToFetch
-				);
-			}
-			// if there is no user with the specified username
-			catch (UnknownUsernameException $e) {
-				// throttle this operation
-				$this->throttle(self::THROTTLE_ACTION_LOGIN);
-				$this->throttle(self::THROTTLE_ACTION_LOGIN, $username);
-
-				// and re-throw the exception
-				throw new UnknownUsernameException();
-			}
-			// if there are multiple users with the specified username
-			catch (AmbiguousUsernameException $e) {
-				// throttle this operation
-				$this->throttle(self::THROTTLE_ACTION_LOGIN);
-				$this->throttle(self::THROTTLE_ACTION_LOGIN, $username);
-
-				// and re-throw the exception
-				throw new AmbiguousUsernameException();
-			}
+			$userData = $this->getUserDataByUsername(
+				$username,
+				$columnsToFetch
+			);
 		}
 		// if neither an email address nor a username has been provided
 		else {
@@ -968,6 +984,15 @@ final class Auth extends UserManager {
 					return;
 				}
 				else {
+					$this->throttle([ 'attemptToLogin', $this->getIpAddress() ], 4, (60 * 60), 5, false);
+
+					if (isset($email)) {
+						$this->throttle([ 'attemptToLogin', 'email', $email ], 500, (60 * 60 * 24), null, false);
+					}
+					elseif (isset($username)) {
+						$this->throttle([ 'attemptToLogin', 'username', $username ], 500, (60 * 60 * 24), null, false);
+					}
+
 					throw new AttemptCancelledException();
 				}
 			}
@@ -976,13 +1001,13 @@ final class Auth extends UserManager {
 			}
 		}
 		else {
-			// throttle this operation
-			$this->throttle(self::THROTTLE_ACTION_LOGIN);
+			$this->throttle([ 'attemptToLogin', $this->getIpAddress() ], 4, (60 * 60), 5, false);
+
 			if (isset($email)) {
-				$this->throttle(self::THROTTLE_ACTION_LOGIN, $email);
+				$this->throttle([ 'attemptToLogin', 'email', $email ], 500, (60 * 60 * 24), null, false);
 			}
 			elseif (isset($username)) {
-				$this->throttle(self::THROTTLE_ACTION_LOGIN, $username);
+				$this->throttle([ 'attemptToLogin', 'username', $username ], 500, (60 * 60 * 24), null, false);
 			}
 
 			// we cannot authenticate the user due to the password being wrong
@@ -1111,8 +1136,9 @@ final class Auth extends UserManager {
 	 * @throws AuthError if an internal problem occurred (do *not* catch)
 	 */
 	public function resetPassword($selector, $token, $newPassword) {
-		$this->throttle(self::THROTTLE_ACTION_CONSUME_TOKEN);
-		$this->throttle(self::THROTTLE_ACTION_CONSUME_TOKEN, $selector);
+		$this->throttle([ 'resetPassword', $this->getIpAddress() ], 5, (60 * 60), 10);
+		$this->throttle([ 'resetPassword', 'selector', $selector ], 3, (60 * 60), 10);
+		$this->throttle([ 'resetPassword', 'token', $token ], 3, (60 * 60), 10);
 
 		try {
 			$resetData = $this->db->selectRow(
@@ -1537,18 +1563,6 @@ final class Auth extends UserManager {
 	}
 
 	/**
-	 * Hashes the supplied data
-	 *
-	 * @param mixed $data the data to hash
-	 * @return string the hash in Base64-encoded format
-	 */
-	private static function hash($data) {
-		$hashRaw = hash(self::IP_ADDRESS_HASH_ALGORITHM, $data, true);
-
-		return Base64::encode($hashRaw);
-	}
-
-	/**
 	 * Returns the user's current IP address
 	 *
 	 * @return string the IP address (IPv4 or IPv6)
@@ -1558,114 +1572,113 @@ final class Auth extends UserManager {
 	}
 
 	/**
-	 * Returns the current time bucket that is used for throttling purposes
+	 * Performs throttling or rate limiting using the token bucket algorithm (inverse leaky bucket algorithm)
 	 *
-	 * @return int the time bucket
+	 * @param array $criteria the individual criteria that together describe the resource that is being throttled
+	 * @param int $supply the number of units to provide per interval (>= 1)
+	 * @param int $interval the interval (in seconds) for which the supply is provided (>= 5)
+	 * @param int|null $burstiness (optional) the permitted degree of variation or unevenness during peaks (>= 1)
+	 * @param bool|null $simulated (optional) whether to simulate a dry run instead of actually consuming the requested units
+	 * @param int|null $cost (optional) the number of units to request (>= 1)
+	 * @return float the number of units remaining from the supply
+	 * @throws TooManyRequestsException if the actual demand has exceeded the designated supply
+	 * @throws AuthError if an internal problem occurred (do *not* catch)
 	 */
-	private function getTimeBucket() {
-		return (int) (time() / $this->throttlingTimeBucketSize);
-	}
+	protected function throttle(array $criteria, $supply, $interval, $burstiness = null, $simulated = null, $cost = null) {
+		// generate a unique key for the bucket (consisting of 44 or fewer ASCII characters)
+		$key = Base64::encodeUrlSafeWithoutPadding(
+			\hash(
+				'sha256',
+				\implode("\n", $criteria),
+				true
+			)
+		);
 
-	protected function throttle($actionType, $customSelector = null) {
-		// if a custom selector has been provided (e.g. username, user ID or confirmation token)
-		if (isset($customSelector)) {
-			// use the provided selector for throttling
-			$selector = self::hash($customSelector);
-		}
-		// if no custom selector was provided
-		else {
-			// throttle by the user's IP address
-			$selector = self::hash($this->getIpAddress());
-		}
+		// validate the supplied parameters and set appropriate defaults where necessary
+		$burstiness = ($burstiness !== null) ? (int) $burstiness : 1;
+		$simulated = ($simulated !== null) ? (bool) $simulated : false;
+		$cost = ($cost !== null) ? (int) $cost : 1;
 
-		// get the time bucket that we do the throttling for
-		$timeBucket = self::getTimeBucket();
+		$now = \time();
+
+		// determine the volume of the bucket
+		$capacity = $burstiness * (int) $supply;
+
+		// calculate the rate at which the bucket is refilled (per second)
+		$bandwidthPerSecond = (int) $supply / (int) $interval;
 
 		try {
-			$this->db->insert(
-				$this->dbTablePrefix . 'users_throttling',
-				[
-					'action_type' => $actionType,
-					'selector' => $selector,
-					'time_bucket' => $timeBucket,
-					'attempts' => 1
-				]
+			$bucket = $this->db->selectRow(
+				'SELECT tokens, replenished_at FROM ' . $this->dbTablePrefix . 'users_throttling WHERE bucket = ?',
+				[ $key ]
 			);
 		}
-		catch (IntegrityConstraintViolationException $e) {
-			// if we have a duplicate entry, update the old entry
+		catch (Error $e) {
+			throw new DatabaseError();
+		}
+
+		if ($bucket === null) {
+			$bucket = [];
+		}
+
+		// initialize the number of tokens in the bucket
+		$bucket['tokens'] = isset($bucket['tokens']) ? (float) $bucket['tokens'] : (float) $capacity;
+		// initialize the last time that the bucket has been refilled (as a Unix timestamp in seconds)
+		$bucket['replenished_at'] = isset($bucket['replenished_at']) ? (int) $bucket['replenished_at'] : $now;
+
+		// replenish the bucket as appropriate
+		$secondsSinceLastReplenishment = \max(0, $now - $bucket['replenished_at']);
+		$tokensToAdd = $secondsSinceLastReplenishment * $bandwidthPerSecond;
+		$bucket['tokens'] = \min((float) $capacity, $bucket['tokens'] + $tokensToAdd);
+		$bucket['replenished_at'] = $now;
+
+		$accepted = $bucket['tokens'] >= $cost;
+
+		if (!$simulated) {
+			if ($accepted) {
+				// remove the requested number of tokens from the bucket
+				$bucket['tokens'] = \max(0, $bucket['tokens'] - $cost);
+			}
+
+			// set the earliest time after which the bucket *may* be deleted (as a Unix timestamp in seconds)
+			$bucket['expires_at'] = $now + \floor($capacity / $bandwidthPerSecond * 2);
+
+			// merge the updated bucket into the database
 			try {
-				$this->db->exec(
-					'UPDATE ' . $this->dbTablePrefix . 'users_throttling SET attempts = attempts+1 WHERE action_type = ? AND selector = ? AND time_bucket = ?',
-					[
-						$actionType,
-						$selector,
-						$timeBucket
-					]
+				$affected = $this->db->update(
+					$this->dbTablePrefix . 'users_throttling',
+					$bucket,
+					[ 'bucket' => $key ]
 				);
 			}
 			catch (Error $e) {
 				throw new DatabaseError();
 			}
-		}
-		catch (Error $e) {
-			throw new DatabaseError();
-		}
 
-		try {
-			$attempts = $this->db->selectValue(
-				'SELECT attempts FROM ' . $this->dbTablePrefix . 'users_throttling WHERE action_type = ? AND selector = ? AND time_bucket = ?',
-				[
-					$actionType,
-					$selector,
-					$timeBucket
-				]
-			);
-		}
-		catch (Error $e) {
-			throw new DatabaseError();
-		}
+			if ($affected === 0) {
+				$bucket['bucket'] = $key;
 
-		if (!empty($attempts)) {
-			// if the number of attempts has acceeded our accepted limit
-			if ($attempts > $this->throttlingActionsPerTimeBucket) {
-				self::onTooManyRequests($this->throttlingTimeBucketSize);
+				try {
+					$this->db->insert(
+						$this->dbTablePrefix . 'users_throttling',
+						$bucket
+					);
+				}
+				catch (IntegrityConstraintViolationException $ignored) {}
+				catch (Error $e) {
+					throw new DatabaseError();
+				}
 			}
 		}
-	}
 
-	/**
-	 * Called when there have been too many requests for some action or object
-	 *
-	 * @param int|null $retryAfterInterval (optional) the interval in seconds after which the client should retry
-	 * @throws TooManyRequestsException to inform any calling method about this problem
-	 */
-	private static function onTooManyRequests($retryAfterInterval = null) {
-		// if no interval has been provided after which the client should retry
-		if ($retryAfterInterval === null) {
-			// use one day as the default
-			$retryAfterInterval = 60 * 60 * 24;
+		if ($accepted) {
+			return $bucket['tokens'];
 		}
+		else {
+			$tokensMissing = $cost - $bucket['tokens'];
+			$estimatedWaitingTimeSeconds = \ceil($tokensMissing / $bandwidthPerSecond);
 
-		// send an appropriate HTTP status code
-		http_response_code(self::HTTP_STATUS_CODE_TOO_MANY_REQUESTS);
-		// tell the client when they should try again
-		@header('Retry-After: '.$retryAfterInterval);
-		// throw an exception
-		throw new TooManyRequestsException();
-	}
-
-	/**
-	 * Customizes the throttling options
-	 *
-	 * @param int $actionsPerTimeBucket the number of allowed attempts/requests per time bucket
-	 * @param int $timeBucketSize the size of the time buckets in seconds
-	 */
-	public function setThrottlingOptions($actionsPerTimeBucket, $timeBucketSize) {
-		$this->throttlingActionsPerTimeBucket = intval($actionsPerTimeBucket);
-
-		if (isset($timeBucketSize)) {
-			$this->throttlingTimeBucketSize = intval($timeBucketSize);
+			throw new TooManyRequestsException('', $estimatedWaitingTimeSeconds);
 		}
 	}
 

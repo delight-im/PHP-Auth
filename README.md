@@ -304,6 +304,9 @@ catch (\Delight\Auth\NotLoggedInException $e) {
 catch (\Delight\Auth\InvalidPasswordException $e) {
     // invalid password(s)
 }
+catch (\Delight\Auth\TooManyRequestsException $e) {
+    // too many requests
+}
 ```
 
 Asking the user for their current (and soon *old*) password and requiring it for verification is the recommended way to handle password changes. This is shown above.
@@ -347,6 +350,9 @@ catch (\Delight\Auth\EmailNotVerifiedException $e) {
 }
 catch (\Delight\Auth\NotLoggedInException $e) {
     // not logged in
+}
+catch (\Delight\Auth\TooManyRequestsException $e) {
+    // too many requests
 }
 ```
 
@@ -540,6 +546,9 @@ try {
 }
 catch (\Delight\Auth\NotLoggedInException $e) {
     // the user is not signed in
+}
+catch (\Delight\Auth\TooManyRequestsException $e) {
+    // too many requests
 }
 ```
 

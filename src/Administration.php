@@ -286,10 +286,6 @@ final class Administration extends UserManager {
 		return ($rolesBitmask & $role) === $role;
 	}
 
-	protected function throttle($actionType, $customSelector = null) {
-		// do nothing
-	}
-
 	/**
 	 * Deletes all existing users where the column with the specified name has the given value
 	 *
