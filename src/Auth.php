@@ -1584,7 +1584,7 @@ final class Auth extends UserManager {
 	 * @throws TooManyRequestsException if the actual demand has exceeded the designated supply
 	 * @throws AuthError if an internal problem occurred (do *not* catch)
 	 */
-	protected function throttle(array $criteria, $supply, $interval, $burstiness = null, $simulated = null, $cost = null) {
+	public function throttle(array $criteria, $supply, $interval, $burstiness = null, $simulated = null, $cost = null) {
 		// generate a unique key for the bucket (consisting of 44 or fewer ASCII characters)
 		$key = Base64::encodeUrlSafeWithoutPadding(
 			\hash(
