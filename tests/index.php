@@ -85,9 +85,6 @@ function processRequestData(\Delight\Auth\Auth $auth) {
 				catch (\Delight\Auth\EmailNotVerifiedException $e) {
 					return 'email not verified';
 				}
-				catch (\Delight\Auth\AttemptCancelledException $e) {
-					return 'attempt cancelled';
-				}
 				catch (\Delight\Auth\TooManyRequestsException $e) {
 					return 'too many requests';
 				}
