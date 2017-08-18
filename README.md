@@ -72,6 +72,7 @@ Migrating from an earlier version of this project? See our [upgrade guide](Migra
    * [Permissions (or access rights, privileges or capabilities)](#permissions-or-access-rights-privileges-or-capabilities)
    * [Custom role names](#custom-role-names)
  * [Enabling or disabling password resets](#enabling-or-disabling-password-resets)
+ * [Throttling or rate limiting](#throttling-or-rate-limiting)
  * [Administration (managing users)](#administration-managing-users)
    * [Creating new users](#creating-new-users)
    * [Deleting users](#deleting-users)
@@ -709,6 +710,39 @@ $auth->isPasswordResetEnabled();
 ```
 
 for the correct default option in your user interface. You don’t need to check this value for restrictions of the feature, which are enforced automatically.
+
+### Throttling or rate limiting
+
+All methods provided by this library are *automatically* protected against excessive numbers of requests from clients.
+
+If you would like to throttle or rate limit *external* features or methods as well, e.g. those in your own code, you can make use of the built-in helper method for throttling and rate limiting:
+
+```php
+try {
+    // throttle the specified resource or feature to *3* requests per *60* seconds
+    $auth->throttle([ 'my-resource-name' ], 3, 60);
+
+    // do something with the resource or feature
+}
+catch (\Delight\Auth\TooManyRequestsException $e) {
+    // operation cancelled
+
+    \http_response_code(429);
+    exit;
+}
+```
+
+If the protection of the resource or feature should additionally depend on another attribute, e.g. to track something separately per IP address, just add more data to the resource description, such as:
+
+```php
+[ 'my-resource-name', $_SERVER['REMOTE_ADDR'] ]
+// instead of
+// [ 'my-resource-name' ]
+```
+
+Allowing short bursts of activity during peak demand is possible by specifying a burst factor as the fourth argument. A value of `5`, for example, would permit temporary bursts of fivefold activity, compared to the generally accepted level.
+
+In some cases, you may just want to *simulate* the throttling or rate limiting. This lets you check whether an action would be permitted without actually modifying the activity tracker. To do so, simply pass `true` as the fifth argument.
 
 ### Administration (managing users)
 
