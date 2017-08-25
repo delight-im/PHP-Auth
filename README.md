@@ -1,6 +1,6 @@
 # Auth
 
-Authentication for PHP. Simple, lightweight and secure.
+**Authentication for PHP. Simple, lightweight and secure.**
 
 Written once, to be used everywhere.
 
