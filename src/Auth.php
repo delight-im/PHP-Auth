@@ -338,6 +338,20 @@ final class Auth extends UserManager {
 	}
 
 	/**
+	 * Destroys all session data
+	 *
+	 * @throws AuthError if an internal problem occurred (do *not* catch)
+	 */
+	public function destroySession() {
+		// remove all session variables without exception
+		$_SESSION = [];
+		// delete the session cookie
+		$this->deleteSessionCookie();
+		// let PHP destroy the session
+		\session_destroy();
+	}
+
+	/**
 	 * Creates a new directive keeping the user logged in ("remember me")
 	 *
 	 * @param int $userId the user ID to keep signed in
