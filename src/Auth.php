@@ -441,7 +441,7 @@ final class Auth extends UserManager {
 	}
 
 	/**
-	 * Logs out the user and destroys all session data
+	 * Logs the user out and destroys all session data
 	 *
 	 * @throws AuthError if an internal problem occurred (do *not* catch)
 	 */

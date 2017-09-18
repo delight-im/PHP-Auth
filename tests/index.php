@@ -661,7 +661,7 @@ function showAuthenticatedUserForm(\Delight\Auth\Auth $auth) {
 
 	echo '<form action="" method="post" accept-charset="utf-8">';
 	echo '<input type="hidden" name="action" value="logout" />';
-	echo '<button type="submit">Logout</button>';
+	echo '<button type="submit">Log out</button>';
 	echo '</form>';
 }
 
