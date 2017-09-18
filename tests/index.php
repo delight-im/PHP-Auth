@@ -356,6 +356,11 @@ function processRequestData(\Delight\Auth\Auth $auth) {
 					return 'not logged in';
 				}
 			}
+			else if ($_POST['action'] === 'logOutButKeepSession') {
+				$auth->logOutButKeepSession();
+
+				return 'ok';
+			}
 			else if ($_POST['action'] === 'logout') {
 				$auth->logout();
 
@@ -657,6 +662,11 @@ function showAuthenticatedUserForm(\Delight\Auth\Auth $auth) {
 	echo '<option value="1"' . ($auth->isPasswordResetEnabled() ? ' selected="selected"' : '') . '>Enabled</option>';
 	echo '</select> ';
 	echo '<button type="submit">Control password resets</button>';
+	echo '</form>';
+
+	echo '<form action="" method="post" accept-charset="utf-8">';
+	echo '<input type="hidden" name="action" value="logOutButKeepSession" />';
+	echo '<button type="submit">Log out but keep session</button>';
 	echo '</form>';
 
 	echo '<form action="" method="post" accept-charset="utf-8">';
