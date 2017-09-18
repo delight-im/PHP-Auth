@@ -50,7 +50,7 @@ final class Auth extends UserManager {
 
 		$this->useHttps = $useHttps;
 		$this->allowCookiesScriptAccess = $allowCookiesScriptAccess;
-		$this->ipAddress = empty($ipAddress) ? $_SERVER['REMOTE_ADDR'] : $ipAddress;
+		$this->ipAddress = !empty($ipAddress) ? $ipAddress : (isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : null);
 
 		$this->initSession();
 		$this->enhanceHttpSecurity();
