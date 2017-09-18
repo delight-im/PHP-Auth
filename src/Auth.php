@@ -488,25 +488,8 @@ final class Auth extends UserManager {
 	 * @throws AuthError if an internal problem occurred (do *not* catch)
 	 */
 	public function logout() {
-		// if the user has been signed in
-		if ($this->isLoggedIn()) {
-			// get the user's ID
-			$userId = $this->getUserId();
-			// if a user ID was set
-			if (isset($userId)) {
-				// delete any existing remember directives
-				$this->deleteRememberDirective($userId);
-			}
-		}
-
-		// unset the session variables
-		$_SESSION = array();
-
-		// delete the cookie
-		$this->deleteSessionCookie();
-
-		// destroy the session
-		session_destroy();
+		$this->logOutButKeepSession();
+		$this->destroySession();
 	}
 
 	/**
