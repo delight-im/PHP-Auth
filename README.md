@@ -410,6 +410,8 @@ $url = 'https://www.example.com/verify_email?selector=' . urlencode($selector) .
 ### Logout
 
 ```php
+$auth->logOutButKeepSession();
+// or
 $auth->logout();
 
 // user has been signed out
