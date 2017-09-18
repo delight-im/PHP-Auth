@@ -310,6 +310,34 @@ final class Auth extends UserManager {
 	}
 
 	/**
+	 * Logs the user out
+	 *
+	 * @throws AuthError if an internal problem occurred (do *not* catch)
+	 */
+	public function logOutButKeepSession() {
+		// if the user has been signed in
+		if ($this->isLoggedIn()) {
+			// get the user's ID
+			$userId = $this->getUserId();
+
+			// if a user ID was set
+			if (isset($userId)) {
+				// delete any existing remember directives
+				$this->deleteRememberDirective($userId);
+			}
+
+			// remove all session variables maintained by this library
+			unset($_SESSION[self::SESSION_FIELD_LOGGED_IN]);
+			unset($_SESSION[self::SESSION_FIELD_USER_ID]);
+			unset($_SESSION[self::SESSION_FIELD_EMAIL]);
+			unset($_SESSION[self::SESSION_FIELD_USERNAME]);
+			unset($_SESSION[self::SESSION_FIELD_STATUS]);
+			unset($_SESSION[self::SESSION_FIELD_ROLES]);
+			unset($_SESSION[self::SESSION_FIELD_REMEMBERED]);
+		}
+	}
+
+	/**
 	 * Creates a new directive keeping the user logged in ("remember me")
 	 *
 	 * @param int $userId the user ID to keep signed in
