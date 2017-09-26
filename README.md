@@ -328,6 +328,8 @@ catch (\Delight\Auth\InvalidPasswordException $e) {
 }
 ```
 
+In any case, after the user’s password has been changed, you should send an email to their account’s primary email address as an out-of-band notification informing the user about this critical change.
+
 ### Changing the current user's email address
 
 If a user is currently logged in, they may change their email address.
