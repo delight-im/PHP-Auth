@@ -328,7 +328,7 @@ catch (\Delight\Auth\InvalidPasswordException $e) {
 }
 ```
 
-In any case, after the user’s password has been changed, you should send an email to their account’s primary email address as an out-of-band notification informing the user about this critical change.
+In any case, after the user’s password has been changed, you should send an email to their account’s primary email address as an out-of-band notification informing the account owner about this critical change.
 
 ### Changing the current user's email address
 
@@ -338,10 +338,10 @@ If a user is currently logged in, they may change their email address.
 try {
     if ($auth->reconfirmPassword($_POST['password'])) {
         $auth->changeEmail($_POST['newEmail'], function ($selector, $token) {
-            // send `$selector` and `$token` to the user (e.g. via email)
+            // send `$selector` and `$token` to the user (e.g. via email to the *new* address)
         });
 
-        // the change will take effect as soon as the email address has been confirmed
+        // the change will take effect as soon as the new email address has been confirmed
     }
     else {
         // we can't say if the user is who they claim to be
@@ -708,7 +708,7 @@ try {
     if ($auth->reconfirmPassword($_POST['password'])) {
         $auth->setPasswordResetEnabled($_POST['enabled'] == 1);
 
-        // the settings have been changed
+        // the setting has been changed
     }
     else {
         // we can't say if the user is who they claim to be
