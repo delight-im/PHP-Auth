@@ -336,11 +336,16 @@ If a user is currently logged in, they may change their email address.
 
 ```php
 try {
-    $auth->changeEmail($_POST['newEmail'], function ($selector, $token) {
-        // send `$selector` and `$token` to the user (e.g. via email)
-    });
+    if ($auth->reconfirmPassword($_POST['password'])) {
+        $auth->changeEmail($_POST['newEmail'], function ($selector, $token) {
+            // send `$selector` and `$token` to the user (e.g. via email)
+        });
 
-    // the change will take effect as soon as the email address has been confirmed
+        // the change will take effect as soon as the email address has been confirmed
+    }
+    else {
+        // we can't say if the user is who they claim to be
+    }
 }
 catch (\Delight\Auth\InvalidEmailException $e) {
     // invalid email address
