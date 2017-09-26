@@ -8,7 +8,7 @@ Completely framework-agnostic and database-agnostic.
 
 ## Why do I need this?
 
- * There are [tons](http://www.troyhunt.com/2011/01/whos-who-of-bad-password-practices.html) [of](http://www.jeremytunnell.com/posts/swab-password-policies-and-two-factor-authentication-a-comedy-of-errors) [websites](http://badpasswordpolicies.tumblr.com/) with weak authentication systems. Don't build such a site.
+ * There are [tons](http://www.troyhunt.com/2011/01/whos-who-of-bad-password-practices.html) [of](http://www.jeremytunnell.com/posts/swab-password-policies-and-two-factor-authentication-a-comedy-of-errors) [websites](http://badpasswordpolicies.tumblr.com/) with weak authentication systems. Don’t build such a site.
  * Re-implementing a new authentication system for every PHP project is *not* a good idea.
  * Building your own authentication classes piece by piece, and copying it to every project, is *not* recommended, either.
  * A secure authentication system with an easy-to-use API should be thoroughly designed and planned.
@@ -52,9 +52,9 @@ Migrating from an earlier version of this project? See our [upgrade guide](Migra
  * [Login (sign in)](#login-sign-in)
  * [Email verification](#email-verification)
  * [Keeping the user logged in](#keeping-the-user-logged-in)
- * [Password reset ("forgot password")](#password-reset-forgot-password)
- * [Changing the current user's password](#changing-the-current-users-password)
- * [Changing the current user's email address](#changing-the-current-users-email-address)
+ * [Password reset (“forgot password”)](#password-reset-forgot-password)
+ * [Changing the current user’s password](#changing-the-current-users-password)
+ * [Changing the current user’s email address](#changing-the-current-users-email-address)
  * [Re-sending confirmation requests](#re-sending-confirmation-requests)
  * [Logout](#logout)
  * [Accessing user information](#accessing-user-information)
@@ -62,10 +62,10 @@ Migrating from an earlier version of this project? See our [upgrade guide](Migra
    * [User ID](#user-id)
    * [Email address](#email-address)
    * [Display name](#display-name)
-   * [Checking whether the user was "remembered"](#checking-whether-the-user-was-remembered)
+   * [Checking whether the user was “remembered”](#checking-whether-the-user-was-remembered)
    * [IP address](#ip-address)
    * [Additional user information](#additional-user-information)
- * [Reconfirming the user's password](#reconfirming-the-users-password)
+ * [Reconfirming the user’s password](#reconfirming-the-users-password)
  * [Roles (or groups)](#roles-or-groups)
    * [Checking roles](#checking-roles)
    * [Available roles](#available-roles)
@@ -106,7 +106,7 @@ If you do enforce HTTPS on your site, pass `true` as the second parameter to the
 
 Only in the very rare case that you need access to your cookies from JavaScript, pass `true` as the third argument to the constructor. This is optional and the default is `false`. There is almost always a *better* solution than enabling this, however.
 
-If your web server is behind a proxy server and `$_SERVER['REMOTE_ADDR']` only contains the proxy's IP address, you must pass the user's real IP address to the constructor in the fourth argument. The default is `null`.
+If your web server is behind a proxy server and `$_SERVER['REMOTE_ADDR']` only contains the proxy’s IP address, you must pass the user’s real IP address to the constructor in the fourth argument. The default is `null`.
 
 Should your database tables for this library need a common prefix, e.g. `my_users` instead of `users` (and likewise for the other tables), pass the prefix (e.g. `my_`) as the fifth parameter to the constructor. This is optional and the prefix is empty by default.
 
@@ -134,7 +134,7 @@ catch (\Delight\Auth\TooManyRequestsException $e) {
 }
 ```
 
-The username in the third parameter is optional. You can pass `null` there if you don't want to manage usernames.
+The username in the third parameter is optional. You can pass `null` there if you don’t want to manage usernames.
 
 If you want to enforce unique usernames, on the other hand, simply call `registerWithUniqueUsername` instead of `register`, and be prepared to catch the `DuplicateUsernameException`.
 
@@ -144,7 +144,7 @@ For email verification, you should build an URL with the selector and token and 
 $url = 'https://www.example.com/verify_email?selector=' . \urlencode($selector) . '&token=' . \urlencode($token);
 ```
 
-If you don't want to perform email verification, just omit the last parameter to `Auth#register`. The new user will be active immediately, then.
+If you don’t want to perform email verification, just omit the last parameter to `Auth#register`. The new user will be active immediately, then.
 
 ### Login (sign in)
 
@@ -168,7 +168,7 @@ catch (\Delight\Auth\TooManyRequestsException $e) {
 }
 ```
 
-If you want to sign in with usernames on the other hand, either in addition to the login via email address or as a replacement, that's possible as well. Simply call the method `loginWithUsername` instead of method `login`. Then, instead of catching `InvalidEmailException`, make sure to catch both `UnknownUsernameException` and `AmbiguousUsernameException`. You may also want to read the notes about the uniqueness of usernames in the section that explains how to [sign up new users](#registration-sign-up).
+If you want to sign in with usernames on the other hand, either in addition to the login via email address or as a replacement, that’s possible as well. Simply call the method `loginWithUsername` instead of method `login`. Then, instead of catching `InvalidEmailException`, make sure to catch both `UnknownUsernameException` and `AmbiguousUsernameException`. You may also want to read the notes about the uniqueness of usernames in the section that explains how to [sign up new users](#registration-sign-up).
 
 ### Email verification
 
@@ -198,7 +198,7 @@ If you want the user to be automatically signed in after successful confirmation
 
 ### Keeping the user logged in
 
-The third parameter to the `Auth#login` and `Auth#confirmEmailAndSignIn` methods controls whether the login is persistent with a long-lived cookie. With such a persistent login, users may stay authenticated for a long time, even when the browser session has already been closed and the session cookies have expired. Typically, you'll want to keep the user logged in for weeks or months with this feature, which is known as "remember me" or "keep me logged in". Many users will find this more convenient, but it may be less secure if they leave their devices unattended.
+The third parameter to the `Auth#login` and `Auth#confirmEmailAndSignIn` methods controls whether the login is persistent with a long-lived cookie. With such a persistent login, users may stay authenticated for a long time, even when the browser session has already been closed and the session cookies have expired. Typically, you’ll want to keep the user logged in for weeks or months with this feature, which is known as “remember me” or “keep me logged in”. Many users will find this more convenient, but it may be less secure if they leave their devices unattended.
 
 ```php
 if ($_POST['remember'] == 1) {
@@ -219,9 +219,9 @@ $auth->login($_POST['email'], $_POST['password'], $rememberDuration);
 
 *Without* the persistent login, which is the *default* behavior, a user will only stay logged in until they close their browser, or as long as configured via `session.cookie_lifetime` and `session.gc_maxlifetime` in PHP.
 
-Omit the third parameter or set it to `null` to disable the feature. Otherwise, you may ask the user whether they want to enable "remember me". This is usually done with a checkbox in your user interface. Use the input from that checkbox to decide between `null` and a pre-defined duration in seconds here, e.g. `60 * 60 * 24 * 365.25` for one year.
+Omit the third parameter or set it to `null` to disable the feature. Otherwise, you may ask the user whether they want to enable “remember me”. This is usually done with a checkbox in your user interface. Use the input from that checkbox to decide between `null` and a pre-defined duration in seconds here, e.g. `60 * 60 * 24 * 365.25` for one year.
 
-### Password reset ("forgot password")
+### Password reset (“forgot password”)
 
 ```php
 try {
@@ -289,7 +289,7 @@ catch (\Delight\Auth\TooManyRequestsException $e) {
 }
 ```
 
-### Changing the current user's password
+### Changing the current user’s password
 
 If a user is currently logged in, they may change their password.
 
@@ -316,7 +316,7 @@ If you’re sure that you don’t need that confirmation, however, you may call 
 
 In any case, after the user’s password has been changed, you should send an email to their account’s primary email address as an out-of-band notification informing the account owner about this critical change.
 
-### Changing the current user's email address
+### Changing the current user’s email address
 
 If a user is currently logged in, they may change their email address.
 
@@ -483,7 +483,7 @@ if ($auth->isSuspended()) {
 }
 ```
 
-#### Checking whether the user was "remembered"
+#### Checking whether the user was “remembered”
 
 ```php
 if ($auth->isRemembered()) {
@@ -504,13 +504,13 @@ $ip = $auth->getIpAddress();
 
 #### Additional user information
 
-In order to preserve this library's suitability for all purposes as well as its full re-usability, it doesn't come with additional bundled columns for user information. But you don't have to do without additional user information, of course:
+In order to preserve this library’s suitability for all purposes as well as its full re-usability, it doesn’t come with additional bundled columns for user information. But you don’t have to do without additional user information, of course:
 
-Here's how to use this library with your own tables for custom user information in a maintainable and re-usable way:
+Here’s how to use this library with your own tables for custom user information in a maintainable and re-usable way:
 
  1. Add any number of custom database tables where you store custom user information, e.g. a table named `profiles`.
- 1. Whenever you call the `register` method (which returns the new user's ID), add your own logic afterwards that fills your custom database tables.
- 1. If you need the custom user information only rarely, you may just retrieve it as needed. If you need it more frequently, however, you'd probably want to have it in your session data. The following method is how you can load and access your data in a reliable way:
+ 1. Whenever you call the `register` method (which returns the new user’s ID), add your own logic afterwards that fills your custom database tables.
+ 1. If you need the custom user information only rarely, you may just retrieve it as needed. If you need it more frequently, however, you’d probably want to have it in your session data. The following method is how you can load and access your data in a reliable way:
 
     ```php
     function getUserInfo(\Delight\Auth\Auth $auth) {
@@ -527,7 +527,7 @@ Here's how to use this library with your own tables for custom user information 
     }
     ```
 
-### Reconfirming the user's password
+### Reconfirming the user’s password
 
 Whenever you want to confirm the user’s identity again, e.g. before the user is allowed to perform some “dangerous” action, you should verify their password again to confirm that they actually are who they claim to be.
 
@@ -605,11 +605,11 @@ While the method `hasRole` takes exactly one role as its argument, the two metho
 \Delight\Auth\Role::TRANSLATOR;
 ```
 
-You can use any of these roles and ignore those that you don't need.
+You can use any of these roles and ignore those that you don’t need.
 
 #### Permissions (or access rights, privileges or capabilities)
 
-The permissions of each user are encoded in the way that role requirements are specified throughout your code base. If those requirements are evaluated with a specific user's set of roles, implicitly checked permissions are the result.
+The permissions of each user are encoded in the way that role requirements are specified throughout your code base. If those requirements are evaluated with a specific user’s set of roles, implicitly checked permissions are the result.
 
 For larger projects, it is often recommended to maintain the definition of permissions in a single place. You then don’t check for *roles* in your business logic, but you check for *individual permissions*. You could implement that concept as follows:
 
@@ -774,7 +774,7 @@ catch (\Delight\Auth\UserAlreadyExistsException $e) {
 }
 ```
 
-The username in the third parameter is optional. You can pass `null` there if you don't want to manage usernames.
+The username in the third parameter is optional. You can pass `null` there if you don’t want to manage usernames.
 
 If you want to enforce unique usernames, on the other hand, simply call `createUserWithUniqueUsername` instead of `createUser`, and be prepared to catch the `DuplicateUsernameException`.
 
@@ -919,11 +919,11 @@ For detailed information on how to read and write session data conveniently, ple
 
 ### What about password hashing?
 
-Any password or authentication token is automatically hashed using the ["bcrypt"](https://en.wikipedia.org/wiki/Bcrypt) function, which is based on the ["Blowfish" cipher](https://en.wikipedia.org/wiki/Blowfish_(cipher)) and (still) considered one of the strongest password hash functions today. "bcrypt" is used with 1,024 iterations, i.e. a "cost" factor of 10. A random ["salt"](https://en.wikipedia.org/wiki/Salt_(cryptography)) is applied automatically as well.
+Any password or authentication token is automatically hashed using the [“bcrypt”](https://en.wikipedia.org/wiki/Bcrypt) function, which is based on the [“Blowfish” cipher](https://en.wikipedia.org/wiki/Blowfish_(cipher)) and (still) considered one of the strongest password hash functions today. “bcrypt” is used with 1,024 iterations, i.e. a “cost” factor of 10. A random [“salt”](https://en.wikipedia.org/wiki/Salt_(cryptography)) is applied automatically as well.
 
 You can verify this configuration by looking at the hashes in your database table `users`. If the above is true with your setup, all password hashes in your `users` table should start with the prefix `$2$10$`, `$2a$10$` or `$2y$10$`.
 
-When new algorithms (such as [Argon2](https://en.wikipedia.org/wiki/Argon2)) may be introduced in the future, this library will automatically take care of "upgrading" your existing password hashes whenever a user signs in or changes their password.
+When new algorithms (such as [Argon2](https://en.wikipedia.org/wiki/Argon2)) may be introduced in the future, this library will automatically take care of “upgrading” your existing password hashes whenever a user signs in or changes their password.
 
 ### How can I implement custom password requirements?
 
@@ -953,7 +953,7 @@ if (isPasswordAllowed($password)) {
 
 ### Why are there problems when using other libraries that work with sessions?
 
-You might try loading this library first, and creating the `Auth` instance first, *before* loading the other libraries. Apart from that, there's probably not much we can do here.
+You might try loading this library first, and creating the `Auth` instance first, *before* loading the other libraries. Apart from that, there’s probably not much we can do here.
 
 ### Why are other sites not able to frame or embed my site?
 
@@ -974,11 +974,11 @@ This library throws two types of exceptions to indicate problems:
 
  * Serve *all* pages over HTTPS only, i.e. using SSL/TLS for every single request.
  * You should enforce a minimum length for passwords, e.g. 10 characters, but *never* any maximum length, at least not anywhere below 100 characters. Moreover, you should *not* restrict the set of allowed characters.
- * Whenever a user was remembered through the "remember me" feature enabled or disabled during sign in, which means that they did not log in by typing their password, you should require re-authentication for critical features.
+ * Whenever a user was remembered through the “remember me” feature enabled or disabled during sign in, which means that they did not log in by typing their password, you should require re-authentication for critical features.
  * Encourage users to use pass*phrases*, i.e. combinations of words or even full sentences, instead of single pass*words*.
  * Do not prevent users' password managers from working correctly. Thus, use the standard form fields only and do not prevent copy and paste.
- * Before executing sensitive account operations (e.g. changing a user's email address, deleting a user's account), you should always require re-authentication, i.e. require the user to verify their login credentials once more.
- * You should not offer an online password reset feature ("forgot password") for high-security applications.
+ * Before executing sensitive account operations (e.g. changing a user’s email address, deleting a user’s account), you should always require re-authentication, i.e. require the user to verify their login credentials once more.
+ * You should not offer an online password reset feature (“forgot password”) for high-security applications.
  * For high-security applications, you should not use email addresses as identifiers. Instead, choose identifiers that are specific to the application and secret, e.g. an internal customer number.
 
 ## Contributing
