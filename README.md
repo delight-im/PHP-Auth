@@ -705,12 +705,20 @@ You may provide security-conscious (and experienced) users with the possibility 
 
 ```php
 try {
-    $auth->setPasswordResetEnabled($_POST['enabled'] == 1);
+    if ($auth->reconfirmPassword($_POST['password'])) {
+        $auth->setPasswordResetEnabled($_POST['enabled'] == 1);
 
-    // the settings have been changed
+        // the settings have been changed
+    }
+    else {
+        // we can't say if the user is who they claim to be
+    }
 }
 catch (\Delight\Auth\NotLoggedInException $e) {
     // the user is not signed in
+}
+catch (\Delight\Auth\TooManyRequestsException $e) {
+    // too many requests
 }
 ```
 
