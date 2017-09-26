@@ -365,6 +365,8 @@ For email verification, you should build an URL with the selector and token and 
 $url = 'https://www.example.com/verify_email?selector='.urlencode($selector).'&token='.urlencode($token);
 ```
 
+After the request to change the email address has been made, or even better, after the change has been confirmed by the user, you should send an email to their account’s *previous* email address as an out-of-band notification informing the account owner about this critical change.
+
 ### Re-sending confirmation requests
 
 If an earlier confirmation request could not be delivered to the user, or if the user missed that request, or if they just don’t want to wait any longer, you may re-send an earlier request like this:
