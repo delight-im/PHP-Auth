@@ -87,9 +87,9 @@ Migrating from an earlier version of this project? See our [upgrade guide](Migra
 ### Creating a new instance
 
 ```php
-// $db = new PDO('mysql:dbname=my-database;host=localhost;charset=utf8mb4', 'my-username', 'my-password');
+// $db = new \PDO('mysql:dbname=my-database;host=localhost;charset=utf8mb4', 'my-username', 'my-password');
 // or
-// $db = new PDO('sqlite:../Databases/my-database.sqlite');
+// $db = new \PDO('sqlite:../Databases/my-database.sqlite');
 
 // or
 
@@ -141,7 +141,7 @@ If you want to enforce unique usernames, on the other hand, simply call `registe
 For email verification, you should build an URL with the selector and token and send it to the user, e.g.:
 
 ```php
-$url = 'https://www.example.com/verify_email?selector='.urlencode($selector).'&token='.urlencode($token);
+$url = 'https://www.example.com/verify_email?selector=' . \urlencode($selector) . '&token=' . \urlencode($token);
 ```
 
 If you don't want to perform email verification, just omit the last parameter to `Auth#register`. The new user will be active immediately, then.
@@ -248,7 +248,7 @@ catch (\Delight\Auth\TooManyRequestsException $e) {
 You should build an URL with the selector and token and send it to the user, e.g.:
 
 ```php
-$url = 'https://www.example.com/reset_password?selector='.urlencode($selector).'&token='.urlencode($token);
+$url = 'https://www.example.com/reset_password?selector=' . \urlencode($selector) . '&token=' . \urlencode($token);
 ```
 
 As the next step, users will click on the link that they received. Extract the selector and token from the URL.
@@ -353,7 +353,7 @@ catch (\Delight\Auth\TooManyRequestsException $e) {
 For email verification, you should build an URL with the selector and token and send it to the user, e.g.:
 
 ```php
-$url = 'https://www.example.com/verify_email?selector='.urlencode($selector).'&token='.urlencode($token);
+$url = 'https://www.example.com/verify_email?selector=' . \urlencode($selector) . '&token=' . \urlencode($token);
 ```
 
 After the request to change the email address has been made, or even better, after the change has been confirmed by the user, you should send an email to their account’s *previous* email address as an out-of-band notification informing the account owner about this critical change.
@@ -399,7 +399,7 @@ catch (\Delight\Auth\TooManyRequestsException $e) {
 Usually, you should build an URL with the selector and token and send it to the user, e.g. as follows:
 
 ```php
-$url = 'https://www.example.com/verify_email?selector=' . urlencode($selector) . '&token=' . urlencode($token);
+$url = 'https://www.example.com/verify_email?selector=' . \urlencode($selector) . '&token=' . \urlencode($token);
 ```
 
 ### Logout
@@ -933,13 +933,13 @@ To allow for maximum flexibility and ease of use, this library has been designed
 
 ```php
 function isPasswordAllowed($password) {
-    if (strlen($password) < 8) {
+    if (\strlen($password) < 8) {
         return false;
     }
 
     $blacklist = [ 'password1', '123456', 'qwerty' ];
 
-    if (in_array($password, $blacklist)) {
+    if (\in_array($password, $blacklist)) {
         return false;
     }
 
