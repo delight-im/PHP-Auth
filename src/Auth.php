@@ -550,6 +550,18 @@ final class Auth extends UserManager {
 		if (!empty($confirmationData)) {
 			if (password_verify($token, $confirmationData['token'])) {
 				if ($confirmationData['expires'] >= time()) {
+					// invalidate any potential outstanding password reset requests
+					try {
+						$this->db->delete(
+							$this->dbTablePrefix . 'users_resets',
+							[ 'user' => $confirmationData['user_id'] ]
+						);
+					}
+					catch (Error $e) {
+						throw new DatabaseError();
+					}
+
+					// mark the email address as verified (and possibly update it to the new address given)
 					try {
 						$this->db->update(
 							$this->dbTablePrefix . 'users',
