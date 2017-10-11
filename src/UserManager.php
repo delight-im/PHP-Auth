@@ -135,7 +135,7 @@ abstract class UserManager {
 		}
 
 		$password = password_hash($password, PASSWORD_DEFAULT);
-		$verified = isset($callback) && is_callable($callback) ? 0 : 1;
+		$verified = is_callable($callback) ? 0 : 1;
 
 		try {
 			$this->db->insert(
