@@ -40,10 +40,10 @@ abstract class UserManager {
 	 */
 	public static function createRandomString($maxLength = 24) {
 		// calculate how many bytes of randomness we need for the specified string length
-		$bytes = floor(intval($maxLength) / 4) * 3;
+		$bytes = \floor((int) $maxLength / 4) * 3;
 
 		// get random data
-		$data = openssl_random_pseudo_bytes($bytes);
+		$data = \openssl_random_pseudo_bytes($bytes);
 
 		// return the Base64-encoded result
 		return Base64::encodeUrlSafe($data);
@@ -103,12 +103,12 @@ abstract class UserManager {
 	 * @see confirmEmailAndSignIn
 	 */
 	protected function createUserInternal($requireUniqueUsername, $email, $password, $username = null, callable $callback = null) {
-		ignore_user_abort(true);
+		\ignore_user_abort(true);
 
 		$email = self::validateEmailAddress($email);
 		$password = self::validatePassword($password);
 
-		$username = isset($username) ? trim($username) : null;
+		$username = isset($username) ? \trim($username) : null;
 
 		// if the supplied username is the empty string or has consisted of whitespace only
 		if ($username === '') {
@@ -134,8 +134,8 @@ abstract class UserManager {
 			}
 		}
 
-		$password = password_hash($password, PASSWORD_DEFAULT);
-		$verified = is_callable($callback) ? 0 : 1;
+		$password = \password_hash($password, \PASSWORD_DEFAULT);
+		$verified = \is_callable($callback) ? 0 : 1;
 
 		try {
 			$this->db->insert(
@@ -145,7 +145,7 @@ abstract class UserManager {
 					'password' => $password,
 					'username' => $username,
 					'verified' => $verified,
-					'registered' => time()
+					'registered' => \time()
 				]
 			);
 		}
@@ -180,7 +180,7 @@ abstract class UserManager {
 	 */
 	protected function getUserDataByUsername($username, array $requestedColumns) {
 		try {
-			$projection = implode(', ', $requestedColumns);
+			$projection = \implode(', ', $requestedColumns);
 
 			$users = $this->db->select(
 				'SELECT ' . $projection . ' FROM ' . $this->dbTablePrefix . 'users WHERE username = ? LIMIT 2 OFFSET 0',
@@ -195,7 +195,7 @@ abstract class UserManager {
 			throw new UnknownUsernameException();
 		}
 		else {
-			if (count($users) === 1) {
+			if (\count($users) === 1) {
 				return $users[0];
 			}
 			else {
@@ -216,9 +216,9 @@ abstract class UserManager {
 			throw new InvalidEmailException();
 		}
 
-		$email = trim($email);
+		$email = \trim($email);
 
-		if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+		if (!\filter_var($email, \FILTER_VALIDATE_EMAIL)) {
 			throw new InvalidEmailException();
 		}
 
@@ -237,9 +237,9 @@ abstract class UserManager {
 			throw new InvalidPasswordException();
 		}
 
-		$password = trim($password);
+		$password = \trim($password);
 
-		if (strlen($password) < 1) {
+		if (\strlen($password) < 1) {
 			throw new InvalidPasswordException();
 		}
 
@@ -265,10 +265,10 @@ abstract class UserManager {
 	protected function createConfirmationRequest($userId, $email, callable $callback) {
 		$selector = self::createRandomString(16);
 		$token = self::createRandomString(16);
-		$tokenHashed = password_hash($token, PASSWORD_DEFAULT);
+		$tokenHashed = \password_hash($token, \PASSWORD_DEFAULT);
 
 		// the request shall be valid for one day
-		$expires = time() + self::CONFIRMATION_REQUESTS_TTL_IN_SECONDS;
+		$expires = \time() + self::CONFIRMATION_REQUESTS_TTL_IN_SECONDS;
 
 		try {
 			$this->db->insert(
@@ -286,7 +286,7 @@ abstract class UserManager {
 			throw new DatabaseError();
 		}
 
-		if (isset($callback) && is_callable($callback)) {
+		if (\is_callable($callback)) {
 			$callback($selector, $token);
 		}
 		else {

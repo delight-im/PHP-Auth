@@ -107,7 +107,7 @@ final class Administration extends UserManager {
 	 */
 	public function deleteUserByUsername($username) {
 		$userData = $this->getUserDataByUsername(
-			trim($username),
+			\trim($username),
 			[ 'id' ]
 		);
 

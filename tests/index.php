@@ -15,33 +15,33 @@
  */
 
 // enable error reporting
-error_reporting(E_ALL);
-ini_set('display_errors', 'stdout');
+\error_reporting(\E_ALL);
+\ini_set('display_errors', 'stdout');
 
 // enable assertions
-ini_set('assert.active', 1);
-@ini_set('zend.assertions', 1);
-ini_set('assert.exception', 1);
+\ini_set('assert.active', 1);
+@\ini_set('zend.assertions', 1);
+\ini_set('assert.exception', 1);
 
-header('Content-type: text/html; charset=utf-8');
+\header('Content-type: text/html; charset=utf-8');
 
 require __DIR__.'/../vendor/autoload.php';
 
-$db = new PDO('mysql:dbname=php_auth;host=127.0.0.1;charset=utf8mb4', 'root', 'monkey');
+$db = new \PDO('mysql:dbname=php_auth;host=127.0.0.1;charset=utf8mb4', 'root', 'monkey');
 // or
-// $db = new PDO('sqlite:../Databases/php_auth.sqlite');
+// $db = new \PDO('sqlite:../Databases/php_auth.sqlite');
 
 $auth = new \Delight\Auth\Auth($db);
 
-$result = processRequestData($auth);
+$result = \processRequestData($auth);
 
-showDebugData($auth, $result);
+\showDebugData($auth, $result);
 
 if ($auth->check()) {
-	showAuthenticatedUserForm($auth);
+	\showAuthenticatedUserForm($auth);
 }
 else {
-	showGuestUserForm();
+	\showGuestUserForm();
 }
 
 function processRequestData(\Delight\Auth\Auth $auth) {
@@ -98,11 +98,11 @@ function processRequestData(\Delight\Auth\Auth $auth) {
 							echo "\n";
 							echo '  >  Selector';
 							echo "\t\t\t\t";
-							echo htmlspecialchars($selector);
+							echo \htmlspecialchars($selector);
 							echo "\n";
 							echo '  >  Token';
 							echo "\t\t\t\t";
-							echo htmlspecialchars($token);
+							echo \htmlspecialchars($token);
 							echo '</pre>';
 						};
 					}
@@ -177,11 +177,11 @@ function processRequestData(\Delight\Auth\Auth $auth) {
 						echo "\n";
 						echo '  >  Selector';
 						echo "\t\t\t\t";
-						echo htmlspecialchars($selector);
+						echo \htmlspecialchars($selector);
 						echo "\n";
 						echo '  >  Token';
 						echo "\t\t\t\t";
-						echo htmlspecialchars($token);
+						echo \htmlspecialchars($token);
 						echo '</pre>';
 					});
 
@@ -202,11 +202,11 @@ function processRequestData(\Delight\Auth\Auth $auth) {
 						echo "\n";
 						echo '  >  Selector';
 						echo "\t\t\t\t";
-						echo htmlspecialchars($selector);
+						echo \htmlspecialchars($selector);
 						echo "\n";
 						echo '  >  Token';
 						echo "\t\t\t\t";
-						echo htmlspecialchars($token);
+						echo \htmlspecialchars($token);
 						echo '</pre>';
 					});
 
@@ -227,11 +227,11 @@ function processRequestData(\Delight\Auth\Auth $auth) {
 						echo "\n";
 						echo '  >  Selector';
 						echo "\t\t\t\t";
-						echo htmlspecialchars($selector);
+						echo \htmlspecialchars($selector);
 						echo "\n";
 						echo '  >  Token';
 						echo "\t\t\t\t";
-						echo htmlspecialchars($token);
+						echo \htmlspecialchars($token);
 						echo '</pre>';
 					});
 
@@ -320,11 +320,11 @@ function processRequestData(\Delight\Auth\Auth $auth) {
 						echo "\n";
 						echo '  >  Selector';
 						echo "\t\t\t\t";
-						echo htmlspecialchars($selector);
+						echo \htmlspecialchars($selector);
 						echo "\n";
 						echo '  >  Token';
 						echo "\t\t\t\t";
-						echo htmlspecialchars($token);
+						echo \htmlspecialchars($token);
 						echo '</pre>';
 					});
 
@@ -523,7 +523,7 @@ function processRequestData(\Delight\Auth\Auth $auth) {
 				}
 			}
 			else {
-				throw new Exception('Unexpected action: '.$_POST['action']);
+				throw new Exception('Unexpected action: ' . $_POST['action']);
 			}
 		}
 	}
@@ -534,57 +534,57 @@ function processRequestData(\Delight\Auth\Auth $auth) {
 function showDebugData(\Delight\Auth\Auth $auth, $result) {
 	echo '<pre>';
 
-	echo 'Last operation'."\t\t\t\t";
-	var_dump($result);
-	echo 'Session ID'."\t\t\t\t";
-	var_dump(session_id());
+	echo 'Last operation' . "\t\t\t\t";
+	\var_dump($result);
+	echo 'Session ID' . "\t\t\t\t";
+	\var_dump(\session_id());
 	echo "\n";
 
-	echo '$auth->isLoggedIn()'."\t\t\t";
-	var_dump($auth->isLoggedIn());
-	echo '$auth->check()'."\t\t\t\t";
-	var_dump($auth->check());
+	echo '$auth->isLoggedIn()' . "\t\t\t";
+	\var_dump($auth->isLoggedIn());
+	echo '$auth->check()' . "\t\t\t\t";
+	\var_dump($auth->check());
 	echo "\n";
 
-	echo '$auth->getUserId()'."\t\t\t";
-	var_dump($auth->getUserId());
-	echo '$auth->id()'."\t\t\t\t";
-	var_dump($auth->id());
+	echo '$auth->getUserId()' . "\t\t\t";
+	\var_dump($auth->getUserId());
+	echo '$auth->id()' . "\t\t\t\t";
+	\var_dump($auth->id());
 	echo "\n";
 
-	echo '$auth->getEmail()'."\t\t\t";
-	var_dump($auth->getEmail());
-	echo '$auth->getUsername()'."\t\t\t";
-	var_dump($auth->getUsername());
+	echo '$auth->getEmail()' . "\t\t\t";
+	\var_dump($auth->getEmail());
+	echo '$auth->getUsername()' . "\t\t\t";
+	\var_dump($auth->getUsername());
 
-	echo '$auth->getStatus()'."\t\t\t";
-	echo convertStatusToText($auth);
+	echo '$auth->getStatus()' . "\t\t\t";
+	echo \convertStatusToText($auth);
 	echo ' / ';
-	var_dump($auth->getStatus());
+	\var_dump($auth->getStatus());
 
 	echo "\n";
 
-	echo 'Roles (super moderator)'."\t\t\t";
-	var_dump($auth->hasRole(\Delight\Auth\Role::SUPER_MODERATOR));
+	echo 'Roles (super moderator)' . "\t\t\t";
+	\var_dump($auth->hasRole(\Delight\Auth\Role::SUPER_MODERATOR));
 
-	echo 'Roles (developer *or* manager)'."\t\t";
-	var_dump($auth->hasAnyRole(\Delight\Auth\Role::DEVELOPER, \Delight\Auth\Role::MANAGER));
+	echo 'Roles (developer *or* manager)' . "\t\t";
+	\var_dump($auth->hasAnyRole(\Delight\Auth\Role::DEVELOPER, \Delight\Auth\Role::MANAGER));
 
-	echo 'Roles (developer *and* manager)'."\t\t";
-	var_dump($auth->hasAllRoles(\Delight\Auth\Role::DEVELOPER, \Delight\Auth\Role::MANAGER));
+	echo 'Roles (developer *and* manager)' . "\t\t";
+	\var_dump($auth->hasAllRoles(\Delight\Auth\Role::DEVELOPER, \Delight\Auth\Role::MANAGER));
 
 	echo "\n";
 
-	echo '$auth->isRemembered()'."\t\t\t";
-	var_dump($auth->isRemembered());
-	echo '$auth->getIpAddress()'."\t\t\t";
-	var_dump($auth->getIpAddress());
+	echo '$auth->isRemembered()' . "\t\t\t";
+	\var_dump($auth->isRemembered());
+	echo '$auth->getIpAddress()' . "\t\t\t";
+	\var_dump($auth->getIpAddress());
 	echo "\n";
 
-	echo 'Auth::createRandomString()'."\t\t";
-	var_dump(\Delight\Auth\Auth::createRandomString());
-	echo 'Auth::createUuid()'."\t\t\t";
-	var_dump(\Delight\Auth\Auth::createUuid());
+	echo 'Auth::createRandomString()' . "\t\t";
+	\var_dump(\Delight\Auth\Auth::createRandomString());
+	echo 'Auth::createUuid()' . "\t\t\t";
+	\var_dump(\Delight\Auth\Auth::createUuid());
 
 	echo '</pre>';
 }
@@ -626,7 +626,7 @@ function showGeneralForm() {
 }
 
 function showAuthenticatedUserForm(\Delight\Auth\Auth $auth) {
-	showGeneralForm();
+	\showGeneralForm();
 
 	echo '<form action="" method="post" accept-charset="utf-8">';
 	echo '<input type="hidden" name="action" value="reconfirmPassword" />';
@@ -653,7 +653,7 @@ function showAuthenticatedUserForm(\Delight\Auth\Auth $auth) {
 	echo '<button type="submit">Change email address</button>';
 	echo '</form>';
 
-	showConfirmEmailForm();
+	\showConfirmEmailForm();
 
 	echo '<form action="" method="post" accept-charset="utf-8">';
 	echo '<input type="hidden" name="action" value="setPasswordResetEnabled" />';
@@ -676,7 +676,7 @@ function showAuthenticatedUserForm(\Delight\Auth\Auth $auth) {
 }
 
 function showGuestUserForm() {
-	showGeneralForm();
+	\showGeneralForm();
 
 	echo '<h1>Public</h1>';
 
@@ -718,7 +718,7 @@ function showGuestUserForm() {
 	echo '<button type="submit">Register</button>';
 	echo '</form>';
 
-	showConfirmEmailForm();
+	\showConfirmEmailForm();
 
 	echo '<form action="" method="post" accept-charset="utf-8">';
 	echo '<input type="hidden" name="action" value="forgotPassword" />';
@@ -769,49 +769,49 @@ function showGuestUserForm() {
 	echo '<form action="" method="post" accept-charset="utf-8">';
 	echo '<input type="hidden" name="action" value="admin.addRole" />';
 	echo '<input type="text" name="id" placeholder="ID" /> ';
-	echo '<select name="role">' . createRolesOptions() . '</select>';
+	echo '<select name="role">' . \createRolesOptions() . '</select>';
 	echo '<button type="submit">Add role for user by ID</button>';
 	echo '</form>';
 
 	echo '<form action="" method="post" accept-charset="utf-8">';
 	echo '<input type="hidden" name="action" value="admin.addRole" />';
 	echo '<input type="text" name="email" placeholder="Email" /> ';
-	echo '<select name="role">' . createRolesOptions() . '</select>';
+	echo '<select name="role">' . \createRolesOptions() . '</select>';
 	echo '<button type="submit">Add role for user by email</button>';
 	echo '</form>';
 
 	echo '<form action="" method="post" accept-charset="utf-8">';
 	echo '<input type="hidden" name="action" value="admin.addRole" />';
 	echo '<input type="text" name="username" placeholder="Username" /> ';
-	echo '<select name="role">' . createRolesOptions() . '</select>';
+	echo '<select name="role">' . \createRolesOptions() . '</select>';
 	echo '<button type="submit">Add role for user by username</button>';
 	echo '</form>';
 
 	echo '<form action="" method="post" accept-charset="utf-8">';
 	echo '<input type="hidden" name="action" value="admin.removeRole" />';
 	echo '<input type="text" name="id" placeholder="ID" /> ';
-	echo '<select name="role">' . createRolesOptions() . '</select>';
+	echo '<select name="role">' . \createRolesOptions() . '</select>';
 	echo '<button type="submit">Remove role for user by ID</button>';
 	echo '</form>';
 
 	echo '<form action="" method="post" accept-charset="utf-8">';
 	echo '<input type="hidden" name="action" value="admin.removeRole" />';
 	echo '<input type="text" name="email" placeholder="Email" /> ';
-	echo '<select name="role">' . createRolesOptions() . '</select>';
+	echo '<select name="role">' . \createRolesOptions() . '</select>';
 	echo '<button type="submit">Remove role for user by email</button>';
 	echo '</form>';
 
 	echo '<form action="" method="post" accept-charset="utf-8">';
 	echo '<input type="hidden" name="action" value="admin.removeRole" />';
 	echo '<input type="text" name="username" placeholder="Username" /> ';
-	echo '<select name="role">' . createRolesOptions() . '</select>';
+	echo '<select name="role">' . \createRolesOptions() . '</select>';
 	echo '<button type="submit">Remove role for user by username</button>';
 	echo '</form>';
 
 	echo '<form action="" method="post" accept-charset="utf-8">';
 	echo '<input type="hidden" name="action" value="admin.hasRole" />';
 	echo '<input type="text" name="id" placeholder="ID" /> ';
-	echo '<select name="role">' . createRolesOptions() . '</select>';
+	echo '<select name="role">' . \createRolesOptions() . '</select>';
 	echo '<button type="submit">Does user have role?</button>';
 	echo '</form>';
 }

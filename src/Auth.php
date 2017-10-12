@@ -61,16 +61,16 @@ final class Auth extends UserManager {
 	/** Initializes the session and sets the correct configuration */
 	private function initSession() {
 		// use cookies to store session IDs
-		ini_set('session.use_cookies', 1);
+		\ini_set('session.use_cookies', 1);
 		// use cookies only (do not send session IDs in URLs)
-		ini_set('session.use_only_cookies', 1);
+		\ini_set('session.use_only_cookies', 1);
 		// do not send session IDs in URLs
-		ini_set('session.use_trans_sid', 0);
+		\ini_set('session.use_trans_sid', 0);
 
 		// get our cookie settings
 		$params = $this->createCookieSettings();
 		// define our new cookie settings
-		session_set_cookie_params($params['lifetime'], $params['path'], $params['domain'], $params['secure'], $params['httponly']);
+		\session_set_cookie_params($params['lifetime'], $params['path'], $params['domain'], $params['secure'], $params['httponly']);
 
 		// start the session
 		@Session::start();
@@ -79,19 +79,19 @@ final class Auth extends UserManager {
 	/** Improves the application's security over HTTP(S) by setting specific headers */
 	private function enhanceHttpSecurity() {
 		// remove exposure of PHP version (at least where possible)
-		header_remove('X-Powered-By');
+		\header_remove('X-Powered-By');
 
 		// if the user is signed in
 		if ($this->isLoggedIn()) {
 			// prevent clickjacking
-			header('X-Frame-Options: sameorigin');
+			\header('X-Frame-Options: sameorigin');
 			// prevent content sniffing (MIME sniffing)
-			header('X-Content-Type-Options: nosniff');
+			\header('X-Content-Type-Options: nosniff');
 
 			// disable caching of potentially sensitive data
-			header('Cache-Control: no-store, no-cache, must-revalidate', true);
-			header('Expires: Thu, 19 Nov 1981 00:00:00 GMT', true);
-			header('Pragma: no-cache', true);
+			\header('Cache-Control: no-store, no-cache, must-revalidate', true);
+			\header('Expires: Thu, 19 Nov 1981 00:00:00 GMT', true);
+			\header('Pragma: no-cache', true);
 		}
 	}
 
@@ -102,7 +102,7 @@ final class Auth extends UserManager {
 			// if a remember cookie is set
 			if (isset($_COOKIE[self::COOKIE_NAME_REMEMBER])) {
 				// split the cookie's content into selector and token
-				$parts = explode(self::COOKIE_CONTENT_SEPARATOR, $_COOKIE[self::COOKIE_NAME_REMEMBER], 2);
+				$parts = \explode(self::COOKIE_CONTENT_SEPARATOR, $_COOKIE[self::COOKIE_NAME_REMEMBER], 2);
 				// if both selector and token were found
 				if (isset($parts[0]) && isset($parts[1])) {
 					try {
@@ -116,8 +116,8 @@ final class Auth extends UserManager {
 					}
 
 					if (!empty($rememberData)) {
-						if ($rememberData['expires'] >= time()) {
-							if (password_verify($parts[1], $rememberData['token'])) {
+						if ($rememberData['expires'] >= \time()) {
+							if (\password_verify($parts[1], $rememberData['token'])) {
 								$this->onLoginSuccessful($rememberData['user'], $rememberData['email'], $rememberData['username'], $rememberData['status'], $rememberData['roles_mask'], true);
 							}
 						}
@@ -361,8 +361,8 @@ final class Auth extends UserManager {
 	private function createRememberDirective($userId, $duration) {
 		$selector = self::createRandomString(24);
 		$token = self::createRandomString(32);
-		$tokenHashed = password_hash($token, PASSWORD_DEFAULT);
-		$expires = time() + ((int) $duration);
+		$tokenHashed = \password_hash($token, \PASSWORD_DEFAULT);
+		$expires = \time() + ((int) $duration);
 
 		try {
 			$this->db->insert(
@@ -399,7 +399,7 @@ final class Auth extends UserManager {
 			throw new DatabaseError();
 		}
 
-		$this->setRememberCookie(null, null, time() - 3600);
+		$this->setRememberCookie(null, null, \time() - 3600);
 	}
 
 	/**
@@ -461,7 +461,7 @@ final class Auth extends UserManager {
 		try {
 			$this->db->update(
 				$this->dbTablePrefix . 'users',
-				[ 'last_login' => time() ],
+				[ 'last_login' => \time() ],
 				[ 'id' => $userId ]
 			);
 		}
@@ -548,8 +548,8 @@ final class Auth extends UserManager {
 		}
 
 		if (!empty($confirmationData)) {
-			if (password_verify($token, $confirmationData['token'])) {
-				if ($confirmationData['expires'] >= time()) {
+			if (\password_verify($token, $confirmationData['token'])) {
+				if ($confirmationData['expires'] >= \time()) {
 					// invalidate any potential outstanding password reset requests
 					try {
 						$this->db->delete(
@@ -700,7 +700,7 @@ final class Auth extends UserManager {
 	 * @throws AuthError if an internal problem occurred (do *not* catch)
 	 */
 	private function updatePassword($userId, $newPassword) {
-		$newPassword = password_hash($newPassword, PASSWORD_DEFAULT);
+		$newPassword = \password_hash($newPassword, \PASSWORD_DEFAULT);
 
 		try {
 			$this->db->update(
@@ -978,7 +978,7 @@ final class Auth extends UserManager {
 			);
 		}
 		elseif ($username !== null) {
-			$username = trim($username);
+			$username = \trim($username);
 
 			// attempt to look up the account information using the specified username
 			$userData = $this->getUserDataByUsername(
@@ -994,9 +994,9 @@ final class Auth extends UserManager {
 
 		$password = self::validatePassword($password);
 
-		if (password_verify($password, $userData['password'])) {
+		if (\password_verify($password, $userData['password'])) {
 			// if the password needs to be re-hashed to keep up with improving password cracking techniques
-			if (password_needs_rehash($userData['password'], PASSWORD_DEFAULT)) {
+			if (\password_needs_rehash($userData['password'], \PASSWORD_DEFAULT)) {
 				// create a new hash from the password and update it in the database
 				$this->updatePassword($userData['id'], $password);
 			}
@@ -1064,7 +1064,7 @@ final class Auth extends UserManager {
 	 */
 	private function getUserDataByEmailAddress($email, array $requestedColumns) {
 		try {
-			$projection = implode(', ', $requestedColumns);
+			$projection = \implode(', ', $requestedColumns);
 			$userData = $this->db->selectRow(
 				'SELECT ' . $projection . ' FROM ' . $this->dbTablePrefix . 'users WHERE email = ?',
 				[ $email ]
@@ -1095,7 +1095,7 @@ final class Auth extends UserManager {
 				'SELECT COUNT(*) FROM ' . $this->dbTablePrefix . 'users_resets WHERE user = ? AND expires > ?',
 				[
 					$userId,
-					time()
+					\time()
 				]
 			);
 
@@ -1130,8 +1130,8 @@ final class Auth extends UserManager {
 	private function createPasswordResetRequest($userId, $expiresAfter, callable $callback) {
 		$selector = self::createRandomString(20);
 		$token = self::createRandomString(20);
-		$tokenHashed = password_hash($token, PASSWORD_DEFAULT);
-		$expiresAt = time() + $expiresAfter;
+		$tokenHashed = \password_hash($token, \PASSWORD_DEFAULT);
+		$expiresAt = \time() + $expiresAfter;
 
 		try {
 			$this->db->insert(
@@ -1148,7 +1148,7 @@ final class Auth extends UserManager {
 			throw new DatabaseError();
 		}
 
-		if (isset($callback) && is_callable($callback)) {
+		if (\is_callable($callback)) {
 			$callback($selector, $token);
 		}
 		else {
@@ -1188,8 +1188,8 @@ final class Auth extends UserManager {
 
 		if (!empty($resetData)) {
 			if ((int) $resetData['resettable'] === 1) {
-				if (password_verify($token, $resetData['token'])) {
-					if ($resetData['expires'] >= time()) {
+				if (\password_verify($token, $resetData['token'])) {
+					if ($resetData['expires'] >= \time()) {
 						$newPassword = self::validatePassword($newPassword);
 
 						// update the password in the database
@@ -1344,7 +1344,7 @@ final class Auth extends UserManager {
 	 * @param int $userId the user's ID
 	 */
 	private function setUserId($userId) {
-		$_SESSION[self::SESSION_FIELD_USER_ID] = intval($userId);
+		$_SESSION[self::SESSION_FIELD_USER_ID] = (int) $userId;
 	}
 
 	/**
@@ -1736,7 +1736,7 @@ final class Auth extends UserManager {
 	 */
 	private function createCookieSettings() {
 		// get the default cookie settings
-		$params = session_get_cookie_params();
+		$params = \session_get_cookie_params();
 
 		// check if we want to send cookies via SSL/TLS only
 		$params['secure'] = $params['secure'] || $this->useHttps;
@@ -1756,14 +1756,14 @@ final class Auth extends UserManager {
 	 * @author Jack @ Stack Overflow
 	 */
 	public static function createUuid() {
-		$data = openssl_random_pseudo_bytes(16);
+		$data = \openssl_random_pseudo_bytes(16);
 
 		// set the version to 0100
-		$data[6] = chr(ord($data[6]) & 0x0f | 0x40);
+		$data[6] = \chr(\ord($data[6]) & 0x0f | 0x40);
 		// set bits 6-7 to 10
-		$data[8] = chr(ord($data[8]) & 0x3f | 0x80);
+		$data[8] = \chr(\ord($data[8]) & 0x3f | 0x80);
 
-		return vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($data), 4));
+		return \vsprintf('%s%s-%s-%s-%s-%s%s%s', \str_split(\bin2hex($data), 4));
 	}
 
 }
