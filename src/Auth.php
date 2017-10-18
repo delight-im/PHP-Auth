@@ -28,6 +28,7 @@ final class Auth extends UserManager {
 	const SESSION_FIELD_STATUS = 'auth_status';
 	const SESSION_FIELD_ROLES = 'auth_roles';
 	const SESSION_FIELD_REMEMBERED = 'auth_remembered';
+	const COOKIE_PREFIXES = [ '__Secure-', '__Host-' ];
 	const COOKIE_CONTENT_SEPARATOR = '~';
 	const COOKIE_NAME_REMEMBER = 'auth_remember';
 
