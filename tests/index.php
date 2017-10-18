@@ -35,6 +35,7 @@ $auth = new \Delight\Auth\Auth($db);
 
 $result = \processRequestData($auth);
 
+\showGeneralForm();
 \showDebugData($auth, $result);
 
 if ($auth->check()) {
@@ -634,8 +635,6 @@ function showGeneralForm() {
 }
 
 function showAuthenticatedUserForm(\Delight\Auth\Auth $auth) {
-	\showGeneralForm();
-
 	echo '<form action="" method="post" accept-charset="utf-8">';
 	echo '<input type="hidden" name="action" value="reconfirmPassword" />';
 	echo '<input type="text" name="password" placeholder="Password" /> ';
@@ -684,8 +683,6 @@ function showAuthenticatedUserForm(\Delight\Auth\Auth $auth) {
 }
 
 function showGuestUserForm() {
-	\showGeneralForm();
-
 	echo '<h1>Public</h1>';
 
 	echo '<form action="" method="post" accept-charset="utf-8">';
