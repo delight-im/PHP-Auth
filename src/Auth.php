@@ -72,7 +72,7 @@ final class Auth extends UserManager {
 		// define our new cookie settings
 		\session_set_cookie_params($params['lifetime'], $params['path'], $params['domain'], $params['secure'], $params['httponly']);
 
-		// start the session
+		// start the session (requests a cookie to be written on the client)
 		@Session::start();
 	}
 
@@ -439,6 +439,7 @@ final class Auth extends UserManager {
 		$cookie->setHttpOnly($params['httponly']);
 		$cookie->setSecureOnly($params['secure']);
 
+		// save the instance (requests a cookie to be written on the client)
 		$result = $cookie->save();
 
 		if ($result === false) {
@@ -469,7 +470,7 @@ final class Auth extends UserManager {
 			throw new DatabaseError();
 		}
 
-		// re-generate the session ID to prevent session fixation attacks
+		// re-generate the session ID to prevent session fixation attacks (requests a cookie to be written on the client)
 		Session::regenerate(true);
 
 		// save the user data in the session
@@ -511,6 +512,8 @@ final class Auth extends UserManager {
 		}
 		$cookie->setHttpOnly($params['httponly']);
 		$cookie->setSecureOnly($params['secure']);
+
+		// delete the instance (requests a cookie to be written on the client)
 		$result = $cookie->delete();
 
 		if ($result === false) {
