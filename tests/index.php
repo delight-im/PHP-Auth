@@ -581,6 +581,10 @@ function showDebugData(\Delight\Auth\Auth $auth, $result) {
 	\var_dump($auth->getIpAddress());
 	echo "\n";
 
+	echo 'Session name' . "\t\t\t\t";
+	\var_dump(\session_name());
+	echo "\n";
+
 	echo 'Auth::createRandomString()' . "\t\t";
 	\var_dump(\Delight\Auth\Auth::createRandomString());
 	echo 'Auth::createUuid()' . "\t\t\t";
