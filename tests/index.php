@@ -585,6 +585,8 @@ function showDebugData(\Delight\Auth\Auth $auth, $result) {
 	\var_dump(\session_name());
 	echo "\n";
 
+	echo 'Auth::createCookieName(\'session\')' . "\t";
+	\var_dump(\Delight\Auth\Auth::createCookieName('session'));
 	echo 'Auth::createRandomString()' . "\t\t";
 	\var_dump(\Delight\Auth\Auth::createRandomString());
 	echo 'Auth::createUuid()' . "\t\t\t";
