@@ -1,6 +1,7 @@
 # Migration
 
  * [General](#general)
+ * [From `v6.x.x` to `v7.x.x`](#from-v6xx-to-v7xx)
  * [From `v5.x.x` to `v6.x.x`](#from-v5xx-to-v6xx)
  * [From `v4.x.x` to `v5.x.x`](#from-v4xx-to-v5xx)
  * [From `v3.x.x` to `v4.x.x`](#from-v3xx-to-v4xx)
@@ -14,6 +15,8 @@ Update your version of this library via Composer [[?]](https://github.com/deligh
 ```
 $ composer update delight-im/auth
 ```
+
+## From `v6.x.x` to `v7.x.x`
 
 ## From `v5.x.x` to `v6.x.x`
 
