@@ -1773,4 +1773,34 @@ final class Auth extends UserManager {
 		return \vsprintf('%s%s-%s-%s-%s-%s%s%s', \str_split(\bin2hex($data), 4));
 	}
 
+	/**
+	 * Generates a unique cookie name for the given descriptor based on the supplied seed
+	 *
+	 * @param string $descriptor a short label describing the purpose of the cookie, e.g. 'session'
+	 * @param string|null $seed (optional) the data to deterministically generate the name from
+	 * @return string
+	 */
+	public static function createCookieName($descriptor, $seed = null) {
+		// use the supplied seed or the current UNIX time in seconds
+		$seed = ($seed !== null) ? $seed : \time();
+
+		foreach (self::COOKIE_PREFIXES as $cookiePrefix) {
+			// if the seed contains a certain cookie prefix
+			if (\strpos($seed, $cookiePrefix) === 0) {
+				// prepend the same prefix to the descriptor
+				$descriptor = $cookiePrefix . $descriptor;
+			}
+		}
+
+		// generate a unique token based on the name(space) of this library and on the seed
+		$token = Base64::encodeUrlSafeWithoutPadding(
+			\md5(
+				__NAMESPACE__ . "\n" . $seed,
+				true
+			)
+		);
+
+		return $descriptor . '_' . $token;
+	}
+
 }
