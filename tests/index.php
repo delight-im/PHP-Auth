@@ -583,6 +583,8 @@ function showDebugData(\Delight\Auth\Auth $auth, $result) {
 
 	echo 'Session name' . "\t\t\t\t";
 	\var_dump(\session_name());
+	echo 'Auth::createRememberCookieName()' . "\t";
+	\var_dump(\Delight\Auth\Auth::createRememberCookieName());
 	echo "\n";
 
 	echo 'Auth::createCookieName(\'session\')' . "\t";
