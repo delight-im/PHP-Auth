@@ -30,7 +30,6 @@ final class Auth extends UserManager {
 	const SESSION_FIELD_REMEMBERED = 'auth_remembered';
 	const COOKIE_PREFIXES = [ '__Secure-', '__Host-' ];
 	const COOKIE_CONTENT_SEPARATOR = '~';
-	const COOKIE_NAME_REMEMBER = 'auth_remember';
 
 	/** @var boolean whether HTTPS (TLS/SSL) will be used (recommended) */
 	private $useHttps;
@@ -38,6 +37,8 @@ final class Auth extends UserManager {
 	private $allowCookiesScriptAccess;
 	/** @var string the user's current IP address */
 	private $ipAddress;
+	/** @var string the name of the cookie used for the 'remember me' feature */
+	private $rememberCookieName;
 
 	/**
 	 * @param PdoDatabase|PdoDsn|\PDO $databaseConnection the database connection to operate on
@@ -52,6 +53,7 @@ final class Auth extends UserManager {
 		$this->useHttps = $useHttps;
 		$this->allowCookiesScriptAccess = $allowCookiesScriptAccess;
 		$this->ipAddress = !empty($ipAddress) ? $ipAddress : (isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : null);
+		$this->rememberCookieName = self::createRememberCookieName();
 
 		$this->initSession();
 		$this->enhanceHttpSecurity();
@@ -101,9 +103,10 @@ final class Auth extends UserManager {
 		// if the user is not signed in yet
 		if (!$this->isLoggedIn()) {
 			// if a remember cookie is set
-			if (isset($_COOKIE[self::COOKIE_NAME_REMEMBER])) {
+			if (isset($_COOKIE[$this->rememberCookieName])) {
 				// split the cookie's content into selector and token
-				$parts = \explode(self::COOKIE_CONTENT_SEPARATOR, $_COOKIE[self::COOKIE_NAME_REMEMBER], 2);
+				$parts = \explode(self::COOKIE_CONTENT_SEPARATOR, $_COOKIE[$this->rememberCookieName], 2);
+
 				// if both selector and token were found
 				if (isset($parts[0]) && isset($parts[1])) {
 					try {
@@ -424,7 +427,7 @@ final class Auth extends UserManager {
 
 		// set the cookie with the selector and token
 
-		$cookie = new Cookie(self::COOKIE_NAME_REMEMBER);
+		$cookie = new Cookie($this->rememberCookieName);
 
 		$cookie->setValue($content);
 		$cookie->setExpiryTime($expires);
