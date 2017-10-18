@@ -1803,4 +1803,17 @@ final class Auth extends UserManager {
 		return $descriptor . '_' . $token;
 	}
 
+	/**
+	 * Generates a unique cookie name for the 'remember me' feature
+	 *
+	 * @param string|null $sessionName (optional) the session name that the output should be based on
+	 * @return string
+	 */
+	public static function createRememberCookieName($sessionName = null) {
+		return self::createCookieName(
+			'remember',
+			($sessionName !== null) ? $sessionName : \session_name()
+		);
+	}
+
 }
