@@ -503,13 +503,16 @@ final class Auth extends UserManager {
 		$params = $this->createCookieSettings();
 
 		// cause the session cookie to be deleted
-		$cookie = new Cookie(session_name());
+		$cookie = new Cookie(\session_name());
+
 		if (!empty($params['path'])) {
 			$cookie->setPath($params['path']);
 		}
+
 		if (!empty($params['domain'])) {
 			$cookie->setDomain($params['domain']);
 		}
+
 		$cookie->setHttpOnly($params['httponly']);
 		$cookie->setSecureOnly($params['secure']);
 
