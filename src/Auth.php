@@ -457,10 +457,7 @@ final class Auth extends UserManager {
 			$cookie->setPath($params['path']);
 		}
 
-		if (!empty($params['domain'])) {
-			$cookie->setDomain($params['domain']);
-		}
-
+		$cookie->setDomain($params['domain']);
 		$cookie->setHttpOnly($params['httponly']);
 		$cookie->setSecureOnly($params['secure']);
 
@@ -481,10 +478,7 @@ final class Auth extends UserManager {
 				$cookie->setPath($params['path']);
 			}
 
-			if (!empty($params['domain'])) {
-				$cookie->setDomain($params['domain']);
-			}
-
+			$cookie->setDomain($params['domain']);
 			$cookie->setHttpOnly($params['httponly']);
 			$cookie->setSecureOnly($params['secure']);
 
@@ -555,10 +549,7 @@ final class Auth extends UserManager {
 			$cookie->setPath($params['path']);
 		}
 
-		if (!empty($params['domain'])) {
-			$cookie->setDomain($params['domain']);
-		}
-
+		$cookie->setDomain($params['domain']);
 		$cookie->setHttpOnly($params['httponly']);
 		$cookie->setSecureOnly($params['secure']);
 
