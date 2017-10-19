@@ -113,6 +113,9 @@ final class Auth extends UserManager {
 
 			// if a remember cookie is set
 			if (isset($_COOKIE[$this->rememberCookieName])) {
+				// assume the cookie and its contents to be invalid until proven otherwise
+				$valid = false;
+
 				// split the cookie's content into selector and token
 				$parts = \explode(self::COOKIE_CONTENT_SEPARATOR, $_COOKIE[$this->rememberCookieName], 2);
 
@@ -131,10 +134,19 @@ final class Auth extends UserManager {
 					if (!empty($rememberData)) {
 						if ($rememberData['expires'] >= \time()) {
 							if (\password_verify($parts[1], $rememberData['token'])) {
+								// the cookie and its contents have now been proven to be valid
+								$valid = true;
+
 								$this->onLoginSuccessful($rememberData['user'], $rememberData['email'], $rememberData['username'], $rememberData['status'], $rememberData['roles_mask'], true);
 							}
 						}
 					}
+				}
+
+				// if the cookie or its contents have been invalid
+				if (!$valid) {
+					// mark the cookie as such to prevent any further futile attempts
+					$this->setRememberCookie('', '', \time() + 60 * 60 * 24 * 365.25);
 				}
 			}
 		}
