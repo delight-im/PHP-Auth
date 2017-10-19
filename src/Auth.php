@@ -409,9 +409,9 @@ final class Auth extends UserManager {
 	/**
 	 * Sets or updates the cookie that manages the "remember me" token
 	 *
-	 * @param string $selector the selector from the selector/token pair
-	 * @param string $token the token from the selector/token pair
-	 * @param int $expires the interval in seconds after which the token should expire
+	 * @param string|null $selector the selector from the selector/token pair
+	 * @param string|null $token the token from the selector/token pair
+	 * @param int $expires the UNIX time in seconds which the token should expire at
 	 * @throws AuthError if an internal problem occurred (do *not* catch)
 	 */
 	private function setRememberCookie($selector, $token, $expires) {
