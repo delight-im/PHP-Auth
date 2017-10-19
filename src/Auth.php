@@ -117,7 +117,7 @@ final class Auth extends UserManager {
 				$parts = \explode(self::COOKIE_CONTENT_SEPARATOR, $_COOKIE[$this->rememberCookieName], 2);
 
 				// if both selector and token were found
-				if (isset($parts[0]) && isset($parts[1])) {
+				if (!empty($parts[0]) && !empty($parts[1])) {
 					try {
 						$rememberData = $this->db->selectRow(
 							'SELECT a.user, a.token, a.expires, b.email, b.username, b.status, b.roles_mask FROM ' . $this->dbTablePrefix . 'users_remembered AS a JOIN ' . $this->dbTablePrefix . 'users AS b ON a.user = b.id WHERE a.selector = ?',
