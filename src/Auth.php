@@ -470,6 +470,27 @@ final class Auth extends UserManager {
 		if ($result === false) {
 			throw new HeadersAlreadySentError();
 		}
+
+		// if we've been deleting the cookie above
+		if (!isset($selector) || !isset($token)) {
+			// attempt to delete a potential old cookie from versions v1.x.x to v6.x.x as well
+
+			$cookie = new Cookie('auth_remember');
+
+			if (!empty($params['path'])) {
+				$cookie->setPath($params['path']);
+			}
+
+			if (!empty($params['domain'])) {
+				$cookie->setDomain($params['domain']);
+			}
+
+			$cookie->setHttpOnly($params['httponly']);
+			$cookie->setSecureOnly($params['secure']);
+
+			// delete the instance (requests a cookie to be written on the client)
+			$cookie->delete();
+		}
 	}
 
 	/**
