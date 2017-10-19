@@ -5,7 +5,7 @@
 		"php": ">=5.6.0",
 		"ext-openssl": "*",
 		"delight-im/base64": "^1.0",
-		"delight-im/cookie": "^2.1",
+		"delight-im/cookie": "^3.1",
 		"delight-im/db": "^1.2"
 	},
 	"type": "library",

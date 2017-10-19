@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "8ab7c9ad8ef2bc7d9a6beb27f9bf4df5",
+    "content-hash": "54d541ae3c5ba25b0cc06688d2b65467",
     "packages": [
         {
             "name": "delight-im/base64",
@@ -49,16 +49,16 @@
         },
         {
             "name": "delight-im/cookie",
-            "version": "v2.1.3",
+            "version": "v3.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/delight-im/PHP-Cookie.git",
-                "reference": "a66c8a02aa4776c4b7d3d04c695411f73e04e1eb"
+                "reference": "76ef2a21817cf7a034f85fc3f4d4bfc60f873947"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/delight-im/PHP-Cookie/zipball/a66c8a02aa4776c4b7d3d04c695411f73e04e1eb",
-                "reference": "a66c8a02aa4776c4b7d3d04c695411f73e04e1eb",
+                "url": "https://api.github.com/repos/delight-im/PHP-Cookie/zipball/76ef2a21817cf7a034f85fc3f4d4bfc60f873947",
+                "reference": "76ef2a21817cf7a034f85fc3f4d4bfc60f873947",
                 "shasum": ""
             },
             "require": {
@@ -86,7 +86,7 @@
                 "samesite",
                 "xss"
             ],
-            "time": "2017-07-26T14:03:38+00:00"
+            "time": "2017-10-18T19:48:59+00:00"
         },
         {
             "name": "delight-im/db",
