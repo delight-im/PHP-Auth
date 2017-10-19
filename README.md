@@ -79,6 +79,8 @@ Migrating from an earlier version of this project? See our [upgrade guide](Migra
    * [Assigning roles to users](#assigning-roles-to-users)
    * [Taking roles away from users](#taking-roles-away-from-users)
    * [Checking roles](#checking-roles-1)
+ * [Cookies](#cookies)
+   * [Renaming the library’s cookies](#renaming-the-librarys-cookies)
  * [Utilities](#utilities)
    * [Creating a random string](#creating-a-random-string)
    * [Creating a UUID v4 as per RFC 4122](#creating-a-uuid-v4-as-per-rfc-4122)
@@ -895,6 +897,48 @@ catch (\Delight\Auth\UnknownIdException $e) {
     // unknown user ID
 }
 ```
+
+### Cookies
+
+This library uses two cookies to keep state on the client: The first, whose name you can retrieve using
+
+```php
+\session_name();
+```
+
+is the general (mandatory) session cookie. The second (optional) cookie is only used for [persistent logins](#keeping-the-user-logged-in) and its name can be retrieved as follows:
+
+```php
+\Delight\Auth\Auth::createRememberCookieName();
+```
+
+#### Renaming the library’s cookies
+
+You can rename the session cookie used by this library through one of the following means, in order of recommendation:
+
+ * In the [PHP configuration](http://php.net/manual/en/configuration.file.php) (`php.ini`), find the line with the `session.name` directive and change its value to something like `session_v1`, as in:
+
+   ```
+   session.name = session_v1
+   ```
+
+ * As early as possible in your application, and before you create the `Auth` instance, call `\ini_set` to change `session.name` to something like `session_v1`, as in:
+
+   ```php
+   \ini_set('session.name', 'session_v1');
+   ```
+
+   For this to work, `session.auto_start` must be set to `0` in the [PHP configuration](http://php.net/manual/en/configuration.file.php) (`php.ini`).
+
+ * As early as possible in your application, and before you create the `Auth` instance, call `\session_name` with an argument like `session_v1`, as in:
+
+   ```php
+   \session_name('session_v1');
+   ```
+
+   For this to work, `session.auto_start` must be set to `0` in the [PHP configuration](http://php.net/manual/en/configuration.file.php) (`php.ini`).
+
+The name of the cookie for [persistent logins](#keeping-the-user-logged-in) will change as well – automatically – following your change of the session cookie’s name.
 
 ### Utilities
 
