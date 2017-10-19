@@ -357,13 +357,13 @@ function processRequestData(\Delight\Auth\Auth $auth) {
 					return 'not logged in';
 				}
 			}
-			else if ($_POST['action'] === 'logOutButKeepSession') {
-				$auth->logOutButKeepSession();
+			else if ($_POST['action'] === 'logOut') {
+				$auth->logOut();
 
 				return 'ok';
 			}
-			else if ($_POST['action'] === 'logout') {
-				$auth->logout();
+			else if ($_POST['action'] === 'logOutAndDestroySession') {
+				$auth->logOutAndDestroySession();
 
 				return 'ok';
 			}
@@ -672,13 +672,13 @@ function showAuthenticatedUserForm(\Delight\Auth\Auth $auth) {
 	echo '</form>';
 
 	echo '<form action="" method="post" accept-charset="utf-8">';
-	echo '<input type="hidden" name="action" value="logOutButKeepSession" />';
-	echo '<button type="submit">Log out but keep session</button>';
+	echo '<input type="hidden" name="action" value="logOut" />';
+	echo '<button type="submit">Log out</button>';
 	echo '</form>';
 
 	echo '<form action="" method="post" accept-charset="utf-8">';
-	echo '<input type="hidden" name="action" value="logout" />';
-	echo '<button type="submit">Log out</button>';
+	echo '<input type="hidden" name="action" value="logOutAndDestroySession" />';
+	echo '<button type="submit">Log out and destroy session</button>';
 	echo '</form>';
 }
 

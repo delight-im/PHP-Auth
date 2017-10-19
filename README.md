@@ -407,9 +407,9 @@ $url = 'https://www.example.com/verify_email?selector=' . \urlencode($selector) 
 ### Logout
 
 ```php
-$auth->logOutButKeepSession();
+$auth->logOut();
 // or
-$auth->logout();
+$auth->logOutAndDestroySession();
 
 // user has been signed out
 ```

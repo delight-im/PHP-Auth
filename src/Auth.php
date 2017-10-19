@@ -339,7 +339,7 @@ final class Auth extends UserManager {
 	 *
 	 * @throws AuthError if an internal problem occurred (do *not* catch)
 	 */
-	public function logOutButKeepSession() {
+	public function logOut() {
 		// if the user has been signed in
 		if ($this->isLoggedIn()) {
 			// get the user's ID
@@ -534,8 +534,8 @@ final class Auth extends UserManager {
 	 *
 	 * @throws AuthError if an internal problem occurred (do *not* catch)
 	 */
-	public function logout() {
-		$this->logOutButKeepSession();
+	public function logOutAndDestroySession() {
+		$this->logOut();
 		$this->destroySession();
 	}
 

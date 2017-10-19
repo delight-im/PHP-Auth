@@ -18,6 +18,8 @@ $ composer update delight-im/auth
 
 ## From `v6.x.x` to `v7.x.x`
 
+ * The method `logOutButKeepSession` from class `Auth` is now simply called `logOut`. Therefore, the former method `logout` is now called `logOutAndDestroySession`. With both methods, mind the capitalization of the letter “O”.
+
 ## From `v5.x.x` to `v6.x.x`
 
  * The database schema has changed.
