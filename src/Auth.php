@@ -28,7 +28,7 @@ final class Auth extends UserManager {
 	const SESSION_FIELD_STATUS = 'auth_status';
 	const SESSION_FIELD_ROLES = 'auth_roles';
 	const SESSION_FIELD_REMEMBERED = 'auth_remembered';
-	const COOKIE_PREFIXES = [ '__Secure-', '__Host-' ];
+	const COOKIE_PREFIXES = [ Cookie::PREFIX_SECURE, Cookie::PREFIX_HOST ];
 	const COOKIE_CONTENT_SEPARATOR = '~';
 
 	/** @var boolean whether HTTPS (TLS/SSL) will be used (recommended) */
