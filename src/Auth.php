@@ -102,6 +102,15 @@ final class Auth extends UserManager {
 	private function processRememberDirective() {
 		// if the user is not signed in yet
 		if (!$this->isLoggedIn()) {
+			// if there is currently no cookie for the 'remember me' feature
+			if (!isset($_COOKIE[$this->rememberCookieName])) {
+				// if an old cookie for that feature from versions v1.x.x to v6.x.x has been found
+				if (isset($_COOKIE['auth_remember'])) {
+					// use the value from that old cookie instead
+					$_COOKIE[$this->rememberCookieName] = $_COOKIE['auth_remember'];
+				}
+			}
+
 			// if a remember cookie is set
 			if (isset($_COOKIE[$this->rememberCookieName])) {
 				// split the cookie's content into selector and token
