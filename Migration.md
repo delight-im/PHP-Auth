@@ -16,6 +16,12 @@ Update your version of this library via Composer [[?]](https://github.com/deligh
 $ composer update delight-im/auth
 ```
 
+If you want to perform a major version upgrade (e.g. from version `1.x.x` to version `2.x.x`), the version constraints defined in your `composer.json` [[?]](https://github.com/delight-im/Knowledge/blob/master/Composer%20(PHP).md) may not allow this. In that case, just add the dependency again to overwrite it with the latest version (or optionally with a specified version):
+
+```
+$ composer require delight-im/auth
+```
+
 ## From `v6.x.x` to `v7.x.x`
 
  * The method `logOutButKeepSession` from class `Auth` is now simply called `logOut`. Therefore, the former method `logout` is now called `logOutAndDestroySession`. With both methods, mind the capitalization of the letter “O”.
