@@ -31,10 +31,6 @@ final class Auth extends UserManager {
 	const COOKIE_PREFIXES = [ Cookie::PREFIX_SECURE, Cookie::PREFIX_HOST ];
 	const COOKIE_CONTENT_SEPARATOR = '~';
 
-	/** @var boolean whether HTTPS (TLS/SSL) will be used (recommended) */
-	private $useHttps;
-	/** @var boolean whether cookies should be accessible via client-side scripts (*not* recommended) */
-	private $allowCookiesScriptAccess;
 	/** @var string the user's current IP address */
 	private $ipAddress;
 	/** @var string the name of the cookie used for the 'remember me' feature */
@@ -42,16 +38,12 @@ final class Auth extends UserManager {
 
 	/**
 	 * @param PdoDatabase|PdoDsn|\PDO $databaseConnection the database connection to operate on
-	 * @param bool $useHttps whether HTTPS (TLS/SSL) will be used (recommended)
-	 * @param bool $allowCookiesScriptAccess whether cookies should be accessible via client-side scripts (*not* recommended)
 	 * @param string $ipAddress the IP address that should be used instead of the default setting (if any), e.g. when behind a proxy
 	 * @param string|null $dbTablePrefix (optional) the prefix for the names of all database tables used by this component
 	 */
-	public function __construct($databaseConnection, $useHttps = false, $allowCookiesScriptAccess = false, $ipAddress = null, $dbTablePrefix = null) {
+	public function __construct($databaseConnection, $ipAddress = null, $dbTablePrefix = null) {
 		parent::__construct($databaseConnection, $dbTablePrefix);
 
-		$this->useHttps = $useHttps;
-		$this->allowCookiesScriptAccess = $allowCookiesScriptAccess;
 		$this->ipAddress = !empty($ipAddress) ? $ipAddress : (isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : null);
 		$this->rememberCookieName = self::createRememberCookieName();
 

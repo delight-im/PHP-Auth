@@ -104,13 +104,9 @@ $auth = new \Delight\Auth\Auth($db);
 
 If you have an open `PDO` connection already, just re-use it.
 
-If you do enforce HTTPS on your site, pass `true` as the second parameter to the constructor. This is optional and the default is `false`.
+If your web server is behind a proxy server and `$_SERVER['REMOTE_ADDR']` only contains the proxy’s IP address, you must pass the user’s real IP address to the constructor in the second argument, which is named `$ipAddress`. The default is `null`.
 
-Only in the very rare case that you need access to your cookies from JavaScript, pass `true` as the third argument to the constructor. This is optional and the default is `false`. There is almost always a *better* solution than enabling this, however.
-
-If your web server is behind a proxy server and `$_SERVER['REMOTE_ADDR']` only contains the proxy’s IP address, you must pass the user’s real IP address to the constructor in the fourth argument. The default is `null`.
-
-Should your database tables for this library need a common prefix, e.g. `my_users` instead of `users` (and likewise for the other tables), pass the prefix (e.g. `my_`) as the fifth parameter to the constructor. This is optional and the prefix is empty by default.
+Should your database tables for this library need a common prefix, e.g. `my_users` instead of `users` (and likewise for the other tables), pass the prefix (e.g. `my_`) as the third parameter to the constructor, which is named `$dbTablePrefix`. This is optional and the prefix is empty by default.
 
 ### Registration (sign up)
 
