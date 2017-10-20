@@ -446,20 +446,14 @@ final class Auth extends UserManager {
 			$content = '';
 		}
 
-		// set the cookie with the selector and token
-
+		// save the cookie with the selector and token (requests a cookie to be written on the client)
 		$cookie = new Cookie($this->rememberCookieName);
-
 		$cookie->setValue($content);
 		$cookie->setExpiryTime($expires);
-
 		$cookie->setPath($params['path']);
-
 		$cookie->setDomain($params['domain']);
 		$cookie->setHttpOnly($params['httponly']);
 		$cookie->setSecureOnly($params['secure']);
-
-		// save the instance (requests a cookie to be written on the client)
 		$result = $cookie->save();
 
 		if ($result === false) {
@@ -468,19 +462,12 @@ final class Auth extends UserManager {
 
 		// if we've been deleting the cookie above
 		if (!isset($selector) || !isset($token)) {
-			// attempt to delete a potential old cookie from versions v1.x.x to v6.x.x as well
-
+			// attempt to delete a potential old cookie from versions v1.x.x to v6.x.x as well (requests a cookie to be written on the client)
 			$cookie = new Cookie('auth_remember');
-
-			if (!empty($params['path'])) {
-				$cookie->setPath($params['path']);
-			}
-
+			$cookie->setPath((!empty($params['path'])) ? $params['path'] : '/');
 			$cookie->setDomain($params['domain']);
 			$cookie->setHttpOnly($params['httponly']);
 			$cookie->setSecureOnly($params['secure']);
-
-			// delete the instance (requests a cookie to be written on the client)
 			$cookie->delete();
 		}
 	}
@@ -540,16 +527,12 @@ final class Auth extends UserManager {
 		// get our cookie settings
 		$params = $this->createCookieSettings();
 
-		// cause the session cookie to be deleted
+		// ask for the session cookie to be deleted (requests a cookie to be written on the client)
 		$cookie = new Cookie(\session_name());
-
 		$cookie->setPath($params['path']);
-
 		$cookie->setDomain($params['domain']);
 		$cookie->setHttpOnly($params['httponly']);
 		$cookie->setSecureOnly($params['secure']);
-
-		// delete the instance (requests a cookie to be written on the client)
 		$result = $cookie->delete();
 
 		if ($result === false) {
