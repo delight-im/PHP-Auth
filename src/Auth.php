@@ -453,9 +453,7 @@ final class Auth extends UserManager {
 		$cookie->setValue($content);
 		$cookie->setExpiryTime($expires);
 
-		if (!empty($params['path'])) {
-			$cookie->setPath($params['path']);
-		}
+		$cookie->setPath($params['path']);
 
 		$cookie->setDomain($params['domain']);
 		$cookie->setHttpOnly($params['httponly']);
@@ -545,9 +543,7 @@ final class Auth extends UserManager {
 		// cause the session cookie to be deleted
 		$cookie = new Cookie(\session_name());
 
-		if (!empty($params['path'])) {
-			$cookie->setPath($params['path']);
-		}
+		$cookie->setPath($params['path']);
 
 		$cookie->setDomain($params['domain']);
 		$cookie->setHttpOnly($params['httponly']);

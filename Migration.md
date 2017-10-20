@@ -54,6 +54,14 @@ $ composer update delight-im/auth
 
    Then the domain scope for [one of the cookies](#cookies) used by this library has changed. To make your application work correctly with the new scope, [rename the cookies](#renaming-the-librarys-cookies) used by this library in order to prevent conflicts with old cookies that have been created previously. Renaming the cookies is critically important here. We recommend a versioned name such as `session_v1` for the session cookie.
 
+ * If the directive `session.cookie_path` is set to an empty value, then the path scope for [one of the cookies](#cookies) used by this library has changed. To make your application work correctly with the new scope, [rename the cookies](#renaming-the-librarys-cookies) used by this library in order to prevent conflicts with old cookies that have been created previously. Renaming the cookies is critically important here. We recommend a versioned name such as `session_v1` for the session cookie.
+
+   The directive may have been set directly in your [PHP configuration](http://php.net/manual/en/configuration.file.php) (`php.ini`), via the `\ini_set` method or via the `\session_set_cookie_params` method. You can check the value of that directive by executing the following statement somewhere in your application:
+
+   ```php
+   \var_dump(\ini_get('session.cookie_path'));
+   ```
+
 ## From `v5.x.x` to `v6.x.x`
 
  * The database schema has changed.
