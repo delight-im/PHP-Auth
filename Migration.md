@@ -20,6 +20,10 @@ $ composer update delight-im/auth
 
  * The method `logOutButKeepSession` from class `Auth` is now simply called `logOut`. Therefore, the former method `logout` is now called `logOutAndDestroySession`. With both methods, mind the capitalization of the letter “O”.
 
+ * If you previously had the second argument of the `Auth` constructor, which is named `$useHttps`, set to `true`, make sure to set the value of the `session.cookie_secure` directive to `1` now. You may do so either directly in your [PHP configuration](http://php.net/manual/en/configuration.file.php) (`php.ini`), via the `\ini_set` method or via the `\session_set_cookie_params` method. Otherwise, make sure it is set to `0`.
+
+ * If you previously had the third argument of the `Auth` constructor, which is named `$allowCookiesScriptAccess`, set to `true`, make sure to set the value of the `session.cookie_httponly` directive to `0` now. You may do so either directly in your [PHP configuration](http://php.net/manual/en/configuration.file.php) (`php.ini`), via the `\ini_set` method or via the `\session_set_cookie_params` method. Otherwise, make sure it is set to `1`.
+
  * Only if *both* of the following two conditions are met:
 
    * The directive `session.cookie_domain` is set to an empty value. It may have been set directly in your [PHP configuration](http://php.net/manual/en/configuration.file.php) (`php.ini`), via the `\ini_set` method or via the `\session_set_cookie_params` method. You can check the value of that directive by executing the following statement somewhere in your application:

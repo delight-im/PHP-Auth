@@ -70,11 +70,6 @@ final class Auth extends UserManager {
 		// do not send session IDs in URLs
 		\ini_set('session.use_trans_sid', 0);
 
-		// get our cookie settings
-		$params = $this->createCookieSettings();
-		// define our new cookie settings
-		\session_set_cookie_params($params['lifetime'], $params['path'], $params['domain'], $params['secure'], $params['httponly']);
-
 		// start the session (requests a cookie to be written on the client)
 		@Session::start();
 	}
@@ -436,8 +431,7 @@ final class Auth extends UserManager {
 	 * @throws AuthError if an internal problem occurred (do *not* catch)
 	 */
 	private function setRememberCookie($selector, $token, $expires) {
-		// get our cookie settings
-		$params = $this->createCookieSettings();
+		$params = \session_get_cookie_params();
 
 		if (isset($selector) && isset($token)) {
 			$content = $selector . self::COOKIE_CONTENT_SEPARATOR . $token;
@@ -524,8 +518,7 @@ final class Auth extends UserManager {
 	 * @throws AuthError if an internal problem occurred (do *not* catch)
 	 */
 	private function deleteSessionCookie() {
-		// get our cookie settings
-		$params = $this->createCookieSettings();
+		$params = \session_get_cookie_params();
 
 		// ask for the session cookie to be deleted (requests a cookie to be written on the client)
 		$cookie = new Cookie(\session_name());
@@ -1749,24 +1742,6 @@ final class Auth extends UserManager {
 	 */
 	public function admin() {
 		return new Administration($this->db, $this->dbTablePrefix);
-	}
-
-	/**
-	 * Creates the cookie settings that will be used to create and update cookies on the client
-	 *
-	 * @return array the cookie settings
-	 */
-	private function createCookieSettings() {
-		// get the default cookie settings
-		$params = \session_get_cookie_params();
-
-		// check if we want to send cookies via SSL/TLS only
-		$params['secure'] = $params['secure'] || $this->useHttps;
-		// check if we want to send cookies via HTTP(S) only
-		$params['httponly'] = $params['httponly'] || !$this->allowCookiesScriptAccess;
-
-		// return the modified settings
-		return $params;
 	}
 
 	/**
