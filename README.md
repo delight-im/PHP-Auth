@@ -81,6 +81,7 @@ Migrating from an earlier version of this project? See our [upgrade guide](Migra
    * [Checking roles](#checking-roles-1)
  * [Cookies](#cookies)
    * [Renaming the library’s cookies](#renaming-the-librarys-cookies)
+   * [Defining the domain scope for cookies](#defining-the-domain-scope-for-cookies)
  * [Utilities](#utilities)
    * [Creating a random string](#creating-a-random-string)
    * [Creating a UUID v4 as per RFC 4122](#creating-a-uuid-v4-as-per-rfc-4122)
@@ -935,6 +936,30 @@ You can rename the session cookie used by this library through one of the follow
    For this to work, `session.auto_start` must be set to `0` in the [PHP configuration](http://php.net/manual/en/configuration.file.php) (`php.ini`).
 
 The name of the cookie for [persistent logins](#keeping-the-user-logged-in) will change as well – automatically – following your change of the session cookie’s name.
+
+#### Defining the domain scope for cookies
+
+A cookie’s `domain` attribute controls which domain (and which subdomains) the cookie will be valid for, and thus where the user’s session and authentication state will be available.
+
+The recommended default is an empty string, which means that the cookie will only be valid for the *exact* current host, *excluding* any subdomains that may exist. You should only use a different value if you need to share cookies between different subdomains. Often, you’ll want to share cookies between the bare domain and the `www` subdomain, but you might also want to share them between any other set of subdomains.
+
+Whatever set of subdomains you choose, you should set the cookie’s attribute to the *most specific* domain name that still includes all your required subdomains. For example, to share cookies between `example.com` and `www.example.com`, you would set the attribute to `example.com`. But if you wanted to share cookies between `sub1.app.example.com` and `sub2.app.example.com`, you should set the attribute to `app.example.com`. Any explicitly specified domain name will always *include* all subdomains that may exist.
+
+You can change the attribute through one of the following means, in order of recommendation:
+
+ * In the [PHP configuration](http://php.net/manual/en/configuration.file.php) (`php.ini`), find the line with the `session.cookie_domain` directive and change its value as desired, e.g.:
+
+   ```
+   session.cookie_domain = example.com
+   ```
+
+ * As early as possible in your application, and before you create the `Auth` instance, call `\ini_set` to change the value of the `session.cookie_domain` directive as desired, e.g.:
+
+   ```php
+   \ini_set('session.cookie_domain', 'example.com');
+   ```
+
+   For this to work, `session.auto_start` must be set to `0` in the [PHP configuration](http://php.net/manual/en/configuration.file.php) (`php.ini`).
 
 ### Utilities
 
