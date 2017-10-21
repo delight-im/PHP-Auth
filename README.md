@@ -82,6 +82,7 @@ Migrating from an earlier version of this project? See our [upgrade guide](Migra
  * [Cookies](#cookies)
    * [Renaming the library’s cookies](#renaming-the-librarys-cookies)
    * [Defining the domain scope for cookies](#defining-the-domain-scope-for-cookies)
+   * [Restricting the path where cookies are available](#restricting-the-path-where-cookies-are-available)
  * [Utilities](#utilities)
    * [Creating a random string](#creating-a-random-string)
    * [Creating a UUID v4 as per RFC 4122](#creating-a-uuid-v4-as-per-rfc-4122)
@@ -957,6 +958,28 @@ You can change the attribute through one of the following means, in order of rec
 
    ```php
    \ini_set('session.cookie_domain', 'example.com');
+   ```
+
+   For this to work, `session.auto_start` must be set to `0` in the [PHP configuration](http://php.net/manual/en/configuration.file.php) (`php.ini`).
+
+#### Restricting the path where cookies are available
+
+A cookie’s `path` attribute controls which directories (and subdirectories) the cookie will be valid for, and thus where the user’s session and authentication state will be available.
+
+In most cases, you’ll want to make cookies available for all paths, i.e. any directory and file, starting in the root directory. That is what a value of `/` for the attribute does, which is also the recommended default. You should only change this attribute to a different value, e.g. `/path/to/subfolder`, if you want to restrict which directories your cookies will be available in, e.g. to host multiple applications side-by-side, in different directories, under the same domain name.
+
+You can change the attribute through one of the following means, in order of recommendation:
+
+ * In the [PHP configuration](http://php.net/manual/en/configuration.file.php) (`php.ini`), find the line with the `session.cookie_path` directive and change its value as desired, e.g.:
+
+   ```
+   session.cookie_path = /
+   ```
+
+ * As early as possible in your application, and before you create the `Auth` instance, call `\ini_set` to change the value of the `session.cookie_path` directive as desired, e.g.:
+
+   ```php
+   \ini_set('session.cookie_path', '/');
    ```
 
    For this to work, `session.auto_start` must be set to `0` in the [PHP configuration](http://php.net/manual/en/configuration.file.php) (`php.ini`).
