@@ -84,6 +84,7 @@ Migrating from an earlier version of this project? See our [upgrade guide](Migra
    * [Defining the domain scope for cookies](#defining-the-domain-scope-for-cookies)
    * [Restricting the path where cookies are available](#restricting-the-path-where-cookies-are-available)
    * [Controlling client-side script access to cookies](#controlling-client-side-script-access-to-cookies)
+   * [Configuring transport security for cookies](#configuring-transport-security-for-cookies)
  * [Utilities](#utilities)
    * [Creating a random string](#creating-a-random-string)
    * [Creating a UUID v4 as per RFC 4122](#creating-a-uuid-v4-as-per-rfc-4122)
@@ -1003,6 +1004,28 @@ You can change the attribute through one of the following means, in order of rec
 
    ```php
    \ini_set('session.cookie_httponly', 1);
+   ```
+
+   For this to work, `session.auto_start` must be set to `0` in the [PHP configuration](http://php.net/manual/en/configuration.file.php) (`php.ini`).
+
+#### Configuring transport security for cookies
+
+Using the `secure` attribute, you can control whether cookies should be sent over *any* connection, including plain HTTP, or whether a secure connection, i.e. HTTPS (with SSL/TLS), should be required. The former (less secure) mode can be chosen by setting the attribute to `0`, and the latter (more secure) mode can be chosen by setting the attribute to `1`.
+
+Obviously, this solely depends on whether you are able to serve *all* pages exclusively via HTTPS. If you can, you should set the attribute to `1` and possibly combine it with HTTP redirects to the secure protocol and HTTP Strict Transport Security (HSTS). Otherwise, you may have to keep the attribute set to `0`.
+
+You can change the attribute through one of the following means, in order of recommendation:
+
+ * In the [PHP configuration](http://php.net/manual/en/configuration.file.php) (`php.ini`), find the line with the `session.cookie_secure` directive and change its value as desired, e.g.:
+
+   ```
+   session.cookie_secure = 1
+   ```
+
+ * As early as possible in your application, and before you create the `Auth` instance, call `\ini_set` to change the value of the `session.cookie_secure` directive as desired, e.g.:
+
+   ```php
+   \ini_set('session.cookie_secure', 1);
    ```
 
    For this to work, `session.auto_start` must be set to `0` in the [PHP configuration](http://php.net/manual/en/configuration.file.php) (`php.ini`).
