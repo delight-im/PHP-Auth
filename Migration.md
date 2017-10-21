@@ -40,7 +40,7 @@ $ composer require delight-im/auth
 
    * Your application is accessed via a registered or registrable *domain name*, either by yourself during development and testing or by your visitors and users in production. That means your application is *not*, or *not only*, accessed via `localhost` or via an IP address.
 
-   Then the domain scope for the [two cookies](#cookies) used by this library has changed. You can handle this change in one of two different ways:
+   Then the domain scope for the [two cookies](README.md#cookies) used by this library has changed. You can handle this change in one of two different ways:
 
    * Restore the old behavior by placing the following statement as early as possible in your application, and before you create the `Auth` instance:
 
@@ -50,7 +50,7 @@ $ composer require delight-im/auth
 
      You may also evaluate the complete second parameter and put its value directly into your [PHP configuration](http://php.net/manual/en/configuration.file.php) (`php.ini`).
 
-   * Use the new domain scope for your application. To do so, you only need to [rename the cookies](#renaming-the-librarys-cookies) used by this library in order to prevent conflicts with old cookies that have been created previously. Renaming the cookies is critically important here. We recommend a versioned name such as `session_v1` for the session cookie.
+   * Use the new domain scope for your application. To do so, you only need to [rename the cookies](README.md#renaming-the-librarys-cookies) used by this library in order to prevent conflicts with old cookies that have been created previously. Renaming the cookies is critically important here. We recommend a versioned name such as `session_v1` for the session cookie.
 
  * Only if *both* of the following two conditions are met:
 
@@ -62,9 +62,9 @@ $ composer require delight-im/auth
 
    * Your application is accessed via a registered or registrable *domain name*, either by yourself during development and testing or by your visitors and users in production. That means your application is *not*, or *not only*, accessed via `localhost` or via an IP address.
 
-   Then the domain scope for [one of the cookies](#cookies) used by this library has changed. To make your application work correctly with the new scope, [rename the cookies](#renaming-the-librarys-cookies) used by this library in order to prevent conflicts with old cookies that have been created previously. Renaming the cookies is critically important here. We recommend a versioned name such as `session_v1` for the session cookie.
+   Then the domain scope for [one of the cookies](README.md#cookies) used by this library has changed. To make your application work correctly with the new scope, [rename the cookies](README.md#renaming-the-librarys-cookies) used by this library in order to prevent conflicts with old cookies that have been created previously. Renaming the cookies is critically important here. We recommend a versioned name such as `session_v1` for the session cookie.
 
- * If the directive `session.cookie_path` is set to an empty value, then the path scope for [one of the cookies](#cookies) used by this library has changed. To make your application work correctly with the new scope, [rename the cookies](#renaming-the-librarys-cookies) used by this library in order to prevent conflicts with old cookies that have been created previously. Renaming the cookies is critically important here. We recommend a versioned name such as `session_v1` for the session cookie.
+ * If the directive `session.cookie_path` is set to an empty value, then the path scope for [one of the cookies](README.md#cookies) used by this library has changed. To make your application work correctly with the new scope, [rename the cookies](README.md#renaming-the-librarys-cookies) used by this library in order to prevent conflicts with old cookies that have been created previously. Renaming the cookies is critically important here. We recommend a versioned name such as `session_v1` for the session cookie.
 
    The directive may have been set directly in your [PHP configuration](http://php.net/manual/en/configuration.file.php) (`php.ini`), via the `\ini_set` method or via the `\session_set_cookie_params` method. You can check the value of that directive by executing the following statement somewhere in your application:
 
