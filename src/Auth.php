@@ -484,14 +484,14 @@ final class Auth extends UserManager {
 		// re-generate the session ID to prevent session fixation attacks (requests a cookie to be written on the client)
 		Session::regenerate(true);
 
-		// save the user data in the session
-		$this->setLoggedIn(true);
-		$this->setUserId($userId);
-		$this->setEmail($email);
-		$this->setUsername($username);
-		$this->setStatus($status);
-		$this->setRoles($roles);
-		$this->setRemembered($remembered);
+		// save the user data in the session variables maintained by this library
+		$_SESSION[self::SESSION_FIELD_LOGGED_IN] = true;
+		$_SESSION[self::SESSION_FIELD_USER_ID] = (int) $userId;
+		$_SESSION[self::SESSION_FIELD_EMAIL] = $email;
+		$_SESSION[self::SESSION_FIELD_USERNAME] = $username;
+		$_SESSION[self::SESSION_FIELD_STATUS] = (int) $status;
+		$_SESSION[self::SESSION_FIELD_ROLES] = (int) $roles;
+		$_SESSION[self::SESSION_FIELD_REMEMBERED] = $remembered;
 	}
 
 	/**
@@ -591,7 +591,7 @@ final class Auth extends UserManager {
 						// if the user has just confirmed an email address for their own account
 						if ($this->getUserId() === $confirmationData['user_id']) {
 							// immediately update the email address in the current session as well
-							$this->setEmail($confirmationData['email']);
+							$_SESSION[self::SESSION_FIELD_EMAIL] = $confirmationData['email'];
 						}
 					}
 
@@ -1319,15 +1319,6 @@ final class Auth extends UserManager {
 	}
 
 	/**
-	 * Sets whether the user is currently logged in and updates the session
-	 *
-	 * @param bool $loggedIn whether the user is logged in or not
-	 */
-	private function setLoggedIn($loggedIn) {
-		$_SESSION[self::SESSION_FIELD_LOGGED_IN] = $loggedIn;
-	}
-
-	/**
 	 * Returns whether the user is currently logged in by reading from the session
 	 *
 	 * @return boolean whether the user is logged in or not
@@ -1343,15 +1334,6 @@ final class Auth extends UserManager {
 	 */
 	public function check() {
 		return $this->isLoggedIn();
-	}
-
-	/**
-	 * Sets the currently signed-in user's ID and updates the session
-	 *
-	 * @param int $userId the user's ID
-	 */
-	private function setUserId($userId) {
-		$_SESSION[self::SESSION_FIELD_USER_ID] = (int) $userId;
 	}
 
 	/**
@@ -1378,15 +1360,6 @@ final class Auth extends UserManager {
 	}
 
 	/**
-	 * Sets the currently signed-in user's email address and updates the session
-	 *
-	 * @param string $email the email address
-	 */
-	private function setEmail($email) {
-		$_SESSION[self::SESSION_FIELD_EMAIL] = $email;
-	}
-
-	/**
 	 * Returns the currently signed-in user's email address by reading from the session
 	 *
 	 * @return string the email address
@@ -1401,15 +1374,6 @@ final class Auth extends UserManager {
 	}
 
 	/**
-	 * Sets the currently signed-in user's display name and updates the session
-	 *
-	 * @param string $username the display name
-	 */
-	private function setUsername($username) {
-		$_SESSION[self::SESSION_FIELD_USERNAME] = $username;
-	}
-
-	/**
 	 * Returns the currently signed-in user's display name by reading from the session
 	 *
 	 * @return string the display name
@@ -1421,24 +1385,6 @@ final class Auth extends UserManager {
 		else {
 			return null;
 		}
-	}
-
-	/**
-	 * Sets the currently signed-in user's status and updates the session
-	 *
-	 * @param int $status the status as one of the constants from the {@see Status} class
-	 */
-	private function setStatus($status) {
-		$_SESSION[self::SESSION_FIELD_STATUS] = (int) $status;
-	}
-
-	/**
-	 * Sets the currently signed-in user's roles and updates the session
-	 *
-	 * @param int $roles the bitmask containing the roles
-	 */
-	private function setRoles($roles) {
-		$_SESSION[self::SESSION_FIELD_ROLES] = (int) $roles;
 	}
 
 	/**
@@ -1580,15 +1526,6 @@ final class Auth extends UserManager {
 		}
 
 		return true;
-	}
-
-	/**
-	 * Sets whether the currently signed-in user has been remembered by a long-lived cookie
-	 *
-	 * @param bool $remembered whether the user was remembered
-	 */
-	private function setRemembered($remembered) {
-		$_SESSION[self::SESSION_FIELD_REMEMBERED] = $remembered;
 	}
 
 	/**
