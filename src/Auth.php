@@ -21,20 +21,6 @@ require_once __DIR__ . '/Exceptions.php';
 /** Component that provides all features and utilities for secure authentication of individual users */
 final class Auth extends UserManager {
 
-	/** @var string session field for whether the client is currently signed in */
-	const SESSION_FIELD_LOGGED_IN = 'auth_logged_in';
-	/** @var string session field for the ID of the user who is currently signed in (if any) */
-	const SESSION_FIELD_USER_ID = 'auth_user_id';
-	/** @var string session field for the email address of the user who is currently signed in (if any) */
-	const SESSION_FIELD_EMAIL = 'auth_email';
-	/** @var string session field for the display name (if any) of the user who is currently signed in (if any) */
-	const SESSION_FIELD_USERNAME = 'auth_username';
-	/** @var string session field for the status of the user who is currently signed in (if any) as one of the constants from the {@see Status} class */
-	const SESSION_FIELD_STATUS = 'auth_status';
-	/** @var string session field for the roles of the user who is currently signed in (if any) as a bitmask using constants from the {@see Role} class */
-	const SESSION_FIELD_ROLES = 'auth_roles';
-	/** @var string session field for whether the user who is currently signed in (if any) has been remembered (instead of them having authenticated actively) */
-	const SESSION_FIELD_REMEMBERED = 'auth_remembered';
 	const COOKIE_PREFIXES = [ Cookie::PREFIX_SECURE, Cookie::PREFIX_HOST ];
 	const COOKIE_CONTENT_SEPARATOR = '~';
 
