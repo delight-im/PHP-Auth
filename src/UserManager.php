@@ -9,6 +9,7 @@
 namespace Delight\Auth;
 
 use Delight\Base64\Base64;
+use Delight\Cookie\Session;
 use Delight\Db\PdoDatabase;
 use Delight\Db\PdoDsn;
 use Delight\Db\Throwable\Error;
@@ -178,6 +179,33 @@ abstract class UserManager {
 		}
 
 		return $newUserId;
+	}
+
+	/**
+	 * Called when a user has successfully logged in
+	 *
+	 * This may happen via the standard login, via the "remember me" feature, or due to impersonation by administrators
+	 *
+	 * @param int $userId the ID of the user
+	 * @param string $email the email address of the user
+	 * @param string $username the display name (if any) of the user
+	 * @param int $status the status of the user as one of the constants from the {@see Status} class
+	 * @param int $roles the roles of the user as a bitmask using constants from the {@see Role} class
+	 * @param bool $remembered whether the user has been remembered (instead of them having authenticated actively)
+	 * @throws AuthError if an internal problem occurred (do *not* catch)
+	 */
+	protected function onLoginSuccessful($userId, $email, $username, $status, $roles, $remembered) {
+		// re-generate the session ID to prevent session fixation attacks (requests a cookie to be written on the client)
+		Session::regenerate(true);
+
+		// save the user data in the session variables maintained by this library
+		$_SESSION[self::SESSION_FIELD_LOGGED_IN] = true;
+		$_SESSION[self::SESSION_FIELD_USER_ID] = (int) $userId;
+		$_SESSION[self::SESSION_FIELD_EMAIL] = $email;
+		$_SESSION[self::SESSION_FIELD_USERNAME] = $username;
+		$_SESSION[self::SESSION_FIELD_STATUS] = (int) $status;
+		$_SESSION[self::SESSION_FIELD_ROLES] = (int) $roles;
+		$_SESSION[self::SESSION_FIELD_REMEMBERED] = $remembered;
 	}
 
 	/**

@@ -451,18 +451,8 @@ final class Auth extends UserManager {
 		}
 	}
 
-	/**
-	 * Called when the user has successfully logged in (via standard login or "remember me")
-	 *
-	 * @param int $userId the ID of the user
-	 * @param string $email the email address of the user
-	 * @param string $username the display name (if any) of the user
-	 * @param int $status the status of the user as one of the constants from the {@see Status} class
-	 * @param int $roles the roles of the user as a bitmask using constants from the {@see Role} class
-	 * @param bool $remembered whether the user has been remembered (instead of them having authenticated actively)
-	 * @throws AuthError if an internal problem occurred (do *not* catch)
-	 */
-	private function onLoginSuccessful($userId, $email, $username, $status, $roles, $remembered) {
+	protected function onLoginSuccessful($userId, $email, $username, $status, $roles, $remembered) {
+		// update the timestamp of the user's last login
 		try {
 			$this->db->update(
 				$this->dbTablePrefix . 'users',
@@ -474,17 +464,7 @@ final class Auth extends UserManager {
 			throw new DatabaseError();
 		}
 
-		// re-generate the session ID to prevent session fixation attacks (requests a cookie to be written on the client)
-		Session::regenerate(true);
-
-		// save the user data in the session variables maintained by this library
-		$_SESSION[self::SESSION_FIELD_LOGGED_IN] = true;
-		$_SESSION[self::SESSION_FIELD_USER_ID] = (int) $userId;
-		$_SESSION[self::SESSION_FIELD_EMAIL] = $email;
-		$_SESSION[self::SESSION_FIELD_USERNAME] = $username;
-		$_SESSION[self::SESSION_FIELD_STATUS] = (int) $status;
-		$_SESSION[self::SESSION_FIELD_ROLES] = (int) $roles;
-		$_SESSION[self::SESSION_FIELD_REMEMBERED] = $remembered;
+		parent::onLoginSuccessful($userId, $email, $username, $status, $roles, $remembered);
 	}
 
 	/**
