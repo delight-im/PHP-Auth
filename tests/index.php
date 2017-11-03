@@ -523,6 +523,63 @@ function processRequestData(\Delight\Auth\Auth $auth) {
 					return 'ID required';
 				}
 			}
+			else if ($_POST['action'] === 'admin.logInAsUserById') {
+				if (isset($_POST['id'])) {
+					try {
+						$auth->admin()->logInAsUserById($_POST['id']);
+
+						return 'ok';
+					}
+					catch (\Delight\Auth\UnknownIdException $e) {
+						return 'unknown ID';
+					}
+					catch (\Delight\Auth\EmailNotVerifiedException $e) {
+						return 'email address not verified';
+					}
+				}
+				else {
+					return 'ID required';
+				}
+			}
+			else if ($_POST['action'] === 'admin.logInAsUserByEmail') {
+				if (isset($_POST['email'])) {
+					try {
+						$auth->admin()->logInAsUserByEmail($_POST['email']);
+
+						return 'ok';
+					}
+					catch (\Delight\Auth\InvalidEmailException $e) {
+						return 'unknown email address';
+					}
+					catch (\Delight\Auth\EmailNotVerifiedException $e) {
+						return 'email address not verified';
+					}
+				}
+				else {
+					return 'Email address required';
+				}
+			}
+			else if ($_POST['action'] === 'admin.logInAsUserByUsername') {
+				if (isset($_POST['username'])) {
+					try {
+						$auth->admin()->logInAsUserByUsername($_POST['username']);
+
+						return 'ok';
+					}
+					catch (\Delight\Auth\UnknownUsernameException $e) {
+						return 'unknown username';
+					}
+					catch (\Delight\Auth\AmbiguousUsernameException $e) {
+						return 'ambiguous username';
+					}
+					catch (\Delight\Auth\EmailNotVerifiedException $e) {
+						return 'email address not verified';
+					}
+				}
+				else {
+					return 'Username required';
+				}
+			}
 			else {
 				throw new Exception('Unexpected action: ' . $_POST['action']);
 			}
@@ -818,6 +875,24 @@ function showGuestUserForm() {
 	echo '<input type="text" name="id" placeholder="ID" /> ';
 	echo '<select name="role">' . \createRolesOptions() . '</select>';
 	echo '<button type="submit">Does user have role?</button>';
+	echo '</form>';
+
+	echo '<form action="" method="post" accept-charset="utf-8">';
+	echo '<input type="hidden" name="action" value="admin.logInAsUserById" />';
+	echo '<input type="text" name="id" placeholder="ID" /> ';
+	echo '<button type="submit">Log in as user by ID</button>';
+	echo '</form>';
+
+	echo '<form action="" method="post" accept-charset="utf-8">';
+	echo '<input type="hidden" name="action" value="admin.logInAsUserByEmail" />';
+	echo '<input type="text" name="email" placeholder="Email address" /> ';
+	echo '<button type="submit">Log in as user by email address</button>';
+	echo '</form>';
+
+	echo '<form action="" method="post" accept-charset="utf-8">';
+	echo '<input type="hidden" name="action" value="admin.logInAsUserByUsername" />';
+	echo '<input type="text" name="username" placeholder="Username" /> ';
+	echo '<button type="submit">Log in as user by username</button>';
 	echo '</form>';
 }
 
