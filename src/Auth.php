@@ -468,12 +468,12 @@ final class Auth extends UserManager {
 	/**
 	 * Called when the user has successfully logged in (via standard login or "remember me")
 	 *
-	 * @param int $userId the ID of the user who has just logged in
-	 * @param string $email the email address of the user who has just logged in
-	 * @param string $username the username (if any)
-	 * @param int $status the status as one of the constants from the {@see Status} class
-	 * @param int $roles the bitmask containing the roles of the user
-	 * @param bool $remembered whether the user was remembered ("remember me") or logged in actively
+	 * @param int $userId the ID of the user
+	 * @param string $email the email address of the user
+	 * @param string $username the display name (if any) of the user
+	 * @param int $status the status of the user as one of the constants from the {@see Status} class
+	 * @param int $roles the roles of the user as a bitmask using constants from the {@see Role} class
+	 * @param bool $remembered whether the user has been remembered (instead of them having authenticated actively)
 	 * @throws AuthError if an internal problem occurred (do *not* catch)
 	 */
 	private function onLoginSuccessful($userId, $email, $username, $status, $roles, $remembered) {
