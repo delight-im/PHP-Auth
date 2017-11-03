@@ -79,6 +79,7 @@ Migrating from an earlier version of this project? See our [upgrade guide](Migra
    * [Assigning roles to users](#assigning-roles-to-users)
    * [Taking roles away from users](#taking-roles-away-from-users)
    * [Checking roles](#checking-roles-1)
+   * [Impersonating users (logging in as user)](#impersonating-users-logging-in-as-user)
  * [Cookies](#cookies)
    * [Renaming the library’s cookies](#renaming-the-librarys-cookies)
    * [Defining the domain scope for cookies](#defining-the-domain-scope-for-cookies)
@@ -895,6 +896,47 @@ try {
 }
 catch (\Delight\Auth\UnknownIdException $e) {
     // unknown user ID
+}
+```
+
+#### Impersonating users (logging in as user)
+
+```php
+try {
+    $auth->admin()->logInAsUserById($_POST['id']);
+}
+catch (\Delight\Auth\UnknownIdException $e) {
+    // unknown ID
+}
+catch (\Delight\Auth\EmailNotVerifiedException $e) {
+    // email address not verified
+}
+
+// or
+
+try {
+    $auth->admin()->logInAsUserByEmail($_POST['email']);
+}
+catch (\Delight\Auth\InvalidEmailException $e) {
+    // unknown email address
+}
+catch (\Delight\Auth\EmailNotVerifiedException $e) {
+    // email address not verified
+}
+
+// or
+
+try {
+    $auth->admin()->logInAsUserByUsername($_POST['username']);
+}
+catch (\Delight\Auth\UnknownUsernameException $e) {
+    // unknown username
+}
+catch (\Delight\Auth\AmbiguousUsernameException $e) {
+    // ambiguous username
+}
+catch (\Delight\Auth\EmailNotVerifiedException $e) {
+    // email address not verified
 }
 ```
 
