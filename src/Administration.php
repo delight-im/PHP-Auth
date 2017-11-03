@@ -287,6 +287,60 @@ final class Administration extends UserManager {
 	}
 
 	/**
+	 * Signs in as the user with the specified ID
+	 *
+	 * @param int $id the ID of the user to sign in as
+	 * @throws UnknownIdException if no user with the specified ID has been found
+	 * @throws EmailNotVerifiedException if the user has not verified their email address via a confirmation method yet
+	 * @throws AuthError if an internal problem occurred (do *not* catch)
+	 */
+	public function logInAsUserById($id) {
+		$numberOfMatchedUsers = $this->logInAsUserByColumnValue('id', (int) $id);
+
+		if ($numberOfMatchedUsers === 0) {
+			throw new UnknownIdException();
+		}
+	}
+
+	/**
+	 * Signs in as the user with the specified email address
+	 *
+	 * @param string $email the email address of the user to sign in as
+	 * @throws InvalidEmailException if no user with the specified email address has been found
+	 * @throws EmailNotVerifiedException if the user has not verified their email address via a confirmation method yet
+	 * @throws AuthError if an internal problem occurred (do *not* catch)
+	 */
+	public function logInAsUserByEmail($email) {
+		$email = self::validateEmailAddress($email);
+
+		$numberOfMatchedUsers = $this->logInAsUserByColumnValue('email', $email);
+
+		if ($numberOfMatchedUsers === 0) {
+			throw new InvalidEmailException();
+		}
+	}
+
+	/**
+	 * Signs in as the user with the specified display name
+	 *
+	 * @param string $username the display name of the user to sign in as
+	 * @throws UnknownUsernameException if no user with the specified username has been found
+	 * @throws AmbiguousUsernameException if multiple users with the specified username have been found
+	 * @throws EmailNotVerifiedException if the user has not verified their email address via a confirmation method yet
+	 * @throws AuthError if an internal problem occurred (do *not* catch)
+	 */
+	public function logInAsUserByUsername($username) {
+		$numberOfMatchedUsers = $this->logInAsUserByColumnValue('username', \trim($username));
+
+		if ($numberOfMatchedUsers === 0) {
+			throw new UnknownUsernameException();
+		}
+		elseif ($numberOfMatchedUsers > 1) {
+			throw new AmbiguousUsernameException();
+		}
+	}
+
+	/**
 	 * Deletes all existing users where the column with the specified name has the given value
 	 *
 	 * You must never pass untrusted input to the parameter that takes the column name
@@ -402,6 +456,44 @@ final class Administration extends UserManager {
 				return $oldRolesBitmask & ~$role;
 			}
 		);
+	}
+
+	/**
+	 * Signs in as the user for which the column with the specified name has the given value
+	 *
+	 * You must never pass untrusted input to the parameter that takes the column name
+	 *
+	 * @param string $columnName the name of the column to filter by
+	 * @param mixed $columnValue the value to look for in the selected column
+	 * @return int the number of matched users (where only a value of one means that the login may have been successful)
+	 * @throws EmailNotVerifiedException if the user has not verified their email address via a confirmation method yet
+	 * @throws AuthError if an internal problem occurred (do *not* catch)
+	 */
+	private function logInAsUserByColumnValue($columnName, $columnValue) {
+		try {
+			$users = $this->db->select(
+				'SELECT verified, id, email, username, status, roles_mask FROM ' . $this->dbTablePrefix . 'users WHERE ' . $columnName . ' = ? LIMIT 2 OFFSET 0',
+				[ $columnValue ]
+			);
+		}
+		catch (Error $e) {
+			throw new DatabaseError();
+		}
+
+		$numberOfMatchingUsers = \count($users);
+
+		if ($numberOfMatchingUsers === 1) {
+			$user = $users[0];
+
+			if ((int) $user['verified'] === 1) {
+				$this->onLoginSuccessful($user['id'], $user['email'], $user['username'], $user['status'], $user['roles_mask'], false);
+			}
+			else {
+				throw new EmailNotVerifiedException();
+			}
+		}
+
+		return $numberOfMatchingUsers;
 	}
 
 }
