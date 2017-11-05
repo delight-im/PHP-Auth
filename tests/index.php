@@ -84,7 +84,7 @@ function processRequestData(\Delight\Auth\Auth $auth) {
 					return 'wrong password';
 				}
 				catch (\Delight\Auth\EmailNotVerifiedException $e) {
-					return 'email not verified';
+					return 'email address not verified';
 				}
 				catch (\Delight\Auth\TooManyRequestsException $e) {
 					return 'too many requests';
@@ -242,7 +242,7 @@ function processRequestData(\Delight\Auth\Auth $auth) {
 					return 'invalid email address';
 				}
 				catch (\Delight\Auth\EmailNotVerifiedException $e) {
-					return 'email not verified';
+					return 'email address not verified';
 				}
 				catch (\Delight\Auth\ResetDisabledException $e) {
 					return 'password reset disabled';
@@ -422,7 +422,7 @@ function processRequestData(\Delight\Auth\Auth $auth) {
 					}
 				}
 				else {
-					return 'either ID, email or username required';
+					return 'either ID, email address or username required';
 				}
 
 				return 'ok';
@@ -457,7 +457,7 @@ function processRequestData(\Delight\Auth\Auth $auth) {
 						}
 					}
 					else {
-						return 'either ID, email or username required';
+						return 'either ID, email address or username required';
 					}
 				}
 				else {
@@ -496,7 +496,7 @@ function processRequestData(\Delight\Auth\Auth $auth) {
 						}
 					}
 					else {
-						return 'either ID, email or username required';
+						return 'either ID, email address or username required';
 					}
 				}
 				else {
@@ -744,7 +744,7 @@ function showGuestUserForm() {
 
 	echo '<form action="" method="post" accept-charset="utf-8">';
 	echo '<input type="hidden" name="action" value="login" />';
-	echo '<input type="text" name="email" placeholder="Email" /> ';
+	echo '<input type="text" name="email" placeholder="Email address" /> ';
 	echo '<input type="text" name="password" placeholder="Password" /> ';
 	echo '<select name="remember" size="1">';
 	echo '<option value="0">Remember (keep logged in)? — No</option>';
@@ -766,7 +766,7 @@ function showGuestUserForm() {
 
 	echo '<form action="" method="post" accept-charset="utf-8">';
 	echo '<input type="hidden" name="action" value="register" />';
-	echo '<input type="text" name="email" placeholder="Email" /> ';
+	echo '<input type="text" name="email" placeholder="Email address" /> ';
 	echo '<input type="text" name="password" placeholder="Password" /> ';
 	echo '<input type="text" name="username" placeholder="Username (optional)" /> ';
 	echo '<select name="require_verification" size="1">';
@@ -784,7 +784,7 @@ function showGuestUserForm() {
 
 	echo '<form action="" method="post" accept-charset="utf-8">';
 	echo '<input type="hidden" name="action" value="forgotPassword" />';
-	echo '<input type="text" name="email" placeholder="Email" /> ';
+	echo '<input type="text" name="email" placeholder="Email address" /> ';
 	echo '<button type="submit">Forgot password</button>';
 	echo '</form>';
 
@@ -800,7 +800,7 @@ function showGuestUserForm() {
 
 	echo '<form action="" method="post" accept-charset="utf-8">';
 	echo '<input type="hidden" name="action" value="admin.createUser" />';
-	echo '<input type="text" name="email" placeholder="Email" /> ';
+	echo '<input type="text" name="email" placeholder="Email address" /> ';
 	echo '<input type="text" name="password" placeholder="Password" /> ';
 	echo '<input type="text" name="username" placeholder="Username (optional)" /> ';
 	echo '<select name="require_unique_username" size="1">';
@@ -818,7 +818,7 @@ function showGuestUserForm() {
 
 	echo '<form action="" method="post" accept-charset="utf-8">';
 	echo '<input type="hidden" name="action" value="admin.deleteUser" />';
-	echo '<input type="text" name="email" placeholder="Email" /> ';
+	echo '<input type="text" name="email" placeholder="Email address" /> ';
 	echo '<button type="submit">Delete user by email</button>';
 	echo '</form>';
 
@@ -837,7 +837,7 @@ function showGuestUserForm() {
 
 	echo '<form action="" method="post" accept-charset="utf-8">';
 	echo '<input type="hidden" name="action" value="admin.addRole" />';
-	echo '<input type="text" name="email" placeholder="Email" /> ';
+	echo '<input type="text" name="email" placeholder="Email address" /> ';
 	echo '<select name="role">' . \createRolesOptions() . '</select>';
 	echo '<button type="submit">Add role for user by email</button>';
 	echo '</form>';
@@ -858,7 +858,7 @@ function showGuestUserForm() {
 
 	echo '<form action="" method="post" accept-charset="utf-8">';
 	echo '<input type="hidden" name="action" value="admin.removeRole" />';
-	echo '<input type="text" name="email" placeholder="Email" /> ';
+	echo '<input type="text" name="email" placeholder="Email address" /> ';
 	echo '<select name="role">' . \createRolesOptions() . '</select>';
 	echo '<button type="submit">Remove role for user by email</button>';
 	echo '</form>';
@@ -911,7 +911,7 @@ function showConfirmEmailForm() {
 
 	echo '<form action="" method="post" accept-charset="utf-8">';
 	echo '<input type="hidden" name="action" value="resendConfirmationForEmail" />';
-	echo '<input type="text" name="email" placeholder="Email" /> ';
+	echo '<input type="text" name="email" placeholder="Email address" /> ';
 	echo '<button type="submit">Re-send confirmation</button>';
 	echo '</form>';
 
