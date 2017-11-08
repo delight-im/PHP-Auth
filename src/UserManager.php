@@ -308,8 +308,6 @@ abstract class UserManager {
 		$selector = self::createRandomString(16);
 		$token = self::createRandomString(16);
 		$tokenHashed = \password_hash($token, \PASSWORD_DEFAULT);
-
-		// the request shall be valid for one day
 		$expires = \time() + self::CONFIRMATION_REQUESTS_TTL_IN_SECONDS;
 
 		try {
