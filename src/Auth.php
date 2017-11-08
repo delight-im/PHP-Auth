@@ -828,7 +828,7 @@ final class Auth extends UserManager {
 	private function resendConfirmationForColumnValue($columnName, $columnValue, callable $callback) {
 		try {
 			$latestAttempt = $this->db->selectRow(
-				'SELECT user_id, email, expires FROM ' . $this->dbTablePrefix . 'users_confirmations WHERE ' . $columnName . ' = ? ORDER BY id DESC LIMIT 1 OFFSET 0',
+				'SELECT user_id, email FROM ' . $this->dbTablePrefix . 'users_confirmations WHERE ' . $columnName . ' = ? ORDER BY id DESC LIMIT 1 OFFSET 0',
 				[ $columnValue ]
 			);
 		}
@@ -840,14 +840,8 @@ final class Auth extends UserManager {
 			throw new ConfirmationRequestNotFound();
 		}
 
-		$retryAt = $latestAttempt['expires'] - 0.75 * self::CONFIRMATION_REQUESTS_TTL_IN_SECONDS;
-
-		if ($retryAt > \time()) {
-			throw new TooManyRequestsException('', $retryAt - \time());
-		}
-
 		$this->throttle([ 'resendConfirmation', $this->getIpAddress() ], 4, (60 * 60 * 24 * 7), 2);
-		$this->throttle([ 'resendConfirmation', 'user', $latestAttempt['user_id'] ], 4, (60 * 60 * 24 * 7), 2);
+		$this->throttle([ 'resendConfirmation', 'userId', $latestAttempt['user_id'] ], 1, (60 * 60 * 6));
 
 		$this->createConfirmationRequest(
 			$latestAttempt['user_id'],
