@@ -26,6 +26,8 @@ final class Auth extends UserManager {
 
 	/** @var string the user's current IP address */
 	private $ipAddress;
+	/** @var bool whether throttling should be enabled (e.g. in production) or disabled (e.g. during development) */
+	private $throttling;
 	/** @var string the name of the cookie used for the 'remember me' feature */
 	private $rememberCookieName;
 
@@ -33,11 +35,13 @@ final class Auth extends UserManager {
 	 * @param PdoDatabase|PdoDsn|\PDO $databaseConnection the database connection to operate on
 	 * @param string $ipAddress the IP address that should be used instead of the default setting (if any), e.g. when behind a proxy
 	 * @param string|null $dbTablePrefix (optional) the prefix for the names of all database tables used by this component
+	 * @param bool|null $throttling (optional) whether throttling should be enabled (e.g. in production) or disabled (e.g. during development)
 	 */
-	public function __construct($databaseConnection, $ipAddress = null, $dbTablePrefix = null) {
+	public function __construct($databaseConnection, $ipAddress = null, $dbTablePrefix = null, $throttling = null) {
 		parent::__construct($databaseConnection, $dbTablePrefix);
 
 		$this->ipAddress = !empty($ipAddress) ? $ipAddress : (isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : null);
+		$this->throttling = isset($throttling) ? (bool) $throttling : true;
 		$this->rememberCookieName = self::createRememberCookieName();
 
 		$this->initSession();
@@ -1533,6 +1537,10 @@ final class Auth extends UserManager {
 	 * @throws AuthError if an internal problem occurred (do *not* catch)
 	 */
 	public function throttle(array $criteria, $supply, $interval, $burstiness = null, $simulated = null, $cost = null) {
+		if (!$this->throttling) {
+			return $supply;
+		}
+
 		// generate a unique key for the bucket (consisting of 44 or fewer ASCII characters)
 		$key = Base64::encodeUrlSafeWithoutPadding(
 			\hash(

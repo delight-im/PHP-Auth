@@ -113,6 +113,8 @@ If your web server is behind a proxy server and `$_SERVER['REMOTE_ADDR']` only c
 
 Should your database tables for this library need a common prefix, e.g. `my_users` instead of `users` (and likewise for the other tables), pass the prefix (e.g. `my_`) as the third parameter to the constructor, which is named `$dbTablePrefix`. This is optional and the prefix is empty by default.
 
+During development, you may want to disable the request limiting or throttling performed by this library. To do so, pass `false` to the constructor as the fourth argument, which is named `$throttling`. The feature is enabled by default.
+
 ### Registration (sign up)
 
 ```php
