@@ -109,7 +109,7 @@ $auth = new \Delight\Auth\Auth($db);
 
 If you have an open `PDO` connection already, just re-use it.
 
-If your web server is behind a proxy server and `$_SERVER['REMOTE_ADDR']` only contains the proxy’s IP address, you must pass the user’s real IP address to the constructor in the second argument, which is named `$ipAddress`. The default is `null`.
+If your web server is behind a proxy server and `$_SERVER['REMOTE_ADDR']` only contains the proxy’s IP address, you must pass the user’s real IP address to the constructor in the second argument, which is named `$ipAddress`. The default is the usual remote IP address received by PHP.
 
 Should your database tables for this library need a common prefix, e.g. `my_users` instead of `users` (and likewise for the other tables), pass the prefix (e.g. `my_`) as the third parameter to the constructor, which is named `$dbTablePrefix`. This is optional and the prefix is empty by default.
 
