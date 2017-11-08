@@ -568,6 +568,7 @@ final class Auth extends UserManager {
 						}
 					}
 
+					// consume the token just being used for confirmation
 					try {
 						$this->db->delete(
 							$this->dbTablePrefix . 'users_confirmations',
