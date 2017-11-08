@@ -840,8 +840,8 @@ final class Auth extends UserManager {
 			throw new ConfirmationRequestNotFound();
 		}
 
-		$this->throttle([ 'resendConfirmation', $this->getIpAddress() ], 4, (60 * 60 * 24 * 7), 2);
 		$this->throttle([ 'resendConfirmation', 'userId', $latestAttempt['user_id'] ], 1, (60 * 60 * 6));
+		$this->throttle([ 'resendConfirmation', $this->getIpAddress() ], 4, (60 * 60 * 24 * 7), 2);
 
 		$this->createConfirmationRequest(
 			$latestAttempt['user_id'],
