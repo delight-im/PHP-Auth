@@ -753,8 +753,8 @@ final class Auth extends UserManager {
 				throw new EmailNotVerifiedException();
 			}
 
-			$this->throttle([ 'requestEmailChange', $this->getIpAddress() ], 1, (60 * 60 * 24), 3);
 			$this->throttle([ 'requestEmailChange', 'userId', $this->getUserId() ], 1, (60 * 60 * 24));
+			$this->throttle([ 'requestEmailChange', $this->getIpAddress() ], 1, (60 * 60 * 24), 3);
 
 			$this->createConfirmationRequest($this->getUserId(), $newEmail, $callback);
 		}
