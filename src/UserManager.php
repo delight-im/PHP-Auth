@@ -38,7 +38,6 @@ abstract class UserManager {
 	const SESSION_FIELD_ROLES = 'auth_roles';
 	/** @var string session field for whether the user who is currently signed in (if any) has been remembered (instead of them having authenticated actively) */
 	const SESSION_FIELD_REMEMBERED = 'auth_remembered';
-	const CONFIRMATION_REQUESTS_TTL_IN_SECONDS = 60 * 60 * 24;
 
 	/** @var PdoDatabase the database connection to operate on */
 	protected $db;
@@ -308,7 +307,7 @@ abstract class UserManager {
 		$selector = self::createRandomString(16);
 		$token = self::createRandomString(16);
 		$tokenHashed = \password_hash($token, \PASSWORD_DEFAULT);
-		$expires = \time() + self::CONFIRMATION_REQUESTS_TTL_IN_SECONDS;
+		$expires = \time() + 60 * 60 * 24;
 
 		try {
 			$this->db->insert(
