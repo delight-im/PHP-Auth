@@ -14,7 +14,7 @@ Update your version of this library using Composer and its `composer update` or 
 
 ## From `v6.x.x` to `v7.x.x`
 
- * The method `logOutButKeepSession` from class `Auth` is now simply called `logOut`. Therefore, the former method `logout` is now called `logOutAndDestroySession`. With both methods, mind the capitalization of the letter “O”.
+ * The method `logOutButKeepSession` from class `Auth` is now simply called `logOut`. Therefore, the former method `logout` is now called `logOutAndDestroySession`.
 
  * The second argument of the `Auth` constructor, which was named `$useHttps`, has been removed. If you previously had it set to `true`, make sure to set the value of the `session.cookie_secure` directive to `1` now. You may do so either directly in your [PHP configuration](http://php.net/manual/en/configuration.file.php) (`php.ini`), via the `\ini_set` method or via the `\session_set_cookie_params` method. Otherwise, make sure that directive is set to `0`.
 
