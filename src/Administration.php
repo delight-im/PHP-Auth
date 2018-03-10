@@ -287,6 +287,36 @@ final class Administration extends UserManager {
 	}
 
 	/**
+	 * Returns the roles of the user with the given ID, mapping the numerical values to their descriptive names
+	 *
+	 * @param int $userId the ID of the user to return the roles for
+	 * @return array
+	 * @throws UnknownIdException if no user with the specified ID has been found
+	 *
+	 * @see Role
+	 */
+	public function getRolesForUserById($userId) {
+		$userId = (int) $userId;
+
+		$rolesBitmask = $this->db->selectValue(
+			'SELECT roles_mask FROM ' . $this->dbTablePrefix . 'users WHERE id = ?',
+			[ $userId ]
+		);
+
+		if ($rolesBitmask === null) {
+			throw new UnknownIdException();
+		}
+
+		return \array_filter(
+			Role::getMap(),
+			function ($each) use ($rolesBitmask) {
+				return ($rolesBitmask & $each) === $each;
+			},
+			\ARRAY_FILTER_USE_KEY
+		);
+	}
+
+	/**
 	 * Signs in as the user with the specified ID
 	 *
 	 * @param int $id the ID of the user to sign in as
