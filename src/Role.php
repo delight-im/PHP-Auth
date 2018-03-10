@@ -32,14 +32,14 @@ final class Role {
 	const SUPER_EDITOR = 524288;
 	const SUPER_MODERATOR = 1048576;
 	const TRANSLATOR = 2097152;
-	// const XXX = 4194304;
-	// const XXX = 8388608;
-	// const XXX = 16777216;
-	// const XXX = 33554432;
-	// const XXX = 67108864;
-	// const XXX = 134217728;
-	// const XXX = 268435456;
-	// const XXX = 536870912;
+	// const XYZ = 4194304;
+	// const XYZ = 8388608;
+	// const XYZ = 16777216;
+	// const XYZ = 33554432;
+	// const XYZ = 67108864;
+	// const XYZ = 134217728;
+	// const XYZ = 268435456;
+	// const XYZ = 536870912;
 
 	/**
 	 * Returns an array mapping the numerical role values to their descriptive names
