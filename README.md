@@ -915,6 +915,12 @@ catch (\Delight\Auth\UnknownIdException $e) {
 }
 ```
 
+Alternatively, you can get a list of all the roles that have been assigned to the user:
+
+```php
+$auth->admin()->getRolesForUserById($userId);
+```
+
 #### Impersonating users (logging in as user)
 
 ```php
