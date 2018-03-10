@@ -228,6 +228,8 @@ Omit the third parameter or set it to `null` to disable the feature. Otherwise, 
 
 ### Password reset (“forgot password”)
 
+#### Step 1 of 3: Initiating the request
+
 ```php
 try {
     $auth->forgotPassword($_POST['email'], function ($selector, $token) {
@@ -255,6 +257,8 @@ You should build an URL with the selector and token and send it to the user, e.g
 ```php
 $url = 'https://www.example.com/reset_password?selector=' . \urlencode($selector) . '&token=' . \urlencode($token);
 ```
+
+#### Step 2 of 3: Verifying an attempt
 
 As the next step, users will click on the link that they received. Extract the selector and token from the URL.
 
@@ -293,6 +297,8 @@ if ($auth->canResetPassword($_GET['selector'], $_GET['token'])) {
     // ask the user for their new password
 }
 ```
+
+#### Step 3 of 3: Updating the password
 
 Now when you have the new password for the user (and still have the other two pieces of information), you can reset the password:
 
