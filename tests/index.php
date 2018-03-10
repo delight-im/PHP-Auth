@@ -631,6 +631,9 @@ function showDebugData(\Delight\Auth\Auth $auth, $result) {
 	echo 'Roles (developer *and* manager)' . "\t\t";
 	\var_dump($auth->hasAllRoles(\Delight\Auth\Role::DEVELOPER, \Delight\Auth\Role::MANAGER));
 
+	echo 'Roles' . "\t\t\t\t\t";
+	echo \json_encode($auth->getRoles()) . "\n";
+
 	echo "\n";
 
 	echo '$auth->isRemembered()' . "\t\t\t";
