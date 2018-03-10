@@ -115,6 +115,8 @@ Should your database tables for this library need a common prefix, e.g. `my_user
 
 During development, you may want to disable the request limiting or throttling performed by this library. To do so, pass `false` to the constructor as the fourth argument, which is named `$throttling`. The feature is enabled by default.
 
+During the lifetime of a session, some user data may be changed remotely, either by a client in another session or by an administrator. That means this information must be regularly resynchronized with its authoritative source in the database, which this library does automatically. By default, this happens every five minutes. If you want to change this interval, pass a custom interval in seconds to the constructor as the fifth argument, which is named `$sessionResyncInterval`.
+
 ### Registration (sign up)
 
 ```php
