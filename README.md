@@ -261,7 +261,7 @@ As the next step, users will click on the link that they received. Extract the s
 If the selector/token pair is valid, let the user choose a new password:
 
 ```php
-if ($auth->canResetPassword($_POST['selector'], $_POST['token'])) {
+if ($auth->canResetPassword($_GET['selector'], $_GET['token'])) {
     // put the selector into a `hidden` field (or keep it in the URL)
     // put the token into a `hidden` field (or keep it in the URL)
 
