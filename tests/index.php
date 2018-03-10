@@ -923,11 +923,9 @@ function showConfirmEmailForm() {
 }
 
 function createRolesOptions() {
-	$roleReflection = new ReflectionClass(\Delight\Auth\Role::class);
-
 	$out = '';
 
-	foreach ($roleReflection->getConstants() as $roleName => $roleValue) {
+	foreach (\Delight\Auth\Role::getMap() as $roleValue => $roleName) {
 		$out .= '<option value="' . $roleValue . '">' . $roleName . '</option>';
 	}
 
