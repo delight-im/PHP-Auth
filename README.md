@@ -583,6 +583,12 @@ if ($auth->hasAllRoles(\Delight\Auth\Role::DEVELOPER, \Delight\Auth\Role::MANAGE
 
 While the method `hasRole` takes exactly one role as its argument, the two methods `hasAnyRole` and `hasAllRoles` can take any number of roles that you would like to check for.
 
+Alternatively, you can get a list of all the roles that have been assigned to the user:
+
+```php
+$auth->getRoles();
+```
+
 #### Available roles
 
 ```php
