@@ -38,6 +38,8 @@ abstract class UserManager {
 	const SESSION_FIELD_ROLES = 'auth_roles';
 	/** @var string session field for whether the user who is currently signed in (if any) has been remembered (instead of them having authenticated actively) */
 	const SESSION_FIELD_REMEMBERED = 'auth_remembered';
+	/** @var string session field for the UNIX timestamp in seconds of the session data's last resynchronization with its authoritative source in the database */
+	const SESSION_FIELD_LAST_RESYNC = 'auth_last_resync';
 
 	/** @var PdoDatabase the database connection to operate on */
 	protected $db;
@@ -205,6 +207,7 @@ abstract class UserManager {
 		$_SESSION[self::SESSION_FIELD_STATUS] = (int) $status;
 		$_SESSION[self::SESSION_FIELD_ROLES] = (int) $roles;
 		$_SESSION[self::SESSION_FIELD_REMEMBERED] = $remembered;
+		$_SESSION[self::SESSION_FIELD_LAST_RESYNC] = \time();
 	}
 
 	/**

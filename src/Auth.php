@@ -28,6 +28,8 @@ final class Auth extends UserManager {
 	private $ipAddress;
 	/** @var bool whether throttling should be enabled (e.g. in production) or disabled (e.g. during development) */
 	private $throttling;
+	/** @var int the interval in seconds after which to resynchronize the session data with its authoritative source in the database */
+	private $sessionResyncInterval;
 	/** @var string the name of the cookie used for the 'remember me' feature */
 	private $rememberCookieName;
 
@@ -36,18 +38,21 @@ final class Auth extends UserManager {
 	 * @param string $ipAddress the IP address that should be used instead of the default setting (if any), e.g. when behind a proxy
 	 * @param string|null $dbTablePrefix (optional) the prefix for the names of all database tables used by this component
 	 * @param bool|null $throttling (optional) whether throttling should be enabled (e.g. in production) or disabled (e.g. during development)
+	 * @param int|null $sessionResyncInterval (optional) the interval in seconds after which to resynchronize the session data with its authoritative source in the database
 	 */
-	public function __construct($databaseConnection, $ipAddress = null, $dbTablePrefix = null, $throttling = null) {
+	public function __construct($databaseConnection, $ipAddress = null, $dbTablePrefix = null, $throttling = null, $sessionResyncInterval = null) {
 		parent::__construct($databaseConnection, $dbTablePrefix);
 
 		$this->ipAddress = !empty($ipAddress) ? $ipAddress : (isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : null);
 		$this->throttling = isset($throttling) ? (bool) $throttling : true;
+		$this->sessionResyncInterval = isset($sessionResyncInterval) ? ((int) $sessionResyncInterval) : (60 * 5);
 		$this->rememberCookieName = self::createRememberCookieName();
 
 		$this->initSession();
 		$this->enhanceHttpSecurity();
 
 		$this->processRememberDirective();
+		$this->resyncSessionIfNecessary();
 	}
 
 	/** Initializes the session and sets the correct configuration */
@@ -132,6 +137,46 @@ final class Auth extends UserManager {
 					// mark the cookie as such to prevent any further futile attempts
 					$this->setRememberCookie('', '', \time() + 60 * 60 * 24 * 365.25);
 				}
+			}
+		}
+	}
+
+	private function resyncSessionIfNecessary() {
+		// if the user is signed in
+		if ($this->isLoggedIn()) {
+			if (!isset($_SESSION[self::SESSION_FIELD_LAST_RESYNC])) {
+				$_SESSION[self::SESSION_FIELD_LAST_RESYNC] = 0;
+			}
+
+			// if it's time for resynchronization
+			if (($_SESSION[self::SESSION_FIELD_LAST_RESYNC] + $this->sessionResyncInterval) <= \time()) {
+				// fetch the authoritative data from the database again
+				try {
+					$authoritativeData = $this->db->selectRow(
+						'SELECT email, username, status, roles_mask FROM ' . $this->dbTablePrefix . 'users WHERE id = ?',
+						[ $this->getUserId() ]
+					);
+				}
+				catch (Error $e) {
+					throw new DatabaseError();
+				}
+
+				// if the user's data has been found
+				if (!empty($authoritativeData)) {
+					// update the session data
+					$_SESSION[self::SESSION_FIELD_EMAIL] = $authoritativeData['email'];
+					$_SESSION[self::SESSION_FIELD_USERNAME] = $authoritativeData['username'];
+					$_SESSION[self::SESSION_FIELD_STATUS] = (int) $authoritativeData['status'];
+					$_SESSION[self::SESSION_FIELD_ROLES] = (int) $authoritativeData['roles_mask'];
+				}
+				// if no data has been found for the user
+				else {
+					// their account may have been deleted so they should be signed out
+					$this->logOut();
+				}
+
+				// remember that we've just performed resynchronization
+				$_SESSION[self::SESSION_FIELD_LAST_RESYNC] = \time();
 			}
 		}
 	}
@@ -343,6 +388,7 @@ final class Auth extends UserManager {
 			unset($_SESSION[self::SESSION_FIELD_STATUS]);
 			unset($_SESSION[self::SESSION_FIELD_ROLES]);
 			unset($_SESSION[self::SESSION_FIELD_REMEMBERED]);
+			unset($_SESSION[self::SESSION_FIELD_LAST_RESYNC]);
 		}
 	}
 
