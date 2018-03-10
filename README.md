@@ -261,6 +261,31 @@ As the next step, users will click on the link that they received. Extract the s
 If the selector/token pair is valid, let the user choose a new password:
 
 ```php
+try {
+    $auth->canResetPasswordOrThrow($_GET['selector'], $_GET['token']);
+
+    // put the selector into a `hidden` field (or keep it in the URL)
+    // put the token into a `hidden` field (or keep it in the URL)
+
+    // ask the user for their new password
+}
+catch (\Delight\Auth\InvalidSelectorTokenPairException $e) {
+    // invalid token
+}
+catch (\Delight\Auth\TokenExpiredException $e) {
+    // token expired
+}
+catch (\Delight\Auth\ResetDisabledException $e) {
+    // password reset is disabled
+}
+catch (\Delight\Auth\TooManyRequestsException $e) {
+    // too many requests
+}
+```
+
+Alternatively, if you don’t need any error messages but only want to check the validity, you can use the slightly simpler version:
+
+```php
 if ($auth->canResetPassword($_GET['selector'], $_GET['token'])) {
     // put the selector into a `hidden` field (or keep it in the URL)
     // put the token into a `hidden` field (or keep it in the URL)
