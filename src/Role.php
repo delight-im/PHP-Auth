@@ -41,6 +41,39 @@ final class Role {
 	// const XXX = 268435456;
 	// const XXX = 536870912;
 
+	/**
+	 * Returns an array mapping the numerical role values to their descriptive names
+	 *
+	 * @return array
+	 */
+	public static function getMap() {
+		$reflectionClass = new \ReflectionClass(static::class);
+
+		return \array_flip($reflectionClass->getConstants());
+	}
+
+	/**
+	 * Returns the descriptive role names
+	 *
+	 * @return string[]
+	 */
+	public static function getNames() {
+		$reflectionClass = new \ReflectionClass(static::class);
+
+		return \array_keys($reflectionClass->getConstants());
+	}
+
+	/**
+	 * Returns the numerical role values
+	 *
+	 * @return int[]
+	 */
+	public static function getValues() {
+		$reflectionClass = new \ReflectionClass(static::class);
+
+		return \array_values($reflectionClass->getConstants());
+	}
+
 	private function __construct() {}
 
 }
