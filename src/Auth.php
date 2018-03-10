@@ -1501,6 +1501,19 @@ final class Auth extends UserManager {
 	}
 
 	/**
+	 * Returns an array of the user's roles, mapping the numerical values to their descriptive names
+	 *
+	 * @return array
+	 */
+	public function getRoles() {
+		return \array_filter(
+			Role::getMap(),
+			[ $this, 'hasRole' ],
+			\ARRAY_FILTER_USE_KEY
+		);
+	}
+
+	/**
 	 * Returns whether the currently signed-in user has been remembered by a long-lived cookie
 	 *
 	 * @return bool whether they have been remembered
