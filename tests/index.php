@@ -245,7 +245,7 @@ function processRequestData(\Delight\Auth\Auth $auth) {
 					return 'email address not verified';
 				}
 				catch (\Delight\Auth\ResetDisabledException $e) {
-					return 'password reset disabled';
+					return 'password reset is disabled';
 				}
 				catch (\Delight\Auth\TooManyRequestsException $e) {
 					return 'too many requests';
@@ -264,7 +264,7 @@ function processRequestData(\Delight\Auth\Auth $auth) {
 					return 'token expired';
 				}
 				catch (\Delight\Auth\ResetDisabledException $e) {
-					return 'password reset disabled';
+					return 'password reset is disabled';
 				}
 				catch (\Delight\Auth\InvalidPasswordException $e) {
 					return 'invalid password';
