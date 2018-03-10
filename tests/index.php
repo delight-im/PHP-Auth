@@ -273,6 +273,25 @@ function processRequestData(\Delight\Auth\Auth $auth) {
 					return 'too many requests';
 				}
 			}
+			else if ($_POST['action'] === 'canResetPassword') {
+				try {
+					$auth->canResetPasswordOrThrow($_POST['selector'], $_POST['token']);
+
+					return 'yes';
+				}
+				catch (\Delight\Auth\InvalidSelectorTokenPairException $e) {
+					return 'invalid token';
+				}
+				catch (\Delight\Auth\TokenExpiredException $e) {
+					return 'token expired';
+				}
+				catch (\Delight\Auth\ResetDisabledException $e) {
+					return 'password reset is disabled';
+				}
+				catch (\Delight\Auth\TooManyRequestsException $e) {
+					return 'too many requests';
+				}
+			}
 			else if ($_POST['action'] === 'reconfirmPassword') {
 				try {
 					return $auth->reconfirmPassword($_POST['password']) ? 'correct' : 'wrong';
@@ -810,6 +829,13 @@ function showGuestUserForm() {
 	echo '<input type="text" name="token" placeholder="Token" /> ';
 	echo '<input type="text" name="password" placeholder="New password" /> ';
 	echo '<button type="submit">Reset password</button>';
+	echo '</form>';
+
+	echo '<form action="" method="post" accept-charset="utf-8">';
+	echo '<input type="hidden" name="action" value="canResetPassword" />';
+	echo '<input type="text" name="selector" placeholder="Selector" /> ';
+	echo '<input type="text" name="token" placeholder="Token" /> ';
+	echo '<button type="submit">Can reset password?</button>';
 	echo '</form>';
 
 	echo '<h1>Administration</h1>';
