@@ -1250,18 +1250,10 @@ final class Auth extends UserManager {
 	 */
 	public function canResetPassword($selector, $token) {
 		try {
-			// pass an invalid password intentionally to force an expected error
-			$this->resetPassword($selector, $token, null);
+			$this->canResetPasswordOrThrow($selector, $token);
 
-			// we should already be in the `catch` block now so this is not expected
-			throw new AuthError();
-		}
-		// if the password is the only thing that's invalid
-		catch (InvalidPasswordException $e) {
-			// the password can be reset
 			return true;
 		}
-		// if some other things failed (as well)
 		catch (AuthException $e) {
 			return false;
 		}
