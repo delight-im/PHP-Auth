@@ -610,7 +610,15 @@ While the method `hasRole` takes exactly one role as its argument, the two metho
 \Delight\Auth\Role::TRANSLATOR;
 ```
 
-You can use any of these roles and ignore those that you don’t need.
+You can use any of these roles and ignore those that you don’t need. The list above can also be retrieved programmatically, in one of three formats:
+
+```php
+\Delight\Auth\Role::getMap();
+// or
+\Delight\Auth\Role::getNames();
+// or
+\Delight\Auth\Role::getValues();
+```
 
 #### Permissions (or access rights, privileges or capabilities)
 
