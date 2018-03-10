@@ -523,6 +523,19 @@ function processRequestData(\Delight\Auth\Auth $auth) {
 					return 'ID required';
 				}
 			}
+			else if ($_POST['action'] === 'admin.getRoles') {
+				if (isset($_POST['id'])) {
+					try {
+						return $auth->admin()->getRolesForUserById($_POST['id']);
+					}
+					catch (\Delight\Auth\UnknownIdException $e) {
+						return 'unknown ID';
+					}
+				}
+				else {
+					return 'ID required';
+				}
+			}
 			else if ($_POST['action'] === 'admin.logInAsUserById') {
 				if (isset($_POST['id'])) {
 					try {
@@ -878,6 +891,12 @@ function showGuestUserForm() {
 	echo '<input type="text" name="id" placeholder="ID" /> ';
 	echo '<select name="role">' . \createRolesOptions() . '</select>';
 	echo '<button type="submit">Does user have role?</button>';
+	echo '</form>';
+
+	echo '<form action="" method="post" accept-charset="utf-8">';
+	echo '<input type="hidden" name="action" value="admin.getRoles" />';
+	echo '<input type="text" name="id" placeholder="ID" /> ';
+	echo '<button type="submit">Get user\'s roles</button>';
 	echo '</form>';
 
 	echo '<form action="" method="post" accept-charset="utf-8">';
