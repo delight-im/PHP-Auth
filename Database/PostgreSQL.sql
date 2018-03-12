@@ -25,9 +25,7 @@ CREATE TABLE IF NOT EXISTS "users_confirmations" (
 	"token" VARCHAR(255) NOT NULL,
 	"expires" INTEGER NOT NULL CHECK ("expires" >= 0)
 );
-
 CREATE INDEX IF NOT EXISTS "email_expires" ON "users_confirmations" ("email", "expires");
-
 CREATE INDEX IF NOT EXISTS "user_id" ON "users_confirmations" ("user_id");
 
 CREATE TABLE IF NOT EXISTS "users_remembered" (
@@ -37,7 +35,6 @@ CREATE TABLE IF NOT EXISTS "users_remembered" (
 	"token" VARCHAR(255) NOT NULL,
 	"expires" INTEGER NOT NULL CHECK ("expires" >= 0)
 );
-
 CREATE INDEX IF NOT EXISTS "user" ON "users_remembered" ("user");
 
 CREATE TABLE IF NOT EXISTS "users_resets" (
@@ -47,7 +44,6 @@ CREATE TABLE IF NOT EXISTS "users_resets" (
 	"token" VARCHAR(255) NOT NULL,
 	"expires" INTEGER NOT NULL CHECK ("expires" >= 0)
 );
-
 CREATE INDEX IF NOT EXISTS "user_expires" ON "users_resets" ("user", "expires");
 
 CREATE TABLE IF NOT EXISTS "users_throttling" (
@@ -56,7 +52,6 @@ CREATE TABLE IF NOT EXISTS "users_throttling" (
 	"replenished_at" INTEGER NOT NULL CHECK ("replenished_at" >= 0),
 	"expires_at" INTEGER NOT NULL CHECK ("expires_at" >= 0)
 );
-
 CREATE INDEX IF NOT EXISTS "expires_at" ON "users_throttling" ("expires_at");
 
 COMMIT;
