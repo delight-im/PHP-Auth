@@ -20,7 +20,7 @@ Completely framework-agnostic and database-agnostic.
    * PDO (PHP Data Objects) extension (`pdo`)
      * MySQL Native Driver (`mysqlnd`) **or** PostgreSQL driver (`pgsql`) **or** SQLite driver (`sqlite`)
    * OpenSSL extension (`openssl`)
- * MySQL 5.5.3+ **or** MariaDB 5.5.23+ **or** PostgreSQL 9.5.10+ **or** SQLite 3.14.1+ **or** other SQL databases that you create the [schema](Database) for
+ * MySQL 5.5.3+ **or** MariaDB 5.5.23+ **or** PostgreSQL 9.5.10+ **or** SQLite 3.14.1+ **or** [other SQL databases](Database)
 
 ## Installation
 
