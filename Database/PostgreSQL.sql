@@ -17,8 +17,6 @@ CREATE TABLE IF NOT EXISTS "users" (
 	"last_login" INTEGER DEFAULT NULL
 );
 
-CREATE INDEX IF NOT EXISTS "email" ON "users" ("email");
-
 CREATE TABLE IF NOT EXISTS "users_confirmations" (
 	"id" SERIAL PRIMARY KEY,
 	"user_id" INTEGER NOT NULL,
@@ -53,8 +51,8 @@ CREATE TABLE IF NOT EXISTS "users_resets" (
 CREATE INDEX IF NOT EXISTS "user_expires" ON "users_resets" ("user", "expires");
 
 CREATE TABLE IF NOT EXISTS "users_throttling" (
-	"bucket" VARCHAR(44) PRIMARY KEY NOT NULL,
-	"tokens" float NOT NULL,
+	"bucket" VARCHAR(44) PRIMARY KEY,
+	"tokens" REAL NOT NULL,
 	"replenished_at" INTEGER NOT NULL,
 	"expires_at" INTEGER NOT NULL
 );
