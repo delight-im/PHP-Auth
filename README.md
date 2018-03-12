@@ -38,6 +38,7 @@ Completely framework-agnostic and database-agnostic.
 
  1. Set up a database and create the required tables:
 
+    * [MariaDB](Database/MySQL.sql)
     * [MySQL](Database/MySQL.sql)
     * [PostgreSQL](Database/PostgreSQL.sql)
     * [SQLite](Database/SQLite.sql)
