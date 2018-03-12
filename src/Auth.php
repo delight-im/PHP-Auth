@@ -48,7 +48,7 @@ final class Auth extends UserManager {
 		$this->sessionResyncInterval = isset($sessionResyncInterval) ? ((int) $sessionResyncInterval) : (60 * 5);
 		$this->rememberCookieName = self::createRememberCookieName();
 
-		$this->initSession();
+		$this->initSessionIfNecessary();
 		$this->enhanceHttpSecurity();
 
 		$this->processRememberDirective();
@@ -56,16 +56,18 @@ final class Auth extends UserManager {
 	}
 
 	/** Initializes the session and sets the correct configuration */
-	private function initSession() {
-		// use cookies to store session IDs
-		\ini_set('session.use_cookies', 1);
-		// use cookies only (do not send session IDs in URLs)
-		\ini_set('session.use_only_cookies', 1);
-		// do not send session IDs in URLs
-		\ini_set('session.use_trans_sid', 0);
+	private function initSessionIfNecessary() {
+		if (\session_status() === \PHP_SESSION_NONE) {
+			// use cookies to store session IDs
+			\ini_set('session.use_cookies', 1);
+			// use cookies only (do not send session IDs in URLs)
+			\ini_set('session.use_only_cookies', 1);
+			// do not send session IDs in URLs
+			\ini_set('session.use_trans_sid', 0);
 
-		// start the session (requests a cookie to be written on the client)
-		@Session::start();
+			// start the session (requests a cookie to be written on the client)
+			@Session::start();
+		}
 	}
 
 	/** Improves the application's security over HTTP(S) by setting specific headers */
