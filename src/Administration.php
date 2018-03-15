@@ -510,7 +510,7 @@ final class Administration extends UserManager {
 			throw new DatabaseError();
 		}
 
-		$numberOfMatchingUsers = \count($users);
+		$numberOfMatchingUsers = ($users !== null) ? \count($users) : 0;
 
 		if ($numberOfMatchingUsers === 1) {
 			$user = $users[0];
