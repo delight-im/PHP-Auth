@@ -183,6 +183,28 @@ abstract class UserManager {
 	}
 
 	/**
+	 * Updates the given user's password by setting it to the new specified password
+	 *
+	 * @param int $userId the ID of the user whose password should be updated
+	 * @param string $newPassword the new password
+	 * @throws AuthError if an internal problem occurred (do *not* catch)
+	 */
+	protected function updatePasswordInternal($userId, $newPassword) {
+		$newPassword = \password_hash($newPassword, \PASSWORD_DEFAULT);
+
+		try {
+			$this->db->update(
+				$this->dbTablePrefix . 'users',
+				[ 'password' => $newPassword ],
+				[ 'id' => $userId ]
+			);
+		}
+		catch (Error $e) {
+			throw new DatabaseError();
+		}
+	}
+
+	/**
 	 * Called when a user has successfully logged in
 	 *
 	 * This may happen via the standard login, via the "remember me" feature, or due to impersonation by administrators

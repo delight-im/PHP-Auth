@@ -717,33 +717,11 @@ final class Auth extends UserManager {
 		if ($this->isLoggedIn()) {
 			$newPassword = self::validatePassword($newPassword);
 			$userId = $this->getUserId();
-			$this->updatePassword($userId, $newPassword);
+			$this->updatePasswordInternal($userId, $newPassword);
 			$this->deleteRememberDirective($userId);
 		}
 		else {
 			throw new NotLoggedInException();
-		}
-	}
-
-	/**
-	 * Updates the given user's password by setting it to the new specified password
-	 *
-	 * @param int $userId the ID of the user whose password should be updated
-	 * @param string $newPassword the new password
-	 * @throws AuthError if an internal problem occurred (do *not* catch)
-	 */
-	private function updatePassword($userId, $newPassword) {
-		$newPassword = \password_hash($newPassword, \PASSWORD_DEFAULT);
-
-		try {
-			$this->db->update(
-				$this->dbTablePrefix . 'users',
-				[ 'password' => $newPassword ],
-				[ 'id' => $userId ]
-			);
-		}
-		catch (Error $e) {
-			throw new DatabaseError();
 		}
 	}
 
@@ -1025,7 +1003,7 @@ final class Auth extends UserManager {
 			// if the password needs to be re-hashed to keep up with improving password cracking techniques
 			if (\password_needs_rehash($userData['password'], \PASSWORD_DEFAULT)) {
 				// create a new hash from the password and update it in the database
-				$this->updatePassword($userData['id'], $password);
+				$this->updatePasswordInternal($userData['id'], $password);
 			}
 
 			if ((int) $userData['verified'] === 1) {
@@ -1220,7 +1198,7 @@ final class Auth extends UserManager {
 						$newPassword = self::validatePassword($newPassword);
 
 						// update the password in the database
-						$this->updatePassword($resetData['user'], $newPassword);
+						$this->updatePasswordInternal($resetData['user'], $newPassword);
 
 						// delete any remaining remember directives
 						$this->deleteRememberDirective($resetData['user']);

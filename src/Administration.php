@@ -19,10 +19,10 @@ final class Administration extends UserManager {
 	/**
 	 * @internal
 	 *
-	 * @param PdoDatabase $databaseConnection the database connection to operate on
+	 * @param PdoDatabase|PdoDsn|\PDO $databaseConnection the database connection to operate on
 	 * @param string|null $dbTablePrefix (optional) the prefix for the names of all database tables used by this component
 	 */
-	public function __construct(PdoDatabase $databaseConnection, $dbTablePrefix = null) {
+	public function __construct($databaseConnection, $dbTablePrefix = null) {
 		parent::__construct($databaseConnection, $dbTablePrefix);
 	}
 
@@ -368,6 +368,24 @@ final class Administration extends UserManager {
 		elseif ($numberOfMatchedUsers > 1) {
 			throw new AmbiguousUsernameException();
 		}
+	}
+
+	/**
+	 * Sets the given user's password by setting it to the new specified password
+	 * 
+	 * @param string $username the username of the user whose password should be set
+	 * @param string $newPassword the new password
+	 */
+	public function changePasswordByUsername($username, $newPassword) {
+		$userData = $this->getUserDataByUsername(
+			\trim($username),
+			[ 'id' ]
+		);
+
+		$this->updatePasswordInternal(
+			(int) $userData['id'],
+			$newPassword
+		);
 	}
 
 	/**
