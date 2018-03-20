@@ -379,7 +379,7 @@ final class Auth extends UserManager {
 			// if a user ID was set
 			if (isset($userId)) {
 				// delete any existing remember directives
-				$this->deleteRememberDirective($userId);
+				$this->deleteRememberDirectiveForUserById($userId);
 			}
 
 			// remove all session variables maintained by this library
@@ -445,7 +445,7 @@ final class Auth extends UserManager {
 	 * @param int $userId the user ID that shouldn't be kept signed in anymore
 	 * @throws AuthError if an internal problem occurred (do *not* catch)
 	 */
-	private function deleteRememberDirective($userId) {
+	private function deleteRememberDirectiveForUserById($userId) {
 		try {
 			$this->db->delete(
 				$this->dbTablePrefix . 'users_remembered',
@@ -718,7 +718,7 @@ final class Auth extends UserManager {
 			$newPassword = self::validatePassword($newPassword);
 			$userId = $this->getUserId();
 			$this->updatePasswordInternal($userId, $newPassword);
-			$this->deleteRememberDirective($userId);
+			$this->deleteRememberDirectiveForUserById($userId);
 		}
 		else {
 			throw new NotLoggedInException();
@@ -1201,7 +1201,7 @@ final class Auth extends UserManager {
 						$this->updatePasswordInternal($resetData['user'], $newPassword);
 
 						// delete any remaining remember directives
-						$this->deleteRememberDirective($resetData['user']);
+						$this->deleteRememberDirectiveForUserById($resetData['user']);
 
 						try {
 							$this->db->delete(
