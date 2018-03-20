@@ -189,7 +189,7 @@ abstract class UserManager {
 	 * @param string $newPassword the new password
 	 * @throws AuthError if an internal problem occurred (do *not* catch)
 	 */
-	protected function updatePassword($userId, $newPassword) {
+	protected function updatePasswordInternal($userId, $newPassword) {
 		$newPassword = \password_hash($newPassword, \PASSWORD_DEFAULT);
 
 		try {
