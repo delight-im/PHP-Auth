@@ -372,6 +372,27 @@ final class Administration extends UserManager {
 	}
 
 	/**
+	 * Changes the password for the user with the given username
+	 *
+	 * @param string $username the username of the user whose password to change
+	 * @param string $newPassword the new password to set
+	 * @throws UnknownUsernameException if no user with the specified username has been found
+	 * @throws AmbiguousUsernameException if multiple users with the specified username have been found
+	 * @throws AuthError if an internal problem occurred (do *not* catch)
+	 */
+	public function changePasswordForUserByUsername($username, $newPassword) {
+		$userData = $this->getUserDataByUsername(
+			\trim($username),
+			[ 'id' ]
+		);
+
+		$this->updatePasswordInternal(
+			(int) $userData['id'],
+			$newPassword
+		);
+	}
+
+	/**
 	 * Deletes all existing users where the column with the specified name has the given value
 	 *
 	 * You must never pass untrusted input to the parameter that takes the column name
