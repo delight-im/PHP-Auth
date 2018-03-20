@@ -9,6 +9,7 @@
 namespace Delight\Auth;
 
 use Delight\Db\PdoDatabase;
+use Delight\Db\PdoDsn;
 use Delight\Db\Throwable\Error;
 
 require_once __DIR__ . '/Exceptions.php';
@@ -19,10 +20,10 @@ final class Administration extends UserManager {
 	/**
 	 * @internal
 	 *
-	 * @param PdoDatabase $databaseConnection the database connection to operate on
+	 * @param PdoDatabase|PdoDsn|\PDO $databaseConnection the database connection to operate on
 	 * @param string|null $dbTablePrefix (optional) the prefix for the names of all database tables used by this component
 	 */
-	public function __construct(PdoDatabase $databaseConnection, $dbTablePrefix = null) {
+	public function __construct($databaseConnection, $dbTablePrefix = null) {
 		parent::__construct($databaseConnection, $dbTablePrefix);
 	}
 
