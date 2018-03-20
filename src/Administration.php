@@ -378,9 +378,12 @@ final class Administration extends UserManager {
 	 * @param string $newPassword the new password to set
 	 * @throws UnknownUsernameException if no user with the specified username has been found
 	 * @throws AmbiguousUsernameException if multiple users with the specified username have been found
+	 * @throws InvalidPasswordException if the desired new password has been invalid
 	 * @throws AuthError if an internal problem occurred (do *not* catch)
 	 */
 	public function changePasswordForUserByUsername($username, $newPassword) {
+		$newPassword = self::validatePassword($newPassword);
+
 		$userData = $this->getUserDataByUsername(
 			\trim($username),
 			[ 'id' ]
