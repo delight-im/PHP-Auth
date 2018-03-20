@@ -393,6 +393,8 @@ final class Administration extends UserManager {
 			(int) $userData['id'],
 			$newPassword
 		);
+
+		$this->deleteRememberDirectiveForUserById((int) $userData['id']);
 	}
 
 	/**
