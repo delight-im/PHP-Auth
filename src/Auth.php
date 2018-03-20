@@ -439,22 +439,8 @@ final class Auth extends UserManager {
 		$this->setRememberCookie($selector, $token, $expires);
 	}
 
-	/**
-	 * Clears an existing directive that keeps the user logged in ("remember me")
-	 *
-	 * @param int $userId the ID of the user who shouldn't be kept signed in anymore
-	 * @throws AuthError if an internal problem occurred (do *not* catch)
-	 */
-	private function deleteRememberDirectiveForUserById($userId) {
-		try {
-			$this->db->delete(
-				$this->dbTablePrefix . 'users_remembered',
-				[ 'user' => $userId ]
-			);
-		}
-		catch (Error $e) {
-			throw new DatabaseError();
-		}
+	protected function deleteRememberDirectiveForUserById($userId) {
+		parent::deleteRememberDirectiveForUserById($userId);
 
 		$this->setRememberCookie(null, null, \time() - 3600);
 	}
