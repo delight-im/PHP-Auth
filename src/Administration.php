@@ -18,8 +18,6 @@ require_once __DIR__ . '/Exceptions.php';
 final class Administration extends UserManager {
 
 	/**
-	 * @internal
-	 *
 	 * @param PdoDatabase|PdoDsn|\PDO $databaseConnection the database connection to operate on
 	 * @param string|null $dbTablePrefix (optional) the prefix for the names of all database tables used by this component
 	 */
