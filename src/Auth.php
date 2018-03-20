@@ -726,28 +726,6 @@ final class Auth extends UserManager {
 	}
 
 	/**
-	 * Updates the given user's password by setting it to the new specified password
-	 *
-	 * @param int $userId the ID of the user whose password should be updated
-	 * @param string $newPassword the new password
-	 * @throws AuthError if an internal problem occurred (do *not* catch)
-	 */
-	private function updatePassword($userId, $newPassword) {
-		$newPassword = \password_hash($newPassword, \PASSWORD_DEFAULT);
-
-		try {
-			$this->db->update(
-				$this->dbTablePrefix . 'users',
-				[ 'password' => $newPassword ],
-				[ 'id' => $userId ]
-			);
-		}
-		catch (Error $e) {
-			throw new DatabaseError();
-		}
-	}
-
-	/**
 	 * Attempts to change the email address of the currently signed-in user (which requires confirmation)
 	 *
 	 * The callback function must have the following signature:
