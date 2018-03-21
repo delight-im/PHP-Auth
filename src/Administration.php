@@ -370,6 +370,27 @@ final class Administration extends UserManager {
 	}
 
 	/**
+	 * Changes the password for the user with the given ID
+	 *
+	 * @param int $userId the ID of the user whose password to change
+	 * @param string $newPassword the new password to set
+	 * @throws UnknownIdException if no user with the specified ID has been found
+	 * @throws InvalidPasswordException if the desired new password has been invalid
+	 * @throws AuthError if an internal problem occurred (do *not* catch)
+	 */
+	public function changePasswordForUserById($userId, $newPassword) {
+		$userId = (int) $userId;
+		$newPassword = self::validatePassword($newPassword);
+
+		$this->updatePasswordInternal(
+			$userId,
+			$newPassword
+		);
+
+		$this->deleteRememberDirectiveForUserById($userId);
+	}
+
+	/**
 	 * Changes the password for the user with the given username
 	 *
 	 * @param string $username the username of the user whose password to change
