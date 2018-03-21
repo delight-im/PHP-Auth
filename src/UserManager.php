@@ -187,17 +187,22 @@ abstract class UserManager {
 	 *
 	 * @param int $userId the ID of the user whose password should be updated
 	 * @param string $newPassword the new password
+	 * @throws UnknownIdException if no user with the specified ID has been found
 	 * @throws AuthError if an internal problem occurred (do *not* catch)
 	 */
 	protected function updatePasswordInternal($userId, $newPassword) {
 		$newPassword = \password_hash($newPassword, \PASSWORD_DEFAULT);
 
 		try {
-			$this->db->update(
+			$affected = $this->db->update(
 				$this->dbTablePrefix . 'users',
 				[ 'password' => $newPassword ],
 				[ 'id' => $userId ]
 			);
+
+			if ($affected === 0) {
+				throw new UnknownIdException();
+			}
 		}
 		catch (Error $e) {
 			throw new DatabaseError();
