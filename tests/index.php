@@ -616,7 +616,18 @@ function processRequestData(\Delight\Auth\Auth $auth) {
 			}
 			else if ($_POST['action'] === 'admin.changePasswordForUser') {
 				if (isset($_POST['newPassword'])) {
-					if (isset($_POST['username'])) {
+					if (isset($_POST['id'])) {
+						try {
+							$auth->admin()->changePasswordForUserById($_POST['id'], $_POST['newPassword']);
+						}
+						catch (\Delight\Auth\UnknownIdException $e) {
+							return 'unknown ID';
+						}
+						catch (\Delight\Auth\InvalidPasswordException $e) {
+							return 'invalid password';
+						}
+					}
+					elseif (isset($_POST['username'])) {
 						try {
 							$auth->admin()->changePasswordForUserByUsername($_POST['username'], $_POST['newPassword']);
 						}
@@ -631,7 +642,7 @@ function processRequestData(\Delight\Auth\Auth $auth) {
 						}
 					}
 					else {
-						return 'username required';
+						return 'either ID or username required';
 					}
 				}
 				else {
@@ -969,6 +980,13 @@ function showGuestUserForm() {
 	echo '<input type="hidden" name="action" value="admin.logInAsUserByUsername" />';
 	echo '<input type="text" name="username" placeholder="Username" /> ';
 	echo '<button type="submit">Log in as user by username</button>';
+	echo '</form>';
+
+	echo '<form action="" method="post" accept-charset="utf-8">';
+	echo '<input type="hidden" name="action" value="admin.changePasswordForUser" />';
+	echo '<input type="text" name="id" placeholder="ID" /> ';
+	echo '<input type="text" name="newPassword" placeholder="New password" /> ';
+	echo '<button type="submit">Change password for user by ID</button>';
 	echo '</form>';
 
 	echo '<form action="" method="post" accept-charset="utf-8">';
