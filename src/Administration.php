@@ -401,19 +401,15 @@ final class Administration extends UserManager {
 	 * @throws AuthError if an internal problem occurred (do *not* catch)
 	 */
 	public function changePasswordForUserByUsername($username, $newPassword) {
-		$newPassword = self::validatePassword($newPassword);
-
 		$userData = $this->getUserDataByUsername(
 			\trim($username),
 			[ 'id' ]
 		);
 
-		$this->updatePasswordInternal(
+		$this->changePasswordForUserById(
 			(int) $userData['id'],
 			$newPassword
 		);
-
-		$this->deleteRememberDirectiveForUserById((int) $userData['id']);
 	}
 
 	/**
