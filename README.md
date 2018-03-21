@@ -1006,6 +1006,18 @@ catch (\Delight\Auth\EmailNotVerifiedException $e) {
 
 ```php
 try {
+    $auth->admin()->changePasswordForUserById($_POST['id'], $_POST['newPassword']);
+}
+catch (\Delight\Auth\UnknownIdException $e) {
+    // unknown ID
+}
+catch (\Delight\Auth\InvalidPasswordException $e) {
+    // invalid password
+}
+
+// or
+
+try {
     $auth->admin()->changePasswordForUserByUsername($_POST['username'], $_POST['newPassword']);
 }
 catch (\Delight\Auth\UnknownUsernameException $e) {
