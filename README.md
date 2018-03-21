@@ -82,6 +82,7 @@ Migrating from an earlier version of this project? See our [upgrade guide](Migra
    * [Taking roles away from users](#taking-roles-away-from-users)
    * [Checking roles](#checking-roles-1)
    * [Impersonating users (logging in as user)](#impersonating-users-logging-in-as-user)
+   * [Changing a user’s password](#changing-a-users-password)
  * [Cookies](#cookies)
    * [Renaming the library’s cookies](#renaming-the-librarys-cookies)
    * [Defining the domain scope for cookies](#defining-the-domain-scope-for-cookies)
@@ -998,6 +999,23 @@ catch (\Delight\Auth\AmbiguousUsernameException $e) {
 }
 catch (\Delight\Auth\EmailNotVerifiedException $e) {
     // email address not verified
+}
+```
+
+#### Changing a user’s password
+
+```php
+try {
+    $auth->admin()->changePasswordForUserByUsername($_POST['username'], $_POST['newPassword']);
+}
+catch (\Delight\Auth\UnknownUsernameException $e) {
+    // unknown username
+}
+catch (\Delight\Auth\AmbiguousUsernameException $e) {
+    // ambiguous username
+}
+catch (\Delight\Auth\InvalidPasswordException $e) {
+    // invalid password
 }
 ```
 
