@@ -40,6 +40,8 @@ abstract class UserManager {
 	const SESSION_FIELD_REMEMBERED = 'auth_remembered';
 	/** @var string session field for the UNIX timestamp in seconds of the session data's last resynchronization with its authoritative source in the database */
 	const SESSION_FIELD_LAST_RESYNC = 'auth_last_resync';
+	/** @var string session field for the counter that keeps track of forced logouts that need to be performed in the current session */
+	const SESSION_FIELD_FORCE_LOGOUT = 'auth_force_logout';
 
 	/** @var PdoDatabase the database connection to operate on */
 	protected $db;
@@ -219,10 +221,11 @@ abstract class UserManager {
 	 * @param string $username the display name (if any) of the user
 	 * @param int $status the status of the user as one of the constants from the {@see Status} class
 	 * @param int $roles the roles of the user as a bitmask using constants from the {@see Role} class
+	 * @param int $forceLogout the counter that keeps track of forced logouts that need to be performed in the current session
 	 * @param bool $remembered whether the user has been remembered (instead of them having authenticated actively)
 	 * @throws AuthError if an internal problem occurred (do *not* catch)
 	 */
-	protected function onLoginSuccessful($userId, $email, $username, $status, $roles, $remembered) {
+	protected function onLoginSuccessful($userId, $email, $username, $status, $roles, $forceLogout, $remembered) {
 		// re-generate the session ID to prevent session fixation attacks (requests a cookie to be written on the client)
 		Session::regenerate(true);
 
@@ -235,6 +238,7 @@ abstract class UserManager {
 		$_SESSION[self::SESSION_FIELD_ROLES] = (int) $roles;
 		$_SESSION[self::SESSION_FIELD_REMEMBERED] = $remembered;
 		$_SESSION[self::SESSION_FIELD_LAST_RESYNC] = \time();
+		$_SESSION[self::SESSION_FIELD_FORCE_LOGOUT] = (int) $forceLogout;
 	}
 
 	/**

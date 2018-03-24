@@ -558,7 +558,7 @@ final class Administration extends UserManager {
 			$user = $users[0];
 
 			if ((int) $user['verified'] === 1) {
-				$this->onLoginSuccessful($user['id'], $user['email'], $user['username'], $user['status'], $user['roles_mask'], false);
+				$this->onLoginSuccessful($user['id'], $user['email'], $user['username'], $user['status'], $user['roles_mask'], \PHP_INT_MAX, false);
 			}
 			else {
 				throw new EmailNotVerifiedException();

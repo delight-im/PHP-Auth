@@ -114,7 +114,7 @@ final class Auth extends UserManager {
 				if (!empty($parts[0]) && !empty($parts[1])) {
 					try {
 						$rememberData = $this->db->selectRow(
-							'SELECT a.user, a.token, a.expires, b.email, b.username, b.status, b.roles_mask FROM ' . $this->dbTablePrefix . 'users_remembered AS a JOIN ' . $this->dbTablePrefix . 'users AS b ON a.user = b.id WHERE a.selector = ?',
+							'SELECT a.user, a.token, a.expires, b.email, b.username, b.status, b.roles_mask, b.force_logout FROM ' . $this->dbTablePrefix . 'users_remembered AS a JOIN ' . $this->dbTablePrefix . 'users AS b ON a.user = b.id WHERE a.selector = ?',
 							[ $parts[0] ]
 						);
 					}
@@ -128,7 +128,7 @@ final class Auth extends UserManager {
 								// the cookie and its contents have now been proven to be valid
 								$valid = true;
 
-								$this->onLoginSuccessful($rememberData['user'], $rememberData['email'], $rememberData['username'], $rememberData['status'], $rememberData['roles_mask'], true);
+								$this->onLoginSuccessful($rememberData['user'], $rememberData['email'], $rememberData['username'], $rememberData['status'], $rememberData['roles_mask'], $rememberData['force_logout'], true);
 							}
 						}
 					}
@@ -392,6 +392,7 @@ final class Auth extends UserManager {
 			unset($_SESSION[self::SESSION_FIELD_ROLES]);
 			unset($_SESSION[self::SESSION_FIELD_REMEMBERED]);
 			unset($_SESSION[self::SESSION_FIELD_LAST_RESYNC]);
+			unset($_SESSION[self::SESSION_FIELD_FORCE_LOGOUT]);
 		}
 	}
 
@@ -490,7 +491,7 @@ final class Auth extends UserManager {
 		}
 	}
 
-	protected function onLoginSuccessful($userId, $email, $username, $status, $roles, $remembered) {
+	protected function onLoginSuccessful($userId, $email, $username, $status, $roles, $forceLogout, $remembered) {
 		// update the timestamp of the user's last login
 		try {
 			$this->db->update(
@@ -503,7 +504,7 @@ final class Auth extends UserManager {
 			throw new DatabaseError();
 		}
 
-		parent::onLoginSuccessful($userId, $email, $username, $status, $roles, $remembered);
+		parent::onLoginSuccessful($userId, $email, $username, $status, $roles, $forceLogout, $remembered);
 	}
 
 	/**
@@ -659,10 +660,10 @@ final class Auth extends UserManager {
 
 				$userData = $this->getUserDataByEmailAddress(
 					$verifiedEmail,
-					[ 'id', 'email', 'username', 'status', 'roles_mask' ]
+					[ 'id', 'email', 'username', 'status', 'roles_mask', 'force_logout' ]
 				);
 
-				$this->onLoginSuccessful($userData['id'], $userData['email'], $userData['username'], $userData['status'], $userData['roles_mask'], true);
+				$this->onLoginSuccessful($userData['id'], $userData['email'], $userData['username'], $userData['status'], $userData['roles_mask'], $userData['force_logout'], true);
 
 				if ($rememberDuration !== null) {
 					$this->createRememberDirective($userData['id'], $rememberDuration);
@@ -958,7 +959,7 @@ final class Auth extends UserManager {
 		$this->throttle([ 'enumerateUsers', $this->getIpAddress() ], 1, (60 * 60), 75);
 		$this->throttle([ 'attemptToLogin', $this->getIpAddress() ], 4, (60 * 60), 5, true);
 
-		$columnsToFetch = [ 'id', 'email', 'password', 'verified', 'username', 'status', 'roles_mask' ];
+		$columnsToFetch = [ 'id', 'email', 'password', 'verified', 'username', 'status', 'roles_mask', 'force_logout' ];
 
 		if ($email !== null) {
 			$email = self::validateEmailAddress($email);
@@ -995,7 +996,7 @@ final class Auth extends UserManager {
 
 			if ((int) $userData['verified'] === 1) {
 				if (!isset($onBeforeSuccess) || (\is_callable($onBeforeSuccess) && $onBeforeSuccess($userData['id']) === true)) {
-					$this->onLoginSuccessful($userData['id'], $userData['email'], $userData['username'], $userData['status'], $userData['roles_mask'], false);
+					$this->onLoginSuccessful($userData['id'], $userData['email'], $userData['username'], $userData['status'], $userData['roles_mask'], $userData['force_logout'], false);
 
 					// continue to support the old parameter format
 					if ($rememberDuration === true) {
