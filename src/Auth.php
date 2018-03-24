@@ -1777,4 +1777,20 @@ final class Auth extends UserManager {
 		);
 	}
 
+	/**
+	 * Returns the selector of a potential locally existing remember directive
+	 *
+	 * @return string|null
+	 */
+	private function getRememberDirectiveSelector() {
+		if (isset($_COOKIE[$this->rememberCookieName])) {
+			$selectorAndToken = \explode(self::COOKIE_CONTENT_SEPARATOR, $_COOKIE[$this->rememberCookieName], 2);
+
+			return $selectorAndToken[0];
+		}
+		else {
+			return null;
+		}
+	}
+
 }
