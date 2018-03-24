@@ -146,6 +146,7 @@ final class Auth extends UserManager {
 	private function resyncSessionIfNecessary() {
 		// if the user is signed in
 		if ($this->isLoggedIn()) {
+			// the session field may not have been initialized for sessions that had already existed before the introduction of this feature
 			if (!isset($_SESSION[self::SESSION_FIELD_LAST_RESYNC])) {
 				$_SESSION[self::SESSION_FIELD_LAST_RESYNC] = 0;
 			}
