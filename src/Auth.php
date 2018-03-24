@@ -454,8 +454,8 @@ final class Auth extends UserManager {
 		$this->setRememberCookie($selector, $token, $expires);
 	}
 
-	protected function deleteRememberDirectiveForUserById($userId) {
-		parent::deleteRememberDirectiveForUserById($userId);
+	protected function deleteRememberDirectiveForUserById($userId, $selector = null) {
+		parent::deleteRememberDirectiveForUserById($userId, $selector);
 
 		$this->setRememberCookie(null, null, \time() - 3600);
 	}

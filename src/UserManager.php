@@ -371,13 +371,22 @@ abstract class UserManager {
 	 * Clears an existing directive that keeps the user logged in ("remember me")
 	 *
 	 * @param int $userId the ID of the user who shouldn't be kept signed in anymore
+	 * @param string $selector (optional) the selector which the deletion should be restricted to
 	 * @throws AuthError if an internal problem occurred (do *not* catch)
 	 */
-	protected function deleteRememberDirectiveForUserById($userId) {
+	protected function deleteRememberDirectiveForUserById($userId, $selector = null) {
+		$whereMappings = [];
+
+		if (isset($selector)) {
+			$whereMappings['selector'] = (string) $selector;
+		}
+
+		$whereMappings['user'] = (int) $userId;
+
 		try {
 			$this->db->delete(
 				$this->dbTablePrefix . 'users_remembered',
-				[ 'user' => $userId ]
+				$whereMappings
 			);
 		}
 		catch (Error $e) {
