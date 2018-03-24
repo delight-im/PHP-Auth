@@ -156,7 +156,7 @@ final class Auth extends UserManager {
 				// fetch the authoritative data from the database again
 				try {
 					$authoritativeData = $this->db->selectRow(
-						'SELECT email, username, status, roles_mask FROM ' . $this->dbTablePrefix . 'users WHERE id = ?',
+						'SELECT email, username, status, roles_mask, force_logout FROM ' . $this->dbTablePrefix . 'users WHERE id = ?',
 						[ $this->getUserId() ]
 					);
 				}
@@ -166,20 +166,33 @@ final class Auth extends UserManager {
 
 				// if the user's data has been found
 				if (!empty($authoritativeData)) {
-					// update the session data
-					$_SESSION[self::SESSION_FIELD_EMAIL] = $authoritativeData['email'];
-					$_SESSION[self::SESSION_FIELD_USERNAME] = $authoritativeData['username'];
-					$_SESSION[self::SESSION_FIELD_STATUS] = (int) $authoritativeData['status'];
-					$_SESSION[self::SESSION_FIELD_ROLES] = (int) $authoritativeData['roles_mask'];
+					// the session field may not have been initialized for sessions that had already existed before the introduction of this feature
+					if (!isset($_SESSION[self::SESSION_FIELD_FORCE_LOGOUT])) {
+						$_SESSION[self::SESSION_FIELD_FORCE_LOGOUT] = 0;
+					}
+
+					// if the counter that keeps track of forced logouts has been incremented
+					if ($authoritativeData['force_logout'] > $_SESSION[self::SESSION_FIELD_FORCE_LOGOUT]) {
+						// the user must be signed out
+						$this->logOut();
+					}
+					// if the counter that keeps track of forced logouts has remained unchanged
+					else {
+						// the session data needs to be updated
+						$_SESSION[self::SESSION_FIELD_EMAIL] = $authoritativeData['email'];
+						$_SESSION[self::SESSION_FIELD_USERNAME] = $authoritativeData['username'];
+						$_SESSION[self::SESSION_FIELD_STATUS] = (int) $authoritativeData['status'];
+						$_SESSION[self::SESSION_FIELD_ROLES] = (int) $authoritativeData['roles_mask'];
+
+						// remember that we've just performed the required resynchronization
+						$_SESSION[self::SESSION_FIELD_LAST_RESYNC] = \time();
+					}
 				}
 				// if no data has been found for the user
 				else {
 					// their account may have been deleted so they should be signed out
 					$this->logOut();
 				}
-
-				// remember that we've just performed resynchronization
-				$_SESSION[self::SESSION_FIELD_LAST_RESYNC] = \time();
 			}
 		}
 	}
