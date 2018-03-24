@@ -236,9 +236,9 @@ abstract class UserManager {
 		$_SESSION[self::SESSION_FIELD_USERNAME] = $username;
 		$_SESSION[self::SESSION_FIELD_STATUS] = (int) $status;
 		$_SESSION[self::SESSION_FIELD_ROLES] = (int) $roles;
+		$_SESSION[self::SESSION_FIELD_FORCE_LOGOUT] = (int) $forceLogout;
 		$_SESSION[self::SESSION_FIELD_REMEMBERED] = $remembered;
 		$_SESSION[self::SESSION_FIELD_LAST_RESYNC] = \time();
-		$_SESSION[self::SESSION_FIELD_FORCE_LOGOUT] = (int) $forceLogout;
 	}
 
 	/**
