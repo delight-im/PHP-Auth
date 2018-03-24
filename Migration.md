@@ -1,6 +1,7 @@
 # Migration
 
  * [General](#general)
+ * [From `v7.x.x` to `v8.x.x`](#from-v7xx-to-v8xx)
  * [From `v6.x.x` to `v7.x.x`](#from-v6xx-to-v7xx)
  * [From `v5.x.x` to `v6.x.x`](#from-v5xx-to-v6xx)
  * [From `v4.x.x` to `v5.x.x`](#from-v4xx-to-v5xx)
@@ -11,6 +12,8 @@
 ## General
 
 Update your version of this library using Composer and its `composer update` or `composer require` commands [[?]](https://github.com/delight-im/Knowledge/blob/master/Composer%20(PHP).md#how-do-i-update-libraries-or-modules-within-my-application).
+
+## From `v7.x.x` to `v8.x.x`
 
 ## From `v6.x.x` to `v7.x.x`
 
