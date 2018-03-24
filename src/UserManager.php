@@ -394,4 +394,18 @@ abstract class UserManager {
 		}
 	}
 
+	/**
+	 * Triggers a forced logout in all sessions that belong to the specified user
+	 *
+	 * @param int $userId the ID of the user to sign out
+	 * @throws AuthError if an internal problem occurred (do *not* catch)
+	 */
+	protected function forceLogoutForUserById($userId) {
+		$this->deleteRememberDirectiveForUserById($userId);
+		$this->db->exec(
+			'UPDATE ' . $this->dbTablePrefix . 'users SET force_logout = force_logout + 1 WHERE id = ?',
+			[ $userId ]
+		);
+	}
+
 }
