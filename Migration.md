@@ -15,6 +15,29 @@ Update your version of this library using Composer and its `composer update` or 
 
 ## From `v7.x.x` to `v8.x.x`
 
+ * The database schema has changed.
+
+   * The MySQL database schema has changed. Use the statement below to update your database:
+
+     ```sql
+     ALTER TABLE users
+         ADD COLUMN `force_logout` mediumint(7) unsigned NOT NULL DEFAULT '0' AFTER `last_login`;
+     ```
+
+   * The PostgreSQL database schema has changed. Use the statement below to update your database:
+
+     ```sql
+     ALTER TABLE users
+         ADD COLUMN "force_logout" INTEGER NOT NULL DEFAULT '0' CHECK ("force_logout" >= 0);
+     ```
+
+   * The SQLite database schema has changed. Use the statement below to update your database:
+
+     ```sql
+     ALTER TABLE users
+         ADD COLUMN "force_logout" INTEGER NOT NULL CHECK ("force_logout" >= 0) DEFAULT "0";
+     ```
+
 ## From `v6.x.x` to `v7.x.x`
 
  * The method `logOutButKeepSession` from class `Auth` is now simply called `logOut`. Therefore, the former method `logout` is now called `logOutAndDestroySession`.
