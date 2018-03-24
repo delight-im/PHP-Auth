@@ -413,6 +413,24 @@ final class Administration extends UserManager {
 	}
 
 	/**
+	 * Gets a list of all usernames. The list will be in ascending order.
+	 * 
+	 * @throws AuthError if an internal problem occurred (do *not* catch)
+	 */
+	public function getUsernames() {
+		try {
+			$usernames = $this->db->selectColumn(
+				'SELECT username FROM users ORDER BY username ASC'
+			);
+
+			return $usernames;
+		}
+		catch (Error $e) {
+			throw new DatabaseError();
+		}
+	}
+
+	/**
 	 * Deletes all existing users where the column with the specified name has the given value
 	 *
 	 * You must never pass untrusted input to the parameter that takes the column name
