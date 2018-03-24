@@ -14,7 +14,8 @@ CREATE TABLE IF NOT EXISTS "users" (
 	"resettable" SMALLINT NOT NULL DEFAULT '1' CHECK ("resettable" >= 0),
 	"roles_mask" INTEGER NOT NULL DEFAULT '0' CHECK ("roles_mask" >= 0),
 	"registered" INTEGER NOT NULL CHECK ("registered" >= 0),
-	"last_login" INTEGER DEFAULT NULL CHECK ("last_login" >= 0)
+	"last_login" INTEGER DEFAULT NULL CHECK ("last_login" >= 0),
+	"force_logout" INTEGER NOT NULL DEFAULT '0' CHECK ("force_logout" >= 0)
 );
 
 CREATE TABLE IF NOT EXISTS "users_confirmations" (

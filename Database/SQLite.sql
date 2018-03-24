@@ -15,6 +15,7 @@ CREATE TABLE "users" (
 	"roles_mask" INTEGER NOT NULL CHECK ("roles_mask" >= 0) DEFAULT "0",
 	"registered" INTEGER NOT NULL CHECK ("registered" >= 0),
 	"last_login" INTEGER CHECK ("last_login" >= 0) DEFAULT NULL,
+	"force_logout" INTEGER NOT NULL CHECK ("force_logout" >= 0) DEFAULT "0",
 	CONSTRAINT "email" UNIQUE ("email")
 );
 
