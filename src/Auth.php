@@ -1793,4 +1793,37 @@ final class Auth extends UserManager {
 		}
 	}
 
+	/**
+	 * Returns the expiry date of a potential locally existing remember directive
+	 *
+	 * @return int|null
+	 */
+	private function getRememberDirectiveExpiry() {
+		// if the user is currently signed in
+		if ($this->isLoggedIn()) {
+			// determine the selector of any currently existing remember directive
+			$existingSelector = $this->getRememberDirectiveSelector();
+
+			// if there is currently a remember directive whose selector we have just retrieved
+			if (isset($existingSelector)) {
+				// fetch the expiry date for the given selector
+				$existingExpiry = $this->db->selectValue(
+					'SELECT expires FROM ' . $this->dbTablePrefix . 'users_remembered WHERE selector = ? AND user = ?',
+					[
+						$existingSelector,
+						$this->getUserId()
+					]
+				);
+
+				// if an expiration date has been found
+				if (isset($existingExpiry)) {
+					// return the date
+					return (int) $existingExpiry;
+				}
+			}
+		}
+
+		return null;
+	}
+
 }
