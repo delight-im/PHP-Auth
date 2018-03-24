@@ -387,13 +387,16 @@ final class Auth extends UserManager {
 	public function logOut() {
 		// if the user has been signed in
 		if ($this->isLoggedIn()) {
-			// get the user's ID
-			$userId = $this->getUserId();
+			// retrieve any locally existing remember directive
+			$rememberDirectiveSelector = $this->getRememberDirectiveSelector();
 
-			// if a user ID was set
-			if (isset($userId)) {
-				// delete any existing remember directives
-				$this->deleteRememberDirectiveForUserById($userId);
+			// if such a remember directive exists
+			if (isset($rememberDirectiveSelector)) {
+				// delete the local remember directive
+				$this->deleteRememberDirectiveForUserById(
+					$this->getUserId(),
+					$rememberDirectiveSelector
+				);
 			}
 
 			// remove all session variables maintained by this library
