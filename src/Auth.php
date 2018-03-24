@@ -413,6 +413,23 @@ final class Auth extends UserManager {
 	}
 
 	/**
+	 * Logs the user out in all sessions
+	 *
+	 * @throws NotLoggedInException if the user is not currently signed in
+	 * @throws AuthError if an internal problem occurred (do *not* catch)
+	 */
+	public function logOutEverywhere() {
+		if (!$this->isLoggedIn()) {
+			throw new NotLoggedInException();
+		}
+
+		// schedule a forced logout in all sessions
+		$this->forceLogoutForUserById($this->getUserId());
+		// and immediately apply the logout locally
+		$this->logOut();
+	}
+
+	/**
 	 * Destroys all session data
 	 *
 	 * @throws AuthError if an internal problem occurred (do *not* catch)
