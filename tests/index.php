@@ -403,8 +403,8 @@ function processRequestData(\Delight\Auth\Auth $auth) {
 
 				return 'ok';
 			}
-			else if ($_POST['action'] === 'logOutAndDestroySession') {
-				$auth->logOutAndDestroySession();
+			else if ($_POST['action'] === 'destroySession') {
+				$auth->destroySession();
 
 				return 'ok';
 			}
@@ -837,10 +837,7 @@ function showAuthenticatedUserForm(\Delight\Auth\Auth $auth) {
 	echo '<button type="submit">Log out everywhere</button>';
 	echo '</form>';
 
-	echo '<form action="" method="post" accept-charset="utf-8">';
-	echo '<input type="hidden" name="action" value="logOutAndDestroySession" />';
-	echo '<button type="submit">Log out and destroy session</button>';
-	echo '</form>';
+	\showDestroySessionForm();
 }
 
 function showGuestUserForm() {
@@ -906,6 +903,8 @@ function showGuestUserForm() {
 	echo '<input type="text" name="token" placeholder="Token" /> ';
 	echo '<button type="submit">Can reset password?</button>';
 	echo '</form>';
+
+	\showDestroySessionForm();
 
 	echo '<h1>Administration</h1>';
 
@@ -1050,6 +1049,13 @@ function showConfirmEmailForm() {
 	echo '<input type="hidden" name="action" value="resendConfirmationForUserId" />';
 	echo '<input type="text" name="userId" placeholder="User ID" /> ';
 	echo '<button type="submit">Re-send confirmation</button>';
+	echo '</form>';
+}
+
+function showDestroySessionForm() {
+	echo '<form action="" method="post" accept-charset="utf-8">';
+	echo '<input type="hidden" name="action" value="destroySession" />';
+	echo '<button type="submit">Destroy session</button>';
 	echo '</form>';
 }
 
