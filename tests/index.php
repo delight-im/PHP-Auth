@@ -151,13 +151,12 @@ function processRequestData(\Delight\Auth\Auth $auth) {
 							// do not keep logged in after session ends
 							$rememberDuration = null;
 						}
-						$auth->confirmEmailAndSignIn($_POST['selector'], $_POST['token'], $rememberDuration);
+
+						return $auth->confirmEmailAndSignIn($_POST['selector'], $_POST['token'], $rememberDuration);
 					}
 					else {
-						$auth->confirmEmail($_POST['selector'], $_POST['token']);
+						return $auth->confirmEmail($_POST['selector'], $_POST['token']);
 					}
-
-					return 'ok';
 				}
 				catch (\Delight\Auth\InvalidSelectorTokenPairException $e) {
 					return 'invalid token';
