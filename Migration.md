@@ -38,6 +38,8 @@ Update your version of this library using Composer and its `composer update` or 
          ADD COLUMN "force_logout" INTEGER NOT NULL CHECK ("force_logout" >= 0) DEFAULT "0";
      ```
 
+ * The method `logOutAndDestroySession` has been removed from class `Auth`. Instead, call the two separate methods `logOut` and `destroySession` from class `Auth` one after another for the same effect.
+
 ## From `v6.x.x` to `v7.x.x`
 
  * The method `logOutButKeepSession` from class `Auth` is now simply called `logOut`. Therefore, the former method `logout` is now called `logOutAndDestroySession`.
