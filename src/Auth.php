@@ -1248,12 +1248,8 @@ final class Auth extends UserManager {
 				if (\password_verify($token, $resetData['token'])) {
 					if ($resetData['expires'] >= \time()) {
 						$newPassword = self::validatePassword($newPassword);
-
-						// update the password in the database
 						$this->updatePasswordInternal($resetData['user'], $newPassword);
-
-						// delete any remaining remember directives
-						$this->deleteRememberDirectiveForUserById($resetData['user']);
+						$this->forceLogoutForUserById($resetData['user']);
 
 						try {
 							$this->db->delete(
