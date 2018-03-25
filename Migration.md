@@ -40,6 +40,8 @@ Update your version of this library using Composer and its `composer update` or 
 
  * The method `logOutAndDestroySession` has been removed from class `Auth`. Instead, call the two separate methods `logOut` and `destroySession` from class `Auth` one after another for the same effect.
 
+ * If you have been using the return values of the methods `confirmEmail` or `confirmEmailAndSignIn` from class `Auth`, these return values have changed. Instead of only returning the new email address (which has just been verified), both methods now return an array with the old email address (if any) at index zero and the new email address (which has just been verified) at index one.
+
 ## From `v6.x.x` to `v7.x.x`
 
  * The method `logOutButKeepSession` from class `Auth` is now simply called `logOut`. Therefore, the former method `logout` is now called `logOutAndDestroySession`.
