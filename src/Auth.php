@@ -579,16 +579,6 @@ final class Auth extends UserManager {
 	}
 
 	/**
-	 * Logs the user out and destroys all session data
-	 *
-	 * @throws AuthError if an internal problem occurred (do *not* catch)
-	 */
-	public function logOutAndDestroySession() {
-		$this->logOut();
-		$this->destroySession();
-	}
-
-	/**
 	 * Deletes the session cookie on the client
 	 *
 	 * @throws AuthError if an internal problem occurred (do *not* catch)
