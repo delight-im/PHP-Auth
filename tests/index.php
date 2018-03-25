@@ -383,6 +383,16 @@ function processRequestData(\Delight\Auth\Auth $auth) {
 
 				return 'ok';
 			}
+			else if ($_POST['action'] === 'logOutEverywhereElse') {
+				try {
+					$auth->logOutEverywhereElse();
+				}
+				catch (\Delight\Auth\NotLoggedInException $e) {
+					return 'not logged in';
+				}
+
+				return 'ok';
+			}
 			else if ($_POST['action'] === 'logOutEverywhere') {
 				try {
 					$auth->logOutEverywhere();
@@ -815,6 +825,11 @@ function showAuthenticatedUserForm(\Delight\Auth\Auth $auth) {
 	echo '<form action="" method="post" accept-charset="utf-8">';
 	echo '<input type="hidden" name="action" value="logOut" />';
 	echo '<button type="submit">Log out</button>';
+	echo '</form>';
+
+	echo '<form action="" method="post" accept-charset="utf-8">';
+	echo '<input type="hidden" name="action" value="logOutEverywhereElse" />';
+	echo '<button type="submit">Log out everywhere else</button>';
 	echo '</form>';
 
 	echo '<form action="" method="post" accept-charset="utf-8">';
