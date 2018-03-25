@@ -765,9 +765,12 @@ final class Auth extends UserManager {
 	public function changePasswordWithoutOldPassword($newPassword) {
 		if ($this->isLoggedIn()) {
 			$newPassword = self::validatePassword($newPassword);
-			$userId = $this->getUserId();
-			$this->updatePasswordInternal($userId, $newPassword);
-			$this->deleteRememberDirectiveForUserById($userId);
+			$this->updatePasswordInternal($this->getUserId(), $newPassword);
+
+			try {
+				$this->logOutEverywhereElse();
+			}
+			catch (NotLoggedInException $ignored) {}
 		}
 		else {
 			throw new NotLoggedInException();
