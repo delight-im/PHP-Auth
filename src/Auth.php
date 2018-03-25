@@ -146,7 +146,7 @@ final class Auth extends UserManager {
 	private function resyncSessionIfNecessary() {
 		// if the user is signed in
 		if ($this->isLoggedIn()) {
-			// the session field may not have been initialized for sessions that had already existed before the introduction of this feature
+			// the following session field may not have been initialized for sessions that had already existed before the introduction of this feature
 			if (!isset($_SESSION[self::SESSION_FIELD_LAST_RESYNC])) {
 				$_SESSION[self::SESSION_FIELD_LAST_RESYNC] = 0;
 			}
@@ -166,7 +166,7 @@ final class Auth extends UserManager {
 
 				// if the user's data has been found
 				if (!empty($authoritativeData)) {
-					// the session field may not have been initialized for sessions that had already existed before the introduction of this feature
+					// the following session field may not have been initialized for sessions that had already existed before the introduction of this feature
 					if (!isset($_SESSION[self::SESSION_FIELD_FORCE_LOGOUT])) {
 						$_SESSION[self::SESSION_FIELD_FORCE_LOGOUT] = 0;
 					}
@@ -429,7 +429,7 @@ final class Auth extends UserManager {
 		// schedule a forced logout in all sessions
 		$this->forceLogoutForUserById($this->getUserId());
 
-		// the session field may not have been initialized for sessions that had already existed before the introduction of this feature
+		// the following session field may not have been initialized for sessions that had already existed before the introduction of this feature
 		if (!isset($_SESSION[self::SESSION_FIELD_FORCE_LOGOUT])) {
 			$_SESSION[self::SESSION_FIELD_FORCE_LOGOUT] = 0;
 		}
