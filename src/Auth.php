@@ -413,6 +413,44 @@ final class Auth extends UserManager {
 	}
 
 	/**
+	 * Logs the user out in all other sessions (except for the current one)
+	 *
+	 * @throws NotLoggedInException if the user is not currently signed in
+	 * @throws AuthError if an internal problem occurred (do *not* catch)
+	 */
+	public function logOutEverywhereElse() {
+		if (!$this->isLoggedIn()) {
+			throw new NotLoggedInException();
+		}
+
+		// determine the expiry date of any locally existing remember directive
+		$previousRememberDirectiveExpiry = $this->getRememberDirectiveExpiry();
+
+		// schedule a forced logout in all sessions
+		$this->forceLogoutForUserById($this->getUserId());
+
+		// the session field may not have been initialized for sessions that had already existed before the introduction of this feature
+		if (!isset($_SESSION[self::SESSION_FIELD_FORCE_LOGOUT])) {
+			$_SESSION[self::SESSION_FIELD_FORCE_LOGOUT] = 0;
+		}
+
+		// ensure that we will simply skip or ignore the next forced logout (which we have just caused) in the current session
+		$_SESSION[self::SESSION_FIELD_FORCE_LOGOUT]++;
+
+		// re-generate the session ID to prevent session fixation attacks (requests a cookie to be written on the client)
+		Session::regenerate(true);
+
+		// if there had been an existing remember directive previously
+		if (isset($previousRememberDirectiveExpiry)) {
+			// restore the directive with the old expiry date but new credentials
+			$this->createRememberDirective(
+				$this->getUserId(),
+				$previousRememberDirectiveExpiry - \time()
+			);
+		}
+	}
+
+	/**
 	 * Logs the user out in all sessions
 	 *
 	 * @throws NotLoggedInException if the user is not currently signed in
