@@ -451,10 +451,12 @@ $url = 'https://www.example.com/verify_email?selector=' . \urlencode($selector) 
 
 ```php
 $auth->logOut();
-// or
-$auth->logOutAndDestroySession();
+```
 
-// user has been signed out
+Additionally, if you store custom information in the session as well, and if you want that information to be deleted, you can destroy the entire session by calling a second method:
+
+```php
+$auth->destroySession();
 ```
 
 ### Accessing user information
