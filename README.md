@@ -455,6 +455,15 @@ $auth->logOut();
 // or
 
 try {
+    $auth->logOutEverywhereElse();
+}
+catch (\Delight\Auth\NotLoggedInException $e) {
+    // not logged in
+}
+
+// or
+
+try {
     $auth->logOutEverywhere();
 }
 catch (\Delight\Auth\NotLoggedInException $e) {
