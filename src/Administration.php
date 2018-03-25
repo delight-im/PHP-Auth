@@ -387,7 +387,7 @@ final class Administration extends UserManager {
 			$newPassword
 		);
 
-		$this->deleteRememberDirectiveForUserById($userId);
+		$this->forceLogoutForUserById($userId);
 	}
 
 	/**
