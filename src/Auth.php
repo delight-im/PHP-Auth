@@ -606,7 +606,7 @@ final class Auth extends UserManager {
 	 *
 	 * @param string $selector the selector from the selector/token pair
 	 * @param string $token the token from the selector/token pair
-	 * @return string the email address that has successfully been verified
+	 * @return string[] an array with the old email address (if any) at index zero and the new email address (which has just been verified) at index one
 	 * @throws InvalidSelectorTokenPairException if either the selector or the token was not correct
 	 * @throws TokenExpiredException if the token has already expired
 	 * @throws UserAlreadyExistsException if an attempt has been made to change the email address to a (now) occupied address
@@ -620,7 +620,7 @@ final class Auth extends UserManager {
 
 		try {
 			$confirmationData = $this->db->selectRow(
-				'SELECT id, user_id, email, token, expires FROM ' . $this->dbTablePrefix . 'users_confirmations WHERE selector = ?',
+				'SELECT a.id, a.user_id, a.email AS new_email, a.token, a.expires, b.email AS old_email FROM ' . $this->dbTablePrefix . 'users_confirmations AS a JOIN ' . $this->dbTablePrefix . 'users AS b ON b.id = a.user_id WHERE a.selector = ?',
 				[ $selector ]
 			);
 		}
@@ -647,7 +647,7 @@ final class Auth extends UserManager {
 						$this->db->update(
 							$this->dbTablePrefix . 'users',
 							[
-								'email' => $confirmationData['email'],
+								'email' => $confirmationData['new_email'],
 								'verified' => 1
 							],
 							[ 'id' => $confirmationData['user_id'] ]
@@ -665,7 +665,7 @@ final class Auth extends UserManager {
 						// if the user has just confirmed an email address for their own account
 						if ($this->getUserId() === $confirmationData['user_id']) {
 							// immediately update the email address in the current session as well
-							$_SESSION[self::SESSION_FIELD_EMAIL] = $confirmationData['email'];
+							$_SESSION[self::SESSION_FIELD_EMAIL] = $confirmationData['new_email'];
 						}
 					}
 
@@ -680,7 +680,16 @@ final class Auth extends UserManager {
 						throw new DatabaseError();
 					}
 
-					return $confirmationData['email'];
+					// if the email address has not been changed but simply been verified
+					if ($confirmationData['old_email'] === $confirmationData['new_email']) {
+						// the output should not contain any previous email address
+						$confirmationData['old_email'] = null;
+					}
+
+					return [
+						$confirmationData['old_email'],
+						$confirmationData['new_email']
+					];
 				}
 				else {
 					throw new TokenExpiredException();
@@ -705,7 +714,7 @@ final class Auth extends UserManager {
 	 * @param string $selector the selector from the selector/token pair
 	 * @param string $token the token from the selector/token pair
 	 * @param int|null $rememberDuration (optional) the duration in seconds to keep the user logged in ("remember me"), e.g. `60 * 60 * 24 * 365.25` for one year
-	 * @return string the email address that has successfully been verified
+	 * @return string[] an array with the old email address (if any) at index zero and the new email address (which has just been verified) at index one
 	 * @throws InvalidSelectorTokenPairException if either the selector or the token was not correct
 	 * @throws TokenExpiredException if the token has already expired
 	 * @throws UserAlreadyExistsException if an attempt has been made to change the email address to a (now) occupied address
@@ -713,14 +722,14 @@ final class Auth extends UserManager {
 	 * @throws AuthError if an internal problem occurred (do *not* catch)
 	 */
 	public function confirmEmailAndSignIn($selector, $token, $rememberDuration = null) {
-		$verifiedEmail = $this->confirmEmail($selector, $token);
+		$emailBeforeAndAfter = $this->confirmEmail($selector, $token);
 
 		if (!$this->isLoggedIn()) {
-			if ($verifiedEmail !== null) {
-				$verifiedEmail = self::validateEmailAddress($verifiedEmail);
+			if ($emailBeforeAndAfter[1] !== null) {
+				$emailBeforeAndAfter[1] = self::validateEmailAddress($emailBeforeAndAfter[1]);
 
 				$userData = $this->getUserDataByEmailAddress(
-					$verifiedEmail,
+					$emailBeforeAndAfter[1],
 					[ 'id', 'email', 'username', 'status', 'roles_mask', 'force_logout' ]
 				);
 
@@ -732,7 +741,7 @@ final class Auth extends UserManager {
 			}
 		}
 
-		return $verifiedEmail;
+		return $emailBeforeAndAfter;
 	}
 
 	/**
