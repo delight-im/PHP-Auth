@@ -114,7 +114,7 @@ Migrating from an earlier version of this project? See our [upgrade guide](Migra
 $auth = new \Delight\Auth\Auth($db);
 ```
 
-If you have an open `PDO` connection already, just re-use it.
+If you have an open `PDO` connection already, just re-use it. The database user (e.g. `my-username`) needs at least the privileges `SELECT`, `INSERT`, `UPDATE` and `DELETE` for the tables used by this library (or their parent database).
 
 If your web server is behind a proxy server and `$_SERVER['REMOTE_ADDR']` only contains the proxy’s IP address, you must pass the user’s real IP address to the constructor in the second argument, which is named `$ipAddress`. The default is the usual remote IP address received by PHP.
 
