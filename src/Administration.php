@@ -432,7 +432,7 @@ final class Administration extends UserManager {
 			);
 		}
 		catch (Error $e) {
-			throw new DatabaseError();
+			throw new DatabaseError($e->getMessage());
 		}
 	}
 
@@ -457,7 +457,7 @@ final class Administration extends UserManager {
 			);
 		}
 		catch (Error $e) {
-			throw new DatabaseError();
+			throw new DatabaseError($e->getMessage());
 		}
 
 		if ($userData === null) {
@@ -478,7 +478,7 @@ final class Administration extends UserManager {
 			return true;
 		}
 		catch (Error $e) {
-			throw new DatabaseError();
+			throw new DatabaseError($e->getMessage());
 		}
 	}
 
@@ -549,7 +549,7 @@ final class Administration extends UserManager {
 			);
 		}
 		catch (Error $e) {
-			throw new DatabaseError();
+			throw new DatabaseError($e->getMessage());
 		}
 
 		$numberOfMatchingUsers = ($users !== null) ? \count($users) : 0;

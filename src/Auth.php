@@ -119,7 +119,7 @@ final class Auth extends UserManager {
 						);
 					}
 					catch (Error $e) {
-						throw new DatabaseError();
+						throw new DatabaseError($e->getMessage());
 					}
 
 					if (!empty($rememberData)) {
@@ -161,7 +161,7 @@ final class Auth extends UserManager {
 					);
 				}
 				catch (Error $e) {
-					throw new DatabaseError();
+					throw new DatabaseError($e->getMessage());
 				}
 
 				// if the user's data has been found
@@ -358,7 +358,7 @@ final class Auth extends UserManager {
 				);
 			}
 			catch (Error $e) {
-				throw new DatabaseError();
+				throw new DatabaseError($e->getMessage());
 			}
 
 			if (!empty($expectedHash)) {
@@ -506,7 +506,7 @@ final class Auth extends UserManager {
 			);
 		}
 		catch (Error $e) {
-			throw new DatabaseError();
+			throw new DatabaseError($e->getMessage());
 		}
 
 		$this->setRememberCookie($selector, $token, $expires);
@@ -572,7 +572,7 @@ final class Auth extends UserManager {
 			);
 		}
 		catch (Error $e) {
-			throw new DatabaseError();
+			throw new DatabaseError($e->getMessage());
 		}
 
 		parent::onLoginSuccessful($userId, $email, $username, $status, $roles, $forceLogout, $remembered);
@@ -625,7 +625,7 @@ final class Auth extends UserManager {
 			);
 		}
 		catch (Error $e) {
-			throw new DatabaseError();
+			throw new DatabaseError($e->getMessage());
 		}
 
 		if (!empty($confirmationData)) {
@@ -639,7 +639,7 @@ final class Auth extends UserManager {
 						);
 					}
 					catch (Error $e) {
-						throw new DatabaseError();
+						throw new DatabaseError($e->getMessage());
 					}
 
 					// mark the email address as verified (and possibly update it to the new address given)
@@ -657,7 +657,7 @@ final class Auth extends UserManager {
 						throw new UserAlreadyExistsException();
 					}
 					catch (Error $e) {
-						throw new DatabaseError();
+						throw new DatabaseError($e->getMessage());
 					}
 
 					// if the user is currently signed in
@@ -677,7 +677,7 @@ final class Auth extends UserManager {
 						);
 					}
 					catch (Error $e) {
-						throw new DatabaseError();
+						throw new DatabaseError($e->getMessage());
 					}
 
 					// if the email address has not been changed but simply been verified
@@ -822,7 +822,7 @@ final class Auth extends UserManager {
 				);
 			}
 			catch (Error $e) {
-				throw new DatabaseError();
+				throw new DatabaseError($e->getMessage());
 			}
 
 			if ((int) $existingUsersWithNewEmail !== 0) {
@@ -836,7 +836,7 @@ final class Auth extends UserManager {
 				);
 			}
 			catch (Error $e) {
-				throw new DatabaseError();
+				throw new DatabaseError($e->getMessage());
 			}
 
 			// ensure that at least the current (old) email address has been verified before proceeding
@@ -924,7 +924,7 @@ final class Auth extends UserManager {
 			);
 		}
 		catch (Error $e) {
-			throw new DatabaseError();
+			throw new DatabaseError($e->getMessage());
 		}
 
 		if ($latestAttempt === null) {
@@ -1137,7 +1137,7 @@ final class Auth extends UserManager {
 			);
 		}
 		catch (Error $e) {
-			throw new DatabaseError();
+			throw new DatabaseError($e->getMessage());
 		}
 
 		if (!empty($userData)) {
@@ -1173,7 +1173,7 @@ final class Auth extends UserManager {
 			}
 		}
 		catch (Error $e) {
-			throw new DatabaseError();
+			throw new DatabaseError($e->getMessage());
 		}
 	}
 
@@ -1211,7 +1211,7 @@ final class Auth extends UserManager {
 			);
 		}
 		catch (Error $e) {
-			throw new DatabaseError();
+			throw new DatabaseError($e->getMessage());
 		}
 
 		if (\is_callable($callback)) {
@@ -1249,7 +1249,7 @@ final class Auth extends UserManager {
 			);
 		}
 		catch (Error $e) {
-			throw new DatabaseError();
+			throw new DatabaseError($e->getMessage());
 		}
 
 		if (!empty($resetData)) {
@@ -1267,7 +1267,7 @@ final class Auth extends UserManager {
 							);
 						}
 						catch (Error $e) {
-							throw new DatabaseError();
+							throw new DatabaseError($e->getMessage());
 						}
 					}
 					else {
@@ -1365,7 +1365,7 @@ final class Auth extends UserManager {
 				);
 			}
 			catch (Error $e) {
-				throw new DatabaseError();
+				throw new DatabaseError($e->getMessage());
 			}
 		}
 		else {
@@ -1391,7 +1391,7 @@ final class Auth extends UserManager {
 				return (int) $enabled === 1;
 			}
 			catch (Error $e) {
-				throw new DatabaseError();
+				throw new DatabaseError($e->getMessage());
 			}
 		}
 		else {
@@ -1692,7 +1692,7 @@ final class Auth extends UserManager {
 			);
 		}
 		catch (Error $e) {
-			throw new DatabaseError();
+			throw new DatabaseError($e->getMessage());
 		}
 
 		if ($bucket === null) {
@@ -1730,7 +1730,7 @@ final class Auth extends UserManager {
 				);
 			}
 			catch (Error $e) {
-				throw new DatabaseError();
+				throw new DatabaseError($e->getMessage());
 			}
 
 			if ($affected === 0) {
@@ -1744,7 +1744,7 @@ final class Auth extends UserManager {
 				}
 				catch (IntegrityConstraintViolationException $ignored) {}
 				catch (Error $e) {
-					throw new DatabaseError();
+					throw new DatabaseError($e->getMessage());
 				}
 			}
 		}

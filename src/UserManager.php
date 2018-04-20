@@ -172,7 +172,7 @@ abstract class UserManager {
 			throw new UserAlreadyExistsException();
 		}
 		catch (Error $e) {
-			throw new DatabaseError();
+			throw new DatabaseError($e->getMessage());
 		}
 
 		$newUserId = (int) $this->db->getLastInsertId();
@@ -207,7 +207,7 @@ abstract class UserManager {
 			}
 		}
 		catch (Error $e) {
-			throw new DatabaseError();
+			throw new DatabaseError($e->getMessage());
 		}
 	}
 
@@ -263,7 +263,7 @@ abstract class UserManager {
 			);
 		}
 		catch (Error $e) {
-			throw new DatabaseError();
+			throw new DatabaseError($e->getMessage());
 		}
 
 		if (empty($users)) {
@@ -356,7 +356,7 @@ abstract class UserManager {
 			);
 		}
 		catch (Error $e) {
-			throw new DatabaseError();
+			throw new DatabaseError($e->getMessage());
 		}
 
 		if (\is_callable($callback)) {
@@ -390,7 +390,7 @@ abstract class UserManager {
 			);
 		}
 		catch (Error $e) {
-			throw new DatabaseError();
+			throw new DatabaseError($e->getMessage());
 		}
 	}
 
