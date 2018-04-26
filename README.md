@@ -403,6 +403,8 @@ $url = 'https://www.example.com/verify_email?selector=' . \urlencode($selector) 
 
 After the request to change the email address has been made, or even better, after the change has been confirmed by the user, you should send an email to their account’s *previous* email address as an out-of-band notification informing the account owner about this critical change.
 
+**Note:** Changes to a user’s email address take effect in the local session immediately, as expected. In other sessions (e.g. on other devices), the changes may need up to five minutes to take effect, though. This increases performance and usually poses no problem. If you want to change this behavior, nevertheless, simply decrease (or perhaps increase) the value that you pass to the [`Auth` constructor](#creating-a-new-instance) as the argument named `$sessionResyncInterval`.
+
 ### Re-sending confirmation requests
 
 If an earlier confirmation request could not be delivered to the user, or if the user missed that request, or if they just don’t want to wait any longer, you may re-send an earlier request like this:
@@ -476,6 +478,8 @@ Additionally, if you store custom information in the session as well, and if you
 ```php
 $auth->destroySession();
 ```
+
+**Note:** Global logouts take effect in the local session immediately, as expected. In other sessions (e.g. on other devices), the changes may need up to five minutes to take effect, though. This increases performance and usually poses no problem. If you want to change this behavior, nevertheless, simply decrease (or perhaps increase) the value that you pass to the [`Auth` constructor](#creating-a-new-instance) as the argument named `$sessionResyncInterval`.
 
 ### Accessing user information
 
@@ -927,6 +931,8 @@ catch (\Delight\Auth\AmbiguousUsernameException $e) {
 }
 ```
 
+**Note:** Changes to a user’s set of roles take effect in the local session immediately, as expected. In other sessions (e.g. on other devices), the changes may need up to five minutes to take effect, though. This increases performance and usually poses no problem. If you want to change this behavior, nevertheless, simply decrease (or perhaps increase) the value that you pass to the [`Auth` constructor](#creating-a-new-instance) as the argument named `$sessionResyncInterval`.
+
 #### Taking roles away from users
 
 ```php
@@ -958,6 +964,8 @@ catch (\Delight\Auth\AmbiguousUsernameException $e) {
     // ambiguous username
 }
 ```
+
+**Note:** Changes to a user’s set of roles take effect in the local session immediately, as expected. In other sessions (e.g. on other devices), the changes may need up to five minutes to take effect, though. This increases performance and usually poses no problem. If you want to change this behavior, nevertheless, simply decrease (or perhaps increase) the value that you pass to the [`Auth` constructor](#creating-a-new-instance) as the argument named `$sessionResyncInterval`.
 
 #### Checking roles
 
