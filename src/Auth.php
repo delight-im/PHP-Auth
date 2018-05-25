@@ -1563,9 +1563,13 @@ final class Auth extends UserManager {
 	 * @see Role
 	 */
 	public function hasRole($role) {
-		$role = (int) $role;
+		if (empty($role) || !\is_numeric($role)) {
+			return false;
+		}
 
 		if (isset($_SESSION) && isset($_SESSION[self::SESSION_FIELD_ROLES])) {
+			$role = (int) $role;
+
 			return (((int) $_SESSION[self::SESSION_FIELD_ROLES]) & $role) === $role;
 		}
 		else {

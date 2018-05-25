@@ -270,8 +270,11 @@ final class Administration extends UserManager {
 	 * @see Role
 	 */
 	public function doesUserHaveRole($userId, $role) {
+		if (empty($role) || !\is_numeric($role)) {
+			return false;
+		}
+
 		$userId = (int) $userId;
-		$role = (int) $role;
 
 		$rolesBitmask = $this->db->selectValue(
 			'SELECT roles_mask FROM ' . $this->dbTablePrefix . 'users WHERE id = ?',
@@ -281,6 +284,8 @@ final class Administration extends UserManager {
 		if ($rolesBitmask === null) {
 			throw new UnknownIdException();
 		}
+
+		$role = (int) $role;
 
 		return ($rolesBitmask & $role) === $role;
 	}
