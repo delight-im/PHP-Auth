@@ -148,6 +148,8 @@ catch (\Delight\Auth\TooManyRequestsException $e) {
 }
 ```
 
+**Note:** The anonymous callback function is a [closure](http://php.net/manual/en/functions.anonymous.php). Thus, besides its own parameters, only [superglobals](http://php.net/manual/en/language.variables.superglobals.php) like `$_GET`, `$_POST`, `$_COOKIE` and `$_SERVER` are available inside. For any other variable from the parent scope, you need to explicitly make a copy available inside by adding a `use` clause after the parameter list.
+
 The username in the third parameter is optional. You can pass `null` there if you don’t want to manage usernames.
 
 If you want to enforce unique usernames, on the other hand, simply call `registerWithUniqueUsername` instead of `register`, and be prepared to catch the `DuplicateUsernameException`.
@@ -260,6 +262,8 @@ catch (\Delight\Auth\TooManyRequestsException $e) {
     // too many requests
 }
 ```
+
+**Note:** The anonymous callback function is a [closure](http://php.net/manual/en/functions.anonymous.php). Thus, besides its own parameters, only [superglobals](http://php.net/manual/en/language.variables.superglobals.php) like `$_GET`, `$_POST`, `$_COOKIE` and `$_SERVER` are available inside. For any other variable from the parent scope, you need to explicitly make a copy available inside by adding a `use` clause after the parameter list.
 
 You should build an URL with the selector and token and send it to the user, e.g.:
 
@@ -395,6 +399,8 @@ catch (\Delight\Auth\TooManyRequestsException $e) {
 }
 ```
 
+**Note:** The anonymous callback function is a [closure](http://php.net/manual/en/functions.anonymous.php). Thus, besides its own parameters, only [superglobals](http://php.net/manual/en/language.variables.superglobals.php) like `$_GET`, `$_POST`, `$_COOKIE` and `$_SERVER` are available inside. For any other variable from the parent scope, you need to explicitly make a copy available inside by adding a `use` clause after the parameter list.
+
 For email verification, you should build an URL with the selector and token and send it to the user, e.g.:
 
 ```php
@@ -442,6 +448,8 @@ catch (\Delight\Auth\TooManyRequestsException $e) {
     // there have been too many requests -- try again later
 }
 ```
+
+**Note:** The anonymous callback function is a [closure](http://php.net/manual/en/functions.anonymous.php). Thus, besides its own parameters, only [superglobals](http://php.net/manual/en/language.variables.superglobals.php) like `$_GET`, `$_POST`, `$_COOKIE` and `$_SERVER` are available inside. For any other variable from the parent scope, you need to explicitly make a copy available inside by adding a `use` clause after the parameter list.
 
 Usually, you should build an URL with the selector and token and send it to the user, e.g. as follows:
 
