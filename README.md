@@ -716,19 +716,19 @@ function canEditArticle(\Delight\Auth\Auth $auth) {
 
 // ...
 
-if (canEditArticle($app->auth())) {
+if (canEditArticle($auth)) {
     // the user can edit articles here
 }
 
 // ...
 
-if (canEditArticle($app->auth())) {
+if (canEditArticle($auth)) {
     // ... and here
 }
 
 // ...
 
-if (canEditArticle($app->auth())) {
+if (canEditArticle($auth)) {
     // ... and here
 }
 ```
