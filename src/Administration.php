@@ -278,7 +278,7 @@ final class Administration extends UserManager {
 		$userId = (int) $userId;
 
 		$rolesBitmask = $this->db->selectValue(
-			'SELECT roles_mask FROM ' . $this->dbTablePrefix . 'users WHERE id = ?',
+			'SELECT roles_mask FROM ' . $this->makeTableName('users') . ' WHERE id = ?',
 			[ $userId ]
 		);
 
@@ -304,7 +304,7 @@ final class Administration extends UserManager {
 		$userId = (int) $userId;
 
 		$rolesBitmask = $this->db->selectValue(
-			'SELECT roles_mask FROM ' . $this->dbTablePrefix . 'users WHERE id = ?',
+			'SELECT roles_mask FROM ' . $this->makeTableName('users') . ' WHERE id = ?',
 			[ $userId ]
 		);
 
@@ -431,7 +431,7 @@ final class Administration extends UserManager {
 	private function deleteUsersByColumnValue($columnName, $columnValue) {
 		try {
 			return $this->db->delete(
-				$this->dbTablePrefix . 'users',
+				$this->makeTableNameComponents('users'),
 				[
 					$columnName => $columnValue
 				]
@@ -458,7 +458,7 @@ final class Administration extends UserManager {
 	private function modifyRolesForUserByColumnValue($columnName, $columnValue, callable $modification) {
 		try {
 			$userData = $this->db->selectRow(
-				'SELECT id, roles_mask FROM ' . $this->dbTablePrefix . 'users WHERE ' . $columnName . ' = ?',
+				'SELECT id, roles_mask FROM ' . $this->makeTableName('users') . ' WHERE ' . $columnName . ' = ?',
 				[ $columnValue ]
 			);
 		}
@@ -474,7 +474,7 @@ final class Administration extends UserManager {
 
 		try {
 			$this->db->exec(
-				'UPDATE ' . $this->dbTablePrefix . 'users SET roles_mask = ? WHERE id = ?',
+				'UPDATE ' . $this->makeTableName('users') . ' SET roles_mask = ? WHERE id = ?',
 				[
 					$newRolesBitmask,
 					(int) $userData['id']
@@ -550,7 +550,7 @@ final class Administration extends UserManager {
 	private function logInAsUserByColumnValue($columnName, $columnValue) {
 		try {
 			$users = $this->db->select(
-				'SELECT verified, id, email, username, status, roles_mask FROM ' . $this->dbTablePrefix . 'users WHERE ' . $columnName . ' = ? LIMIT 2 OFFSET 0',
+				'SELECT verified, id, email, username, status, roles_mask FROM ' . $this->makeTableName('users') . ' WHERE ' . $columnName . ' = ? LIMIT 2 OFFSET 0',
 				[ $columnValue ]
 			);
 		}
