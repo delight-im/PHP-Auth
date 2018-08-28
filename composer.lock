@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "54d541ae3c5ba25b0cc06688d2b65467",
+    "content-hash": "e4acd9e4ba13c4d0692f07a03a454859",
     "packages": [
         {
             "name": "delight-im/base64",
@@ -90,16 +90,16 @@
         },
         {
             "name": "delight-im/db",
-            "version": "v1.2.0",
+            "version": "v1.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/delight-im/PHP-DB.git",
-                "reference": "df99ef7c2e86c7ce206647ffe8ba74447c075b57"
+                "reference": "7a03da20b5592fa445c10cd6c7245d51037292c4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/delight-im/PHP-DB/zipball/df99ef7c2e86c7ce206647ffe8ba74447c075b57",
-                "reference": "df99ef7c2e86c7ce206647ffe8ba74447c075b57",
+                "url": "https://api.github.com/repos/delight-im/PHP-DB/zipball/7a03da20b5592fa445c10cd6c7245d51037292c4",
+                "reference": "7a03da20b5592fa445c10cd6c7245d51037292c4",
                 "shasum": ""
             },
             "require": {
@@ -127,7 +127,7 @@
                 "sql",
                 "sqlite"
             ],
-            "time": "2017-03-18T20:51:59+00:00"
+            "time": "2018-08-28T18:23:01+00:00"
         },
         {
             "name": "delight-im/http",
