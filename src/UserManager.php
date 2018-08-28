@@ -412,4 +412,45 @@ abstract class UserManager {
 		);
 	}
 
+	/**
+	 * Builds a (qualified) full table name from an optional qualifier, an optional prefix, and the table name itself
+	 *
+	 * The optional qualifier may be a database name or a schema name, for example
+	 *
+	 * @param string $name the name of the table
+	 * @return string[] the components of the (qualified) full name of the table
+	 */
+	protected function makeTableNameComponents($name) {
+		$components = [];
+
+		if (!empty($this->dbSchema)) {
+			$components[] = $this->dbSchema;
+		}
+
+		if (!empty($name)) {
+			if (!empty($this->dbTablePrefix)) {
+				$components[] = $this->dbTablePrefix . $name;
+			}
+			else {
+				$components[] = $name;
+			}
+		}
+
+		return $components;
+	}
+
+	/**
+	 * Builds a (qualified) full table name from an optional qualifier, an optional prefix, and the table name itself
+	 *
+	 * The optional qualifier may be a database name or a schema name, for example
+	 *
+	 * @param string $name the name of the table
+	 * @return string the (qualified) full name of the table
+	 */
+	protected function makeTableName($name) {
+		$components = $this->makeTableNameComponents($name);
+
+		return \implode('.', $components);
+	}
+
 }
