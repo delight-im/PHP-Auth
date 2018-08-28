@@ -124,6 +124,8 @@ During development, you may want to disable the request limiting or throttling p
 
 During the lifetime of a session, some user data may be changed remotely, either by a client in another session or by an administrator. That means this information must be regularly resynchronized with its authoritative source in the database, which this library does automatically. By default, this happens every five minutes. If you want to change this interval, pass a custom interval in seconds to the constructor as the fifth argument, which is named `$sessionResyncInterval`.
 
+If all your database tables need a common database name, schema name, or other qualifier that must be specified explicitly, you can optionally pass that qualifier to the constructor as the sixth parameter, which is named `$dbSchema`.
+
 ### Registration (sign up)
 
 ```php
