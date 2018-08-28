@@ -20,9 +20,10 @@ final class Administration extends UserManager {
 	/**
 	 * @param PdoDatabase|PdoDsn|\PDO $databaseConnection the database connection to operate on
 	 * @param string|null $dbTablePrefix (optional) the prefix for the names of all database tables used by this component
+	 * @param string|null $dbSchema (optional) the schema name for all database tables used by this component
 	 */
-	public function __construct($databaseConnection, $dbTablePrefix = null) {
-		parent::__construct($databaseConnection, $dbTablePrefix);
+	public function __construct($databaseConnection, $dbTablePrefix = null, $dbSchema = null) {
+		parent::__construct($databaseConnection, $dbTablePrefix, $dbSchema);
 	}
 
 	/**

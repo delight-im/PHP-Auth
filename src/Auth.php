@@ -39,9 +39,10 @@ final class Auth extends UserManager {
 	 * @param string|null $dbTablePrefix (optional) the prefix for the names of all database tables used by this component
 	 * @param bool|null $throttling (optional) whether throttling should be enabled (e.g. in production) or disabled (e.g. during development)
 	 * @param int|null $sessionResyncInterval (optional) the interval in seconds after which to resynchronize the session data with its authoritative source in the database
+	 * @param string|null $dbSchema (optional) the schema name for all database tables used by this component
 	 */
-	public function __construct($databaseConnection, $ipAddress = null, $dbTablePrefix = null, $throttling = null, $sessionResyncInterval = null) {
-		parent::__construct($databaseConnection, $dbTablePrefix);
+	public function __construct($databaseConnection, $ipAddress = null, $dbTablePrefix = null, $throttling = null, $sessionResyncInterval = null, $dbSchema = null) {
+		parent::__construct($databaseConnection, $dbTablePrefix, $dbSchema);
 
 		$this->ipAddress = !empty($ipAddress) ? $ipAddress : (isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : null);
 		$this->throttling = isset($throttling) ? (bool) $throttling : true;
@@ -1772,7 +1773,7 @@ final class Auth extends UserManager {
 	 * @return Administration
 	 */
 	public function admin() {
-		return new Administration($this->db, $this->dbTablePrefix);
+		return new Administration($this->db, $this->dbTablePrefix, $this->dbSchema);
 	}
 
 	/**

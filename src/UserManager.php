@@ -45,6 +45,8 @@ abstract class UserManager {
 
 	/** @var PdoDatabase the database connection to operate on */
 	protected $db;
+	/** @var string|null the schema name for all database tables used by this component */
+	protected $dbSchema;
 	/** @var string the prefix for the names of all database tables used by this component */
 	protected $dbTablePrefix;
 
@@ -70,8 +72,9 @@ abstract class UserManager {
 	/**
 	 * @param PdoDatabase|PdoDsn|\PDO $databaseConnection the database connection to operate on
 	 * @param string|null $dbTablePrefix (optional) the prefix for the names of all database tables used by this component
+	 * @param string|null $dbSchema (optional) the schema name for all database tables used by this component
 	 */
-	protected function __construct($databaseConnection, $dbTablePrefix = null) {
+	protected function __construct($databaseConnection, $dbTablePrefix = null, $dbSchema = null) {
 		if ($databaseConnection instanceof PdoDatabase) {
 			$this->db = $databaseConnection;
 		}
@@ -87,6 +90,7 @@ abstract class UserManager {
 			throw new \InvalidArgumentException('The database connection must be an instance of either `PdoDatabase`, `PdoDsn` or `PDO`');
 		}
 
+		$this->dbSchema = $dbSchema !== null ? (string) $dbSchema : null;
 		$this->dbTablePrefix = (string) $dbTablePrefix;
 	}
 
