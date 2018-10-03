@@ -194,7 +194,7 @@ Extract the selector and token from the URL that the user clicked on in the veri
 
 ```php
 try {
-    $auth->confirmEmail($_GET['selector'], $_GET['token']);
+    $emails = $auth->confirmEmail($_GET['selector'], $_GET['token']);
 
     // email address has been verified
 }
@@ -211,6 +211,8 @@ catch (\Delight\Auth\TooManyRequestsException $e) {
     // too many requests
 }
 ```
+
+This method returns an array, `$emails`, containing the old email address of the user (if any) at index `0`, whilst the user's most current, and now verified email address at index `1`.
 
 If you want the user to be automatically signed in after successful confirmation, just call `confirmEmailAndSignIn` instead of `confirmEmail`. That alternative method also supports [persistent logins](#keeping-the-user-logged-in) via its optional third parameter.
 
