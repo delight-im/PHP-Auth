@@ -131,10 +131,10 @@ If all your database tables need a common database name, schema name, or other q
 ```php
 try {
     $userId = $auth->register($_POST['email'], $_POST['password'], $_POST['username'], function ($selector, $token) {
-        // send `$selector` and `$token` to the user (e.g. via email)
+        echo 'Send ' . $selector . ' and ' . $token . ' to the user (e.g. via email)';
     });
 
-    // we have signed up a new user with the ID `$userId`
+    echo 'We have signed up a new user with the ID ' . $userId;
 }
 catch (\Delight\Auth\InvalidEmailException $e) {
     die('Invalid email address');
@@ -170,7 +170,7 @@ If you don’t want to perform email verification, just omit the last parameter 
 try {
     $auth->login($_POST['email'], $_POST['password']);
 
-    // user is logged in
+    echo 'User is logged in';
 }
 catch (\Delight\Auth\InvalidEmailException $e) {
     die('Wrong email address');
@@ -196,7 +196,7 @@ Extract the selector and token from the URL that the user clicked on in the veri
 try {
     $auth->confirmEmail($_GET['selector'], $_GET['token']);
 
-    // email address has been verified
+    echo 'Email address has been verified';
 }
 catch (\Delight\Auth\InvalidSelectorTokenPairException $e) {
     die('Invalid token');
@@ -248,10 +248,10 @@ Omit the third parameter or set it to `null` to disable the feature. Otherwise, 
 ```php
 try {
     $auth->forgotPassword($_POST['email'], function ($selector, $token) {
-        // send `$selector` and `$token` to the user (e.g. via email)
+        echo 'Send ' . $selector . ' and ' . $token . ' to the user (e.g. via email)';
     });
 
-    // request has been generated
+    echo 'Request has been generated';
 }
 catch (\Delight\Auth\InvalidEmailException $e) {
     die('Invalid email address');
@@ -285,10 +285,10 @@ If the selector/token pair is valid, let the user choose a new password:
 try {
     $auth->canResetPasswordOrThrow($_GET['selector'], $_GET['token']);
 
-    // put the selector into a `hidden` field (or keep it in the URL)
-    // put the token into a `hidden` field (or keep it in the URL)
+    echo 'Put the selector into a "hidden" field (or keep it in the URL)';
+    echo 'Put the token into a "hidden" field (or keep it in the URL)';
 
-    // ask the user for their new password
+    echo 'Ask the user for their new password';
 }
 catch (\Delight\Auth\InvalidSelectorTokenPairException $e) {
     die('Invalid token');
@@ -308,10 +308,10 @@ Alternatively, if you don’t need any error messages but only want to check the
 
 ```php
 if ($auth->canResetPassword($_GET['selector'], $_GET['token'])) {
-    // put the selector into a `hidden` field (or keep it in the URL)
-    // put the token into a `hidden` field (or keep it in the URL)
+    echo 'Put the selector into a "hidden" field (or keep it in the URL)';
+    echo 'Put the token into a "hidden" field (or keep it in the URL)';
 
-    // ask the user for their new password
+    echo 'Ask the user for their new password';
 }
 ```
 
@@ -323,7 +323,7 @@ Now when you have the new password for the user (and still have the other two pi
 try {
     $auth->resetPassword($_POST['selector'], $_POST['token'], $_POST['password']);
 
-    // password has been reset
+    echo 'Password has been reset';
 }
 catch (\Delight\Auth\InvalidSelectorTokenPairException $e) {
     die('Invalid token');
@@ -350,7 +350,7 @@ If a user is currently logged in, they may change their password.
 try {
     $auth->changePassword($_POST['oldPassword'], $_POST['newPassword']);
 
-    // password has been changed
+    echo 'Password has been changed';
 }
 catch (\Delight\Auth\NotLoggedInException $e) {
     die('Not logged in');
@@ -377,13 +377,13 @@ If a user is currently logged in, they may change their email address.
 try {
     if ($auth->reconfirmPassword($_POST['password'])) {
         $auth->changeEmail($_POST['newEmail'], function ($selector, $token) {
-            // send `$selector` and `$token` to the user (e.g. via email to the *new* address)
+            echo 'Send ' . $selector . ' and ' . $token . ' to the user (e.g. via email to the *new* address)';
         });
 
-        // the change will take effect as soon as the new email address has been confirmed
+        echo 'The change will take effect as soon as the new email address has been confirmed';
     }
     else {
-        // we can't say if the user is who they claim to be
+        echo 'We can\'t say if the user is who they claim to be';
     }
 }
 catch (\Delight\Auth\InvalidEmailException $e) {
@@ -422,10 +422,10 @@ If an earlier confirmation request could not be delivered to the user, or if the
 ```php
 try {
     $auth->resendConfirmationForEmail($_POST['email'], function ($selector, $token) {
-        // send `$selector` and `$token` to the user (e.g. via email)
+        echo 'Send ' . $selector . ' and ' . $token . ' to the user (e.g. via email)';
     });
 
-    // the user may now respond to the confirmation request (usually by clicking a link)
+    echo 'The user may now respond to the confirmation request (usually by clicking a link)';
 }
 catch (\Delight\Auth\ConfirmationRequestNotFound $e) {
     die('No earlier request found that could be re-sent');
@@ -440,10 +440,10 @@ If you want to specify the user by their ID instead of by their email address, t
 ```php
 try {
     $auth->resendConfirmationForUserId($_POST['userId'], function ($selector, $token) {
-        // send `$selector` and `$token` to the user (e.g. via email)
+        echo 'Send ' . $selector . ' and ' . $token . ' to the user (e.g. via email)';
     });
 
-    // the user may now respond to the confirmation request (usually by clicking a link)
+    echo 'The user may now respond to the confirmation request (usually by clicking a link)';
 }
 catch (\Delight\Auth\ConfirmationRequestNotFound $e) {
     die('No earlier request found that could be re-sent');
@@ -499,10 +499,10 @@ $auth->destroySession();
 
 ```php
 if ($auth->isLoggedIn()) {
-    // user is signed in
+    echo 'User is signed in';
 }
 else {
-    // user is *not* signed in yet
+    echo 'User is not signed in yet';
 }
 ```
 
@@ -540,27 +540,27 @@ If the user is not currently signed in, this returns `null`.
 
 ```php
 if ($auth->isNormal()) {
-    // user is in default state
+    echo 'User is in default state';
 }
 
 if ($auth->isArchived()) {
-    // user has been archived
+    echo 'User has been archived';
 }
 
 if ($auth->isBanned()) {
-    // user has been banned
+    echo 'User has been banned';
 }
 
 if ($auth->isLocked()) {
-    // user has been locked
+    echo 'User has been locked';
 }
 
 if ($auth->isPendingReview()) {
-    // user is pending review
+    echo 'User is pending review';
 }
 
 if ($auth->isSuspended()) {
-    // user has been suspended
+    echo 'User has been suspended';
 }
 ```
 
@@ -568,10 +568,10 @@ if ($auth->isSuspended()) {
 
 ```php
 if ($auth->isRemembered()) {
-    // user did not sign in but was logged in through their long-lived cookie
+    echo 'User did not sign in but was logged in through their long-lived cookie';
 }
 else {
-    // user signed in manually
+    echo 'User signed in manually';
 }
 ```
 
@@ -617,10 +617,10 @@ For example, when a user has been remembered by a long-lived cookie and thus `Au
 ```php
 try {
     if ($auth->reconfirmPassword($_POST['password'])) {
-        // the user really seems to be who they claim to be
+        echo 'The user really seems to be who they claim to be';
     }
     else {
-        // we can't say if the user is who they claim to be
+        echo 'We can\'t say if the user is who they claim to be';
     }
 }
 catch (\Delight\Auth\NotLoggedInException $e) {
@@ -641,19 +641,19 @@ Users may have no role at all (which they do by default), exactly one role, or a
 
 ```php
 if ($auth->hasRole(\Delight\Auth\Role::SUPER_MODERATOR)) {
-    // the user is a super moderator
+    echo 'The user is a super moderator';
 }
 
 // or
 
 if ($auth->hasAnyRole(\Delight\Auth\Role::DEVELOPER, \Delight\Auth\Role::MANAGER)) {
-    // the user is either a developer, or a manager, or both
+    echo 'The user is either a developer, or a manager, or both';
 }
 
 // or
 
 if ($auth->hasAllRoles(\Delight\Auth\Role::DEVELOPER, \Delight\Auth\Role::MANAGER)) {
-    // the user is both a developer and a manager
+    echo 'The user is both a developer and a manager';
 }
 ```
 
@@ -721,19 +721,19 @@ function canEditArticle(\Delight\Auth\Auth $auth) {
 // ...
 
 if (canEditArticle($auth)) {
-    // the user can edit articles here
+    echo 'The user can edit articles here';
 }
 
 // ...
 
 if (canEditArticle($auth)) {
-    // ... and here
+    echo '... and here';
 }
 
 // ...
 
 if (canEditArticle($auth)) {
-    // ... and here
+    echo '... and here';
 }
 ```
 
@@ -789,10 +789,10 @@ try {
     if ($auth->reconfirmPassword($_POST['password'])) {
         $auth->setPasswordResetEnabled($_POST['enabled'] == 1);
 
-        // the setting has been changed
+        echo 'The setting has been changed';
     }
     else {
-        // we can't say if the user is who they claim to be
+        echo 'We can\'t say if the user is who they claim to be';
     }
 }
 catch (\Delight\Auth\NotLoggedInException $e) {
@@ -822,7 +822,7 @@ try {
     // throttle the specified resource or feature to *3* requests per *60* seconds
     $auth->throttle([ 'my-resource-name' ], 3, 60);
 
-    // do something with the resource or feature
+    echo 'Do something with the resource or feature';
 }
 catch (\Delight\Auth\TooManyRequestsException $e) {
     // operation cancelled
@@ -856,7 +856,7 @@ Do not forget to implement secure access control before exposing access to this 
 try {
     $userId = $auth->admin()->createUser($_POST['email'], $_POST['password'], $_POST['username']);
 
-    // we have signed up a new user with the ID `$userId`
+    echo 'We have signed up a new user with the ID ' . $userId;
 }
 catch (\Delight\Auth\InvalidEmailException $e) {
     die('Invalid email address');
@@ -984,10 +984,10 @@ catch (\Delight\Auth\AmbiguousUsernameException $e) {
 ```php
 try {
     if ($auth->admin()->doesUserHaveRole($userId, \Delight\Auth\Role::ADMIN)) {
-        // the specified user is an administrator
+        echo 'The specified user is an administrator';
     }
     else {
-        // the specified user is *not* an administrator
+        echo 'The specified user is not an administrator';
     }
 }
 catch (\Delight\Auth\UnknownIdException $e) {
