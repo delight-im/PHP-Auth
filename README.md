@@ -214,6 +214,8 @@ catch (\Delight\Auth\TooManyRequestsException $e) {
 
 If you want the user to be automatically signed in after successful confirmation, just call `confirmEmailAndSignIn` instead of `confirmEmail`. That alternative method also supports [persistent logins](#keeping-the-user-logged-in) via its optional third parameter.
 
+On success, the two methods `confirmEmail` and `confirmEmailAndSignIn` both return an array with the user’s new email address, which has just been verified, at index one. If the confirmation was for an address change instead of a simple address verification, the user’s old email address will be included in the array at index zero.
+
 ### Keeping the user logged in
 
 The third parameter to the `Auth#login` and `Auth#confirmEmailAndSignIn` methods controls whether the login is persistent with a long-lived cookie. With such a persistent login, users may stay authenticated for a long time, even when the browser session has already been closed and the session cookies have expired. Typically, you’ll want to keep the user logged in for weeks or months with this feature, which is known as “remember me” or “keep me logged in”. Many users will find this more convenient, but it may be less secure if they leave their devices unattended.
