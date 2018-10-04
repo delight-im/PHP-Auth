@@ -137,16 +137,16 @@ try {
     // we have signed up a new user with the ID `$userId`
 }
 catch (\Delight\Auth\InvalidEmailException $e) {
-    // invalid email address
+    die('Invalid email address');
 }
 catch (\Delight\Auth\InvalidPasswordException $e) {
-    // invalid password
+    die('Invalid password');
 }
 catch (\Delight\Auth\UserAlreadyExistsException $e) {
-    // user already exists
+    die('User already exists');
 }
 catch (\Delight\Auth\TooManyRequestsException $e) {
-    // too many requests
+    die('Too many requests');
 }
 ```
 
@@ -173,16 +173,16 @@ try {
     // user is logged in
 }
 catch (\Delight\Auth\InvalidEmailException $e) {
-    // wrong email address
+    die('Wrong email address');
 }
 catch (\Delight\Auth\InvalidPasswordException $e) {
-    // wrong password
+    die('Wrong password');
 }
 catch (\Delight\Auth\EmailNotVerifiedException $e) {
-    // email not verified
+    die('Email not verified');
 }
 catch (\Delight\Auth\TooManyRequestsException $e) {
-    // too many requests
+    die('Too many requests');
 }
 ```
 
@@ -199,16 +199,16 @@ try {
     // email address has been verified
 }
 catch (\Delight\Auth\InvalidSelectorTokenPairException $e) {
-    // invalid token
+    die('Invalid token');
 }
 catch (\Delight\Auth\TokenExpiredException $e) {
-    // token expired
+    die('Token expired');
 }
 catch (\Delight\Auth\UserAlreadyExistsException $e) {
-    // email address already exists
+    die('Email address already exists');
 }
 catch (\Delight\Auth\TooManyRequestsException $e) {
-    // too many requests
+    die('Too many requests');
 }
 ```
 
@@ -254,16 +254,16 @@ try {
     // request has been generated
 }
 catch (\Delight\Auth\InvalidEmailException $e) {
-    // invalid email address
+    die('Invalid email address');
 }
 catch (\Delight\Auth\EmailNotVerifiedException $e) {
-    // email not verified
+    die('Email not verified');
 }
 catch (\Delight\Auth\ResetDisabledException $e) {
-    // password reset is disabled
+    die('Password reset is disabled');
 }
 catch (\Delight\Auth\TooManyRequestsException $e) {
-    // too many requests
+    die('Too many requests');
 }
 ```
 
@@ -291,16 +291,16 @@ try {
     // ask the user for their new password
 }
 catch (\Delight\Auth\InvalidSelectorTokenPairException $e) {
-    // invalid token
+    die('Invalid token');
 }
 catch (\Delight\Auth\TokenExpiredException $e) {
-    // token expired
+    die('Token expired');
 }
 catch (\Delight\Auth\ResetDisabledException $e) {
-    // password reset is disabled
+    die('Password reset is disabled');
 }
 catch (\Delight\Auth\TooManyRequestsException $e) {
-    // too many requests
+    die('Too many requests');
 }
 ```
 
@@ -326,19 +326,19 @@ try {
     // password has been reset
 }
 catch (\Delight\Auth\InvalidSelectorTokenPairException $e) {
-    // invalid token
+    die('Invalid token');
 }
 catch (\Delight\Auth\TokenExpiredException $e) {
-    // token expired
+    die('Token expired');
 }
 catch (\Delight\Auth\ResetDisabledException $e) {
-    // password reset is disabled
+    die('Password reset is disabled');
 }
 catch (\Delight\Auth\InvalidPasswordException $e) {
-    // invalid password
+    die('Invalid password');
 }
 catch (\Delight\Auth\TooManyRequestsException $e) {
-    // too many requests
+    die('Too many requests');
 }
 ```
 
@@ -353,13 +353,13 @@ try {
     // password has been changed
 }
 catch (\Delight\Auth\NotLoggedInException $e) {
-    // not logged in
+    die('Not logged in');
 }
 catch (\Delight\Auth\InvalidPasswordException $e) {
-    // invalid password(s)
+    die('Invalid password(s)');
 }
 catch (\Delight\Auth\TooManyRequestsException $e) {
-    // too many requests
+    die('Too many requests');
 }
 ```
 
@@ -387,19 +387,19 @@ try {
     }
 }
 catch (\Delight\Auth\InvalidEmailException $e) {
-    // invalid email address
+    die('Invalid email address');
 }
 catch (\Delight\Auth\UserAlreadyExistsException $e) {
-    // email address already exists
+    die('Email address already exists');
 }
 catch (\Delight\Auth\EmailNotVerifiedException $e) {
-    // account not verified
+    die('Account not verified');
 }
 catch (\Delight\Auth\NotLoggedInException $e) {
-    // not logged in
+    die('Not logged in');
 }
 catch (\Delight\Auth\TooManyRequestsException $e) {
-    // too many requests
+    die('Too many requests');
 }
 ```
 
@@ -428,10 +428,10 @@ try {
     // the user may now respond to the confirmation request (usually by clicking a link)
 }
 catch (\Delight\Auth\ConfirmationRequestNotFound $e) {
-    // no earlier request found that could be re-sent
+    die('No earlier request found that could be re-sent');
 }
 catch (\Delight\Auth\TooManyRequestsException $e) {
-    // there have been too many requests -- try again later
+    die('There have been too many requests -- try again later');
 }
 ```
 
@@ -446,10 +446,10 @@ try {
     // the user may now respond to the confirmation request (usually by clicking a link)
 }
 catch (\Delight\Auth\ConfirmationRequestNotFound $e) {
-    // no earlier request found that could be re-sent
+    die('No earlier request found that could be re-sent');
 }
 catch (\Delight\Auth\TooManyRequestsException $e) {
-    // there have been too many requests -- try again later
+    die('There have been too many requests -- try again later');
 }
 ```
 
@@ -472,7 +472,7 @@ try {
     $auth->logOutEverywhereElse();
 }
 catch (\Delight\Auth\NotLoggedInException $e) {
-    // not logged in
+    die('Not logged in');
 }
 
 // or
@@ -481,7 +481,7 @@ try {
     $auth->logOutEverywhere();
 }
 catch (\Delight\Auth\NotLoggedInException $e) {
-    // not logged in
+    die('Not logged in');
 }
 ```
 
@@ -624,10 +624,10 @@ try {
     }
 }
 catch (\Delight\Auth\NotLoggedInException $e) {
-    // the user is not signed in
+    die('The user is not signed in');
 }
 catch (\Delight\Auth\TooManyRequestsException $e) {
-    // too many requests
+    die('Too many requests');
 }
 ```
 
@@ -796,10 +796,10 @@ try {
     }
 }
 catch (\Delight\Auth\NotLoggedInException $e) {
-    // the user is not signed in
+    die('The user is not signed in');
 }
 catch (\Delight\Auth\TooManyRequestsException $e) {
-    // too many requests
+    die('Too many requests');
 }
 ```
 
@@ -859,13 +859,13 @@ try {
     // we have signed up a new user with the ID `$userId`
 }
 catch (\Delight\Auth\InvalidEmailException $e) {
-    // invalid email address
+    die('Invalid email address');
 }
 catch (\Delight\Auth\InvalidPasswordException $e) {
-    // invalid password
+    die('Invalid password');
 }
 catch (\Delight\Auth\UserAlreadyExistsException $e) {
-    // user already exists
+    die('User already exists');
 }
 ```
 
@@ -882,7 +882,7 @@ try {
     $auth->admin()->deleteUserById($_POST['id']);
 }
 catch (\Delight\Auth\UnknownIdException $e) {
-    // unknown ID
+    die('Unknown ID');
 }
 ```
 
@@ -893,7 +893,7 @@ try {
     $auth->admin()->deleteUserByEmail($_POST['email']);
 }
 catch (\Delight\Auth\InvalidEmailException $e) {
-    // unknown email address
+    die('Unknown email address');
 }
 ```
 
@@ -904,10 +904,10 @@ try {
     $auth->admin()->deleteUserByUsername($_POST['username']);
 }
 catch (\Delight\Auth\UnknownUsernameException $e) {
-    // unknown username
+    die('Unknown username');
 }
 catch (\Delight\Auth\AmbiguousUsernameException $e) {
-    // ambiguous username
+    die('Ambiguous username');
 }
 ```
 
@@ -918,7 +918,7 @@ try {
     $auth->admin()->addRoleForUserById($userId, \Delight\Auth\Role::ADMIN);
 }
 catch (\Delight\Auth\UnknownIdException $e) {
-    // unknown user ID
+    die('Unknown user ID');
 }
 
 // or
@@ -927,7 +927,7 @@ try {
     $auth->admin()->addRoleForUserByEmail($userEmail, \Delight\Auth\Role::ADMIN);
 }
 catch (\Delight\Auth\InvalidEmailException $e) {
-    // unknown email address
+    die('Unknown email address');
 }
 
 // or
@@ -936,10 +936,10 @@ try {
     $auth->admin()->addRoleForUserByUsername($username, \Delight\Auth\Role::ADMIN);
 }
 catch (\Delight\Auth\UnknownUsernameException $e) {
-    // unknown username
+    die('Unknown username');
 }
 catch (\Delight\Auth\AmbiguousUsernameException $e) {
-    // ambiguous username
+    die('Ambiguous username');
 }
 ```
 
@@ -952,7 +952,7 @@ try {
     $auth->admin()->removeRoleForUserById($userId, \Delight\Auth\Role::ADMIN);
 }
 catch (\Delight\Auth\UnknownIdException $e) {
-    // unknown user ID
+    die('Unknown user ID');
 }
 
 // or
@@ -961,7 +961,7 @@ try {
     $auth->admin()->removeRoleForUserByEmail($userEmail, \Delight\Auth\Role::ADMIN);
 }
 catch (\Delight\Auth\InvalidEmailException $e) {
-    // unknown email address
+    die('Unknown email address');
 }
 
 // or
@@ -970,10 +970,10 @@ try {
     $auth->admin()->removeRoleForUserByUsername($username, \Delight\Auth\Role::ADMIN);
 }
 catch (\Delight\Auth\UnknownUsernameException $e) {
-    // unknown username
+    die('Unknown username');
 }
 catch (\Delight\Auth\AmbiguousUsernameException $e) {
-    // ambiguous username
+    die('Ambiguous username');
 }
 ```
 
@@ -991,7 +991,7 @@ try {
     }
 }
 catch (\Delight\Auth\UnknownIdException $e) {
-    // unknown user ID
+    die('Unknown user ID');
 }
 ```
 
@@ -1008,10 +1008,10 @@ try {
     $auth->admin()->logInAsUserById($_POST['id']);
 }
 catch (\Delight\Auth\UnknownIdException $e) {
-    // unknown ID
+    die('Unknown ID');
 }
 catch (\Delight\Auth\EmailNotVerifiedException $e) {
-    // email address not verified
+    die('Email address not verified');
 }
 
 // or
@@ -1020,10 +1020,10 @@ try {
     $auth->admin()->logInAsUserByEmail($_POST['email']);
 }
 catch (\Delight\Auth\InvalidEmailException $e) {
-    // unknown email address
+    die('Unknown email address');
 }
 catch (\Delight\Auth\EmailNotVerifiedException $e) {
-    // email address not verified
+    die('Email address not verified');
 }
 
 // or
@@ -1032,13 +1032,13 @@ try {
     $auth->admin()->logInAsUserByUsername($_POST['username']);
 }
 catch (\Delight\Auth\UnknownUsernameException $e) {
-    // unknown username
+    die('Unknown username');
 }
 catch (\Delight\Auth\AmbiguousUsernameException $e) {
-    // ambiguous username
+    die('Ambiguous username');
 }
 catch (\Delight\Auth\EmailNotVerifiedException $e) {
-    // email address not verified
+    die('Email address not verified');
 }
 ```
 
@@ -1049,10 +1049,10 @@ try {
     $auth->admin()->changePasswordForUserById($_POST['id'], $_POST['newPassword']);
 }
 catch (\Delight\Auth\UnknownIdException $e) {
-    // unknown ID
+    die('Unknown ID');
 }
 catch (\Delight\Auth\InvalidPasswordException $e) {
-    // invalid password
+    die('Invalid password');
 }
 
 // or
@@ -1061,13 +1061,13 @@ try {
     $auth->admin()->changePasswordForUserByUsername($_POST['username'], $_POST['newPassword']);
 }
 catch (\Delight\Auth\UnknownUsernameException $e) {
-    // unknown username
+    die('Unknown username');
 }
 catch (\Delight\Auth\AmbiguousUsernameException $e) {
-    // ambiguous username
+    die('Ambiguous username');
 }
 catch (\Delight\Auth\InvalidPasswordException $e) {
-    // invalid password
+    die('Invalid password');
 }
 ```
 
