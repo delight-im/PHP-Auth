@@ -17,13 +17,18 @@ require_once __DIR__ . '/Exceptions.php';
 /** Component that can be used for administrative tasks by privileged and authorized users */
 final class Administration extends UserManager {
 
+	/** @var bool whether email verification is nessecary to login*/
+	private $requireEmailVerification;
+
 	/**
 	 * @param PdoDatabase|PdoDsn|\PDO $databaseConnection the database connection to operate on
 	 * @param string|null $dbTablePrefix (optional) the prefix for the names of all database tables used by this component
 	 * @param string|null $dbSchema (optional) the schema name for all database tables used by this component
+	 * @param bool $requireEmailVerification (optional) whether email verification is nessecary to login
 	 */
-	public function __construct($databaseConnection, $dbTablePrefix = null, $dbSchema = null) {
+	public function __construct($databaseConnection, $dbTablePrefix = null, $dbSchema = null, $requireEmailVerification = true) {
 		parent::__construct($databaseConnection, $dbTablePrefix, $dbSchema);
+		$this->requireEmailVerification = $requireEmailVerification;
 	}
 
 	/**
@@ -326,7 +331,7 @@ final class Administration extends UserManager {
 	 *
 	 * @param int $id the ID of the user to sign in as
 	 * @throws UnknownIdException if no user with the specified ID has been found
-	 * @throws EmailNotVerifiedException if the user has not verified their email address via a confirmation method yet
+	 * @throws EmailNotVerifiedException if `Auth()->requireEmailVerification !== false` and if the user has not verified their email address via a confirmation method yet
 	 * @throws AuthError if an internal problem occurred (do *not* catch)
 	 */
 	public function logInAsUserById($id) {
@@ -342,7 +347,7 @@ final class Administration extends UserManager {
 	 *
 	 * @param string $email the email address of the user to sign in as
 	 * @throws InvalidEmailException if no user with the specified email address has been found
-	 * @throws EmailNotVerifiedException if the user has not verified their email address via a confirmation method yet
+	 * @throws EmailNotVerifiedException if `Auth()->requireEmailVerification !== false` and if the user has not verified their email address via a confirmation method yet
 	 * @throws AuthError if an internal problem occurred (do *not* catch)
 	 */
 	public function logInAsUserByEmail($email) {
@@ -361,7 +366,7 @@ final class Administration extends UserManager {
 	 * @param string $username the display name of the user to sign in as
 	 * @throws UnknownUsernameException if no user with the specified username has been found
 	 * @throws AmbiguousUsernameException if multiple users with the specified username have been found
-	 * @throws EmailNotVerifiedException if the user has not verified their email address via a confirmation method yet
+	 * @throws EmailNotVerifiedException if `Auth()->requireEmailVerification !== false` and if the user has not verified their email address via a confirmation method yet
 	 * @throws AuthError if an internal problem occurred (do *not* catch)
 	 */
 	public function logInAsUserByUsername($username) {
@@ -544,7 +549,7 @@ final class Administration extends UserManager {
 	 * @param string $columnName the name of the column to filter by
 	 * @param mixed $columnValue the value to look for in the selected column
 	 * @return int the number of matched users (where only a value of one means that the login may have been successful)
-	 * @throws EmailNotVerifiedException if the user has not verified their email address via a confirmation method yet
+	 * @throws EmailNotVerifiedException if `Auth()->requireEmailVerification !== false` and if the user has not verified their email address via a confirmation method yet
 	 * @throws AuthError if an internal problem occurred (do *not* catch)
 	 */
 	private function logInAsUserByColumnValue($columnName, $columnValue) {
@@ -563,7 +568,7 @@ final class Administration extends UserManager {
 		if ($numberOfMatchingUsers === 1) {
 			$user = $users[0];
 
-			if ((int) $user['verified'] === 1) {
+			if (!$this->requireEmailVerification || (int) $user['verified'] === 1) {
 				$this->onLoginSuccessful($user['id'], $user['email'], $user['username'], $user['status'], $user['roles_mask'], \PHP_INT_MAX, false);
 			}
 			else {

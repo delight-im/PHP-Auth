@@ -32,6 +32,8 @@ final class Auth extends UserManager {
 	private $sessionResyncInterval;
 	/** @var string the name of the cookie used for the 'remember me' feature */
 	private $rememberCookieName;
+	/** @var bool whether email verification is nessecary to login*/
+	private $requireEmailVerification;
 
 	/**
 	 * @param PdoDatabase|PdoDsn|\PDO $databaseConnection the database connection to operate on
@@ -40,12 +42,14 @@ final class Auth extends UserManager {
 	 * @param bool|null $throttling (optional) whether throttling should be enabled (e.g. in production) or disabled (e.g. during development)
 	 * @param int|null $sessionResyncInterval (optional) the interval in seconds after which to resynchronize the session data with its authoritative source in the database
 	 * @param string|null $dbSchema (optional) the schema name for all database tables used by this component
+	 * @param bool $requireEmailVerification (optional) whether email verification is nessecary to login
 	 */
-	public function __construct($databaseConnection, $ipAddress = null, $dbTablePrefix = null, $throttling = null, $sessionResyncInterval = null, $dbSchema = null) {
+	public function __construct($databaseConnection, $ipAddress = null, $dbTablePrefix = null, $throttling = null, $sessionResyncInterval = null, $dbSchema = null, $requireEmailVerification = true) {
 		parent::__construct($databaseConnection, $dbTablePrefix, $dbSchema);
 
 		$this->ipAddress = !empty($ipAddress) ? $ipAddress : (isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : null);
 		$this->throttling = isset($throttling) ? (bool) $throttling : true;
+		$this->requireEmailVerification = (bool) $requireEmailVerification;
 		$this->sessionResyncInterval = isset($sessionResyncInterval) ? ((int) $sessionResyncInterval) : (60 * 5);
 		$this->rememberCookieName = self::createRememberCookieName();
 
@@ -288,7 +292,7 @@ final class Auth extends UserManager {
 	 * @param callable|null $onBeforeSuccess (optional) a function that receives the user's ID as its single parameter and is executed before successful authentication; must return `true` to proceed or `false` to cancel
 	 * @throws InvalidEmailException if the email address was invalid or could not be found
 	 * @throws InvalidPasswordException if the password was invalid
-	 * @throws EmailNotVerifiedException if the email address has not been verified yet via confirmation email
+	 * @throws EmailNotVerifiedException if `Auth()->requireEmailVerification !== false` and if the email address has not been verified yet via confirmation email
 	 * @throws AttemptCancelledException if the attempt has been cancelled by the supplied callback that is executed before success
 	 * @throws TooManyRequestsException if the number of allowed attempts/requests has been exceeded
 	 * @throws AuthError if an internal problem occurred (do *not* catch)
@@ -313,7 +317,7 @@ final class Auth extends UserManager {
 	 * @throws UnknownUsernameException if the specified username does not exist
 	 * @throws AmbiguousUsernameException if the specified username is ambiguous, i.e. there are multiple users with that name
 	 * @throws InvalidPasswordException if the password was invalid
-	 * @throws EmailNotVerifiedException if the email address has not been verified yet via confirmation email
+	 * @throws EmailNotVerifiedException if `Auth()->requireEmailVerification !== false` and if the email address has not been verified yet via confirmation email
 	 * @throws AttemptCancelledException if the attempt has been cancelled by the supplied callback that is executed before success
 	 * @throws TooManyRequestsException if the number of allowed attempts/requests has been exceeded
 	 * @throws AuthError if an internal problem occurred (do *not* catch)
@@ -802,7 +806,7 @@ final class Auth extends UserManager {
 	 * @param callable $callback the function that sends the confirmation email to the user
 	 * @throws InvalidEmailException if the desired new email address is invalid
 	 * @throws UserAlreadyExistsException if a user with the desired new email address already exists
-	 * @throws EmailNotVerifiedException if the current (old) email address has not been verified yet
+	 * @throws EmailNotVerifiedException if `Auth()->requireEmailVerification !== false` and if the current (old) email address has not been verified yet
 	 * @throws NotLoggedInException if the user is not currently signed in
 	 * @throws TooManyRequestsException if the number of allowed attempts/requests has been exceeded
 	 * @throws AuthError if an internal problem occurred (do *not* catch)
@@ -958,7 +962,7 @@ final class Auth extends UserManager {
 	 * @param int|null $requestExpiresAfter (optional) the interval in seconds after which the request should expire
 	 * @param int|null $maxOpenRequests (optional) the maximum number of unexpired and unused requests per user
 	 * @throws InvalidEmailException if the email address was invalid or could not be found
-	 * @throws EmailNotVerifiedException if the email address has not been verified yet via confirmation email
+	 * @throws EmailNotVerifiedException if `Auth()->requireEmailVerification !== false` and if the email address has not been verified yet via confirmation email
 	 * @throws ResetDisabledException if the user has explicitly disabled password resets for their account
 	 * @throws TooManyRequestsException if the number of allowed attempts/requests has been exceeded
 	 * @throws AuthError if an internal problem occurred (do *not* catch)
@@ -1024,7 +1028,7 @@ final class Auth extends UserManager {
 	 * @throws UnknownUsernameException if an attempt has been made to authenticate with a non-existing username
 	 * @throws AmbiguousUsernameException if an attempt has been made to authenticate with an ambiguous username
 	 * @throws InvalidPasswordException if the password was invalid
-	 * @throws EmailNotVerifiedException if the email address has not been verified yet via confirmation email
+	 * @throws EmailNotVerifiedException if `Auth()->requireEmailVerification !== false` and if the email address has not been verified yet via confirmation email
 	 * @throws AttemptCancelledException if the attempt has been cancelled by the supplied callback that is executed before success
 	 * @throws TooManyRequestsException if the number of allowed attempts/requests has been exceeded
 	 * @throws AuthError if an internal problem occurred (do *not* catch)
@@ -1068,7 +1072,7 @@ final class Auth extends UserManager {
 				$this->updatePasswordInternal($userData['id'], $password);
 			}
 
-			if ((int) $userData['verified'] === 1) {
+			if (!$this->requireEmailVerification || (int) $userData['verified'] === 1) {
 				if (!isset($onBeforeSuccess) || (\is_callable($onBeforeSuccess) && $onBeforeSuccess($userData['id']) === true)) {
 					$this->onLoginSuccessful($userData['id'], $userData['email'], $userData['username'], $userData['status'], $userData['roles_mask'], $userData['force_logout'], false);
 
@@ -1773,7 +1777,7 @@ final class Auth extends UserManager {
 	 * @return Administration
 	 */
 	public function admin() {
-		return new Administration($this->db, $this->dbTablePrefix, $this->dbSchema);
+		return new Administration($this->db, $this->dbTablePrefix, $this->dbSchema, $this->requireEmailVerification);
 	}
 
 	/**
