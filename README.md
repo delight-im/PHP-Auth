@@ -947,7 +947,7 @@ catch (\Delight\Auth\AmbiguousUsernameException $e) {
 }
 ```
 
-**Note:** Changes to a user’s set of roles take effect in the local session immediately, as expected. In other sessions (e.g. on other devices), the changes may need up to five minutes to take effect, though. This increases performance and usually poses no problem. If you want to change this behavior, nevertheless, simply decrease (or perhaps increase) the value that you pass to the [`Auth` constructor](#creating-a-new-instance) as the argument named `$sessionResyncInterval`.
+**Note:** Changes to a user’s set of roles may need up to five minutes to take effect. This increases performance and usually poses no problem. If you want to change this behavior, nevertheless, simply decrease (or perhaps increase) the value that you pass to the [`Auth` constructor](#creating-a-new-instance) as the argument named `$sessionResyncInterval`.
 
 #### Taking roles away from users
 
@@ -981,7 +981,7 @@ catch (\Delight\Auth\AmbiguousUsernameException $e) {
 }
 ```
 
-**Note:** Changes to a user’s set of roles take effect in the local session immediately, as expected. In other sessions (e.g. on other devices), the changes may need up to five minutes to take effect, though. This increases performance and usually poses no problem. If you want to change this behavior, nevertheless, simply decrease (or perhaps increase) the value that you pass to the [`Auth` constructor](#creating-a-new-instance) as the argument named `$sessionResyncInterval`.
+**Note:** Changes to a user’s set of roles may need up to five minutes to take effect. This increases performance and usually poses no problem. If you want to change this behavior, nevertheless, simply decrease (or perhaps increase) the value that you pass to the [`Auth` constructor](#creating-a-new-instance) as the argument named `$sessionResyncInterval`.
 
 #### Checking roles
 
