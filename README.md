@@ -279,6 +279,8 @@ You should build an URL with the selector and token and send it to the user, e.g
 $url = 'https://www.example.com/reset_password?selector=' . \urlencode($selector) . '&token=' . \urlencode($token);
 ```
 
+If the default lifetime of the password reset requests does not work for you, you can use the third parameter of `Auth#forgotPassword` to specify a custom interval in seconds after which the requests should expire.
+
 #### Step 2 of 3: Verifying an attempt
 
 As the next step, users will click on the link that they received. Extract the selector and token from the URL.
