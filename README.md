@@ -168,6 +168,8 @@ $url = 'https://www.example.com/verify_email?selector=' . \urlencode($selector) 
 
 If you don’t want to perform email verification, just omit the last parameter to `Auth#register`. The new user will be active immediately, then.
 
+Need to store additional user information? Read on [here](#additional-user-information).
+
 ### Login (sign in)
 
 ```php
