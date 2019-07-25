@@ -537,7 +537,7 @@ If the user is not currently signed in, this returns `null`.
 #### Display name
 
 ```php
-$email = $auth->getUsername();
+$username = $auth->getUsername();
 ```
 
 Remember that usernames are optional and there is only a username if you supplied it during registration.
