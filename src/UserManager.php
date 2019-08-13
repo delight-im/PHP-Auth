@@ -245,6 +245,45 @@ abstract class UserManager {
 		$_SESSION[self::SESSION_FIELD_LAST_RESYNC] = \time();
 	}
 
+
+	/**
+	 * Returns the requested user data for the account with the specified username (if any)
+	 *
+	 * You must never pass untrusted input to the parameter that takes the column list
+	 *
+	 * @param string $userId the user id to look for
+	 * @param array $requestedColumns the columns to request from the user's record
+	 * @return array the user data (if an account was found unambiguously)
+	 * @throws UnknownUsernameException if no user with the specified username has been found
+	 * @throws AmbiguousUsernameException if multiple users with the specified username have been found
+	 * @throws AuthError if an internal problem occurred (do *not* catch)
+	 */
+	public function getUserDataById($userId, array $requestedColumns) {
+		try {
+			$projection = \implode(', ', $requestedColumns);
+
+			$users = $this->db->select(
+				'SELECT ' . $projection . ' FROM ' . $this->makeTableName('users') . ' WHERE id = ? LIMIT 2 OFFSET 0',
+				[ $userId ]
+			);
+		}
+		catch (Error $e) {
+			throw new DatabaseError($e->getMessage());
+		}
+
+		if (empty($users)) {
+			throw new UnknownUsernameException();
+		}
+		else {
+			if (\count($users) === 1) {
+				return $users[0];
+			}
+			else {
+				throw new AmbiguousUsernameException();
+			}
+		}
+	}
+
 	/**
 	 * Returns the requested user data for the account with the specified username (if any)
 	 *
