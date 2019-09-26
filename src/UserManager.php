@@ -296,7 +296,7 @@ abstract class UserManager {
 	 * @throws AmbiguousUsernameException if multiple users with the specified username have been found
 	 * @throws AuthError if an internal problem occurred (do *not* catch)
 	 */
-	protected function getUserDataByUsername($username, array $requestedColumns) {
+	public function getUserDataByUsername($username, array $requestedColumns) {
 		try {
 			$projection = \implode(', ', $requestedColumns);
 
