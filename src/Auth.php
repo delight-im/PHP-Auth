@@ -545,6 +545,9 @@ final class Auth extends UserManager {
 		$cookie->setDomain($params['domain']);
 		$cookie->setHttpOnly($params['httponly']);
 		$cookie->setSecureOnly($params['secure']);
+		if (version_compare(PHP_VERSION, '7.3.0') >= 0) {
+			$cookie->setSameSiteRestriction($params['samesite']);
+		}
 		$result = $cookie->save();
 
 		if ($result === false) {
@@ -559,6 +562,9 @@ final class Auth extends UserManager {
 			$cookie->setDomain($params['domain']);
 			$cookie->setHttpOnly($params['httponly']);
 			$cookie->setSecureOnly($params['secure']);
+			if (version_compare(PHP_VERSION, '7.3.0') >= 0) {
+				$cookie->setSameSiteRestriction($params['samesite']);
+			}
 			$cookie->delete();
 		}
 	}
