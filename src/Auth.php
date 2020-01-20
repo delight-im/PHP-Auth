@@ -49,11 +49,19 @@ final class Auth extends UserManager {
 		$this->sessionResyncInterval = isset($sessionResyncInterval) ? ((int) $sessionResyncInterval) : (60 * 5);
 		$this->rememberCookieName = self::createRememberCookieName();
 
-		$this->initSessionIfNecessary();
-		$this->enhanceHttpSecurity();
+		if(!$this->isCli()) {
+			$this->initSessionIfNecessary();
+			$this->enhanceHttpSecurity();
+		}
 
 		$this->processRememberDirective();
 		$this->resyncSessionIfNecessary();
+	}
+
+	/** Check if current environment is a cli s script */
+	private function isCli()
+	{
+		return PHP_SAPI === 'cli';
 	}
 
 	/** Initializes the session and sets the correct configuration */
