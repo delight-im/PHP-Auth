@@ -229,9 +229,9 @@ abstract class UserManager {
 	 * @param bool $remembered whether the user has been remembered (instead of them having authenticated actively)
 	 * @throws AuthError if an internal problem occurred (do *not* catch)
 	 */
-	protected function onLoginSuccessful($userId, $email, $username, $status, $roles, $forceLogout, $remembered) {
+	protected function onLoginSuccessful($userId, $email, $username, $status, $roles, $forceLogout, $remembered, $sameSite = 'Strict') {
 		// re-generate the session ID to prevent session fixation attacks (requests a cookie to be written on the client)
-		Session::regenerate(true);
+		Session::regenerate(true, $sameSite);
 
 		// save the user data in the session variables maintained by this library
 		$_SESSION[self::SESSION_FIELD_LOGGED_IN] = true;
