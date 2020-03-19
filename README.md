@@ -919,6 +919,16 @@ catch (\Delight\Auth\AmbiguousUsernameException $e) {
 }
 ```
 
+#### Retrieving a list of registered users
+
+When fetching a list of all users, the requirements vary greatly between projects and use cases, and customization is common. For example, you might want to fetch different columns, join related tables, filter by certain criteria, change how results are sorted (in varying direction), and limit the number of results (while providing an offset).
+
+That’s why it’s easier to use a single custom SQL query. Start with the following:
+
+```sql
+SELECT id, email, username, status, verified, roles_mask, registered, last_login FROM users;
+```
+
 #### Assigning roles to users
 
 ```php
