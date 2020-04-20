@@ -1231,6 +1231,7 @@ final class Auth extends UserManager {
 	 * @param string $selector the selector from the selector/token pair
 	 * @param string $token the token from the selector/token pair
 	 * @param string $newPassword the new password to set for the account
+	 * @return string[] an array with the user's ID at index `id` and the user's email address at index `email`
 	 * @throws InvalidSelectorTokenPairException if either the selector or the token was not correct
 	 * @throws TokenExpiredException if the token has already expired
 	 * @throws ResetDisabledException if the user has explicitly disabled password resets for their account
@@ -1245,7 +1246,7 @@ final class Auth extends UserManager {
 
 		try {
 			$resetData = $this->db->selectRow(
-				'SELECT a.id, a.user, a.token, a.expires, b.resettable FROM ' . $this->makeTableName('users_resets') . ' AS a JOIN ' . $this->makeTableName('users') . ' AS b ON b.id = a.user WHERE a.selector = ?',
+				'SELECT a.id, a.user, a.token, a.expires, b.email, b.resettable FROM ' . $this->makeTableName('users_resets') . ' AS a JOIN ' . $this->makeTableName('users') . ' AS b ON b.id = a.user WHERE a.selector = ?',
 				[ $selector ]
 			);
 		}
@@ -1270,6 +1271,11 @@ final class Auth extends UserManager {
 						catch (Error $e) {
 							throw new DatabaseError($e->getMessage());
 						}
+
+						return [
+							'id' => $resetData['user'],
+							'email' => $resetData['email']
+						];
 					}
 					else {
 						throw new TokenExpiredException();
