@@ -254,9 +254,7 @@ function processRequestData(\Delight\Auth\Auth $auth) {
 			}
 			else if ($_POST['action'] === 'resetPassword') {
 				try {
-					$auth->resetPassword($_POST['selector'], $_POST['token'], $_POST['password']);
-
-					return 'ok';
+					return $auth->resetPassword($_POST['selector'], $_POST['token'], $_POST['password']);
 				}
 				catch (\Delight\Auth\InvalidSelectorTokenPairException $e) {
 					return 'invalid token';
