@@ -350,6 +350,8 @@ catch (\Delight\Auth\TooManyRequestsException $e) {
 }
 ```
 
+If you need the user’s ID or email address, e.g. for sending them a notification that their password has successfully been reset, just use the return value of `Auth#resetPassword`, which is an array containing two entries named `id` and `email`.
+
 ### Changing the current user’s password
 
 If a user is currently logged in, they may change their password.
