@@ -966,6 +966,7 @@ final class Auth extends UserManager {
 	 * @see canResetPasswordOrThrow
 	 * @see canResetPassword
 	 * @see resetPassword
+	 * @see resetPasswordAndSignIn
 	 */
 	public function forgotPassword($email, callable $callback, $requestExpiresAfter = null, $maxOpenRequests = null) {
 		$email = self::validateEmailAddress($email);
@@ -1246,6 +1247,7 @@ final class Auth extends UserManager {
 	 * @see forgotPassword
 	 * @see canResetPasswordOrThrow
 	 * @see canResetPassword
+	 * @see resetPasswordAndSignIn
 	 */
 	public function resetPassword($selector, $token, $newPassword) {
 		$this->throttle([ 'resetPassword', $this->getIpAddress() ], 5, (60 * 60), 10);
@@ -1303,6 +1305,51 @@ final class Auth extends UserManager {
 	}
 
 	/**
+	 * Resets the password for a particular account by supplying the correct selector/token pair
+	 *
+	 * The selector/token pair must have been generated previously by calling {@see forgotPassword}
+	 *
+	 * The user will be automatically signed in if this operation is successful
+	 *
+	 * @param string $selector the selector from the selector/token pair
+	 * @param string $token the token from the selector/token pair
+	 * @param string $newPassword the new password to set for the account
+	 * @param int|null $rememberDuration (optional) the duration in seconds to keep the user logged in ("remember me"), e.g. `60 * 60 * 24 * 365.25` for one year
+	 * @return string[] an array with the user's ID at index `id` and the user's email address at index `email`
+	 * @throws InvalidSelectorTokenPairException if either the selector or the token was not correct
+	 * @throws TokenExpiredException if the token has already expired
+	 * @throws ResetDisabledException if the user has explicitly disabled password resets for their account
+	 * @throws InvalidPasswordException if the new password was invalid
+	 * @throws TooManyRequestsException if the number of allowed attempts/requests has been exceeded
+	 * @throws AuthError if an internal problem occurred (do *not* catch)
+	 *
+	 * @see forgotPassword
+	 * @see canResetPasswordOrThrow
+	 * @see canResetPassword
+	 * @see resetPassword
+	 */
+	public function resetPasswordAndSignIn($selector, $token, $newPassword, $rememberDuration = null) {
+		$idAndEmail = $this->resetPassword($selector, $token, $newPassword);
+
+		if (!$this->isLoggedIn()) {
+			$idAndEmail['email'] = self::validateEmailAddress($idAndEmail['email']);
+
+			$userData = $this->getUserDataByEmailAddress(
+				$idAndEmail['email'],
+				[ 'username', 'status', 'roles_mask', 'force_logout' ]
+			);
+
+			$this->onLoginSuccessful($idAndEmail['id'], $idAndEmail['email'], $userData['username'], $userData['status'], $userData['roles_mask'], $userData['force_logout'], true);
+
+			if ($rememberDuration !== null) {
+				$this->createRememberDirective($idAndEmail['id'], $rememberDuration);
+			}
+		}
+
+		return $idAndEmail;
+	}
+
+	/**
 	 * Check if the supplied selector/token pair can be used to reset a password
 	 *
 	 * The password can be reset using the supplied information if this method does *not* throw any exception
@@ -1320,6 +1367,7 @@ final class Auth extends UserManager {
 	 * @see forgotPassword
 	 * @see canResetPassword
 	 * @see resetPassword
+	 * @see resetPasswordAndSignIn
 	 */
 	public function canResetPasswordOrThrow($selector, $token) {
 		try {
@@ -1353,6 +1401,7 @@ final class Auth extends UserManager {
 	 * @see forgotPassword
 	 * @see canResetPasswordOrThrow
 	 * @see resetPassword
+	 * @see resetPasswordAndSignIn
 	 */
 	public function canResetPassword($selector, $token) {
 		try {
