@@ -962,6 +962,10 @@ final class Auth extends UserManager {
 	 * @throws ResetDisabledException if the user has explicitly disabled password resets for their account
 	 * @throws TooManyRequestsException if the number of allowed attempts/requests has been exceeded
 	 * @throws AuthError if an internal problem occurred (do *not* catch)
+	 *
+	 * @see canResetPasswordOrThrow
+	 * @see canResetPassword
+	 * @see resetPassword
 	 */
 	public function forgotPassword($email, callable $callback, $requestExpiresAfter = null, $maxOpenRequests = null) {
 		$email = self::validateEmailAddress($email);
@@ -1226,7 +1230,7 @@ final class Auth extends UserManager {
 	/**
 	 * Resets the password for a particular account by supplying the correct selector/token pair
 	 *
-	 * The selector/token pair must have been generated previously by calling `Auth#forgotPassword(...)`
+	 * The selector/token pair must have been generated previously by calling {@see forgotPassword}
 	 *
 	 * @param string $selector the selector from the selector/token pair
 	 * @param string $token the token from the selector/token pair
@@ -1238,6 +1242,10 @@ final class Auth extends UserManager {
 	 * @throws InvalidPasswordException if the new password was invalid
 	 * @throws TooManyRequestsException if the number of allowed attempts/requests has been exceeded
 	 * @throws AuthError if an internal problem occurred (do *not* catch)
+	 *
+	 * @see forgotPassword
+	 * @see canResetPasswordOrThrow
+	 * @see canResetPassword
 	 */
 	public function resetPassword($selector, $token, $newPassword) {
 		$this->throttle([ 'resetPassword', $this->getIpAddress() ], 5, (60 * 60), 10);
@@ -1299,7 +1307,7 @@ final class Auth extends UserManager {
 	 *
 	 * The password can be reset using the supplied information if this method does *not* throw any exception
 	 *
-	 * The selector/token pair must have been generated previously by calling `Auth#forgotPassword(...)`
+	 * The selector/token pair must have been generated previously by calling {@see forgotPassword}
 	 *
 	 * @param string $selector the selector from the selector/token pair
 	 * @param string $token the token from the selector/token pair
@@ -1308,6 +1316,10 @@ final class Auth extends UserManager {
 	 * @throws ResetDisabledException if the user has explicitly disabled password resets for their account
 	 * @throws TooManyRequestsException if the number of allowed attempts/requests has been exceeded
 	 * @throws AuthError if an internal problem occurred (do *not* catch)
+	 *
+	 * @see forgotPassword
+	 * @see canResetPassword
+	 * @see resetPassword
 	 */
 	public function canResetPasswordOrThrow($selector, $token) {
 		try {
@@ -1331,12 +1343,16 @@ final class Auth extends UserManager {
 	/**
 	 * Check if the supplied selector/token pair can be used to reset a password
 	 *
-	 * The selector/token pair must have been generated previously by calling `Auth#forgotPassword(...)`
+	 * The selector/token pair must have been generated previously by calling {@see forgotPassword}
 	 *
 	 * @param string $selector the selector from the selector/token pair
 	 * @param string $token the token from the selector/token pair
 	 * @return bool whether the password can be reset using the supplied information
 	 * @throws AuthError if an internal problem occurred (do *not* catch)
+	 *
+	 * @see forgotPassword
+	 * @see canResetPasswordOrThrow
+	 * @see resetPassword
 	 */
 	public function canResetPassword($selector, $token) {
 		try {
