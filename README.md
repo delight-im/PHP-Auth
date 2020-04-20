@@ -350,6 +350,8 @@ catch (\Delight\Auth\TooManyRequestsException $e) {
 }
 ```
 
+Do you want to have the respective user signed in automatically when their password reset succeeds? Simply use `Auth#resetPasswordAndSignIn` instead of `Auth#resetPassword` to log in the user immediately.
+
 If you need the user’s ID or email address, e.g. for sending them a notification that their password has successfully been reset, just use the return value of `Auth#resetPassword`, which is an array containing two entries named `id` and `email`.
 
 ### Changing the current user’s password
