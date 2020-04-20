@@ -1455,7 +1455,7 @@ final class Auth extends UserManager {
 	}
 
 	/**
-	 * Shorthand/alias for `getUserId()`
+	 * Shorthand/alias for {@see getUserId}
 	 *
 	 * @return int
 	 */
