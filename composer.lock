@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "e4acd9e4ba13c4d0692f07a03a454859",
+    "content-hash": "72ddc6aaeebd7637318b8432f2daff0a",
     "packages": [
         {
             "name": "delight-im/base64",
@@ -49,16 +49,16 @@
         },
         {
             "name": "delight-im/cookie",
-            "version": "v3.4.0",
+            "version": "dev-custom",
             "source": {
                 "type": "git",
-                "url": "https://github.com/delight-im/PHP-Cookie.git",
-                "reference": "67065d34272377d63bab0bd58f984f9b228c803f"
+                "url": "https://github.com/cewlbird/PHP-Cookie.git",
+                "reference": "f43512ee91d857afcb40c464e1c2b9073312bcc5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/delight-im/PHP-Cookie/zipball/67065d34272377d63bab0bd58f984f9b228c803f",
-                "reference": "67065d34272377d63bab0bd58f984f9b228c803f",
+                "url": "https://api.github.com/repos/cewlbird/PHP-Cookie/zipball/f43512ee91d857afcb40c464e1c2b9073312bcc5",
+                "reference": "f43512ee91d857afcb40c464e1c2b9073312bcc5",
                 "shasum": ""
             },
             "require": {
@@ -71,7 +71,6 @@
                     "Delight\\Cookie\\": "src/"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -86,7 +85,10 @@
                 "samesite",
                 "xss"
             ],
-            "time": "2020-04-16T11:01:26+00:00"
+            "support": {
+                "source": "https://github.com/cewlbird/PHP-Cookie/tree/custom"
+            },
+            "time": "2020-04-27T07:18:43+00:00"
         },
         {
             "name": "delight-im/db",
@@ -169,7 +171,9 @@
     "packages-dev": [],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {
+        "delight-im/cookie": 20
+    },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {

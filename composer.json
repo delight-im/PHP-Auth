@@ -22,5 +22,6 @@
 		"psr-4": {
 			"Delight\\Auth\\": "src/"
 		}
-	}
+	},
+  "minimum-stability": "dev"
 }
