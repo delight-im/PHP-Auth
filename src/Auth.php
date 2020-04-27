@@ -79,7 +79,7 @@ final class Auth extends UserManager {
 			\ini_set('session.use_trans_sid', 0);
 
 			// start the session (requests a cookie to be written on the client)
-			@Session::start($this->sameSite);
+			//@Session::start($this->sameSite);
 		}
 	}
 
