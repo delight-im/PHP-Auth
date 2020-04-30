@@ -845,7 +845,7 @@ final class Auth extends UserManager {
 			}
 
 			// ensure that at least the current (old) email address has been verified before proceeding
-			if ((int) $verified !== 1) {
+			if ($this->requireEmailVerification && (int) $verified !== 1) {
 				throw new EmailNotVerifiedException();
 			}
 
@@ -994,7 +994,7 @@ final class Auth extends UserManager {
 		);
 
 		// ensure that the account has been verified before initiating a password reset
-		if ((int) $userData['verified'] !== 1) {
+		if ($this->requireEmailVerification && (int) $userData['verified'] !== 1) {
 			throw new EmailNotVerifiedException();
 		}
 
