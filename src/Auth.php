@@ -1004,7 +1004,7 @@ final class Auth extends UserManager {
 			throw new ResetDisabledException();
 		}
 
-		$openRequests = (int) $this->getOpenPasswordResetRequests($userData['id']);
+		$openRequests = $this->throttling ? (int) $this->getOpenPasswordResetRequests($userData['id']) : 0;
 
 		if ($openRequests < $maxOpenRequests) {
 			$this->throttle([ 'requestPasswordReset', $this->getIpAddress() ], 4, (60 * 60 * 24 * 7), 2);
