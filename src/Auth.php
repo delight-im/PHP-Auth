@@ -35,7 +35,7 @@ final class Auth extends UserManager {
 
 	/**
 	 * @param PdoDatabase|PdoDsn|\PDO $databaseConnection the database connection to operate on
-	 * @param string $ipAddress the IP address that should be used instead of the default setting (if any), e.g. when behind a proxy
+	 * @param string|null $ipAddress (optional) the IP address that should be used instead of the default setting (if any), e.g. when behind a proxy
 	 * @param string|null $dbTablePrefix (optional) the prefix for the names of all database tables used by this component
 	 * @param bool|null $throttling (optional) whether throttling should be enabled (e.g. in production) or disabled (e.g. during development)
 	 * @param int|null $sessionResyncInterval (optional) the interval in seconds after which to resynchronize the session data with its authoritative source in the database
