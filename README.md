@@ -178,6 +178,8 @@ If you don’t want to perform email verification, just omit the last parameter 
 
 Need to store additional user information? Read on [here](#additional-user-information).
 
+**Note:** When sending an email to the user, please note that the (optional) username, at this point, has not yet been confirmed as acceptable to the owner of the (new) email address. It could contain offensive or misleading language chosen by someone who is not actually the owner of the address.
+
 ### Login (sign in)
 
 ```php
@@ -431,6 +433,8 @@ For email verification, you should build an URL with the selector and token and 
 $url = 'https://www.example.com/verify_email?selector=' . \urlencode($selector) . '&token=' . \urlencode($token);
 ```
 
+**Note:** When sending an email to the user, please note that the (optional) username, at this point, has not yet been confirmed as acceptable to the owner of the (new) email address. It could contain offensive or misleading language chosen by someone who is not actually the owner of the address.
+
 After the request to change the email address has been made, or even better, after the change has been confirmed by the user, you should send an email to their account’s *previous* email address as an out-of-band notification informing the account owner about this critical change.
 
 **Note:** Changes to a user’s email address take effect in the local session immediately, as expected. In other sessions (e.g. on other devices), the changes may need up to five minutes to take effect, though. This increases performance and usually poses no problem. If you want to change this behavior, nevertheless, simply decrease (or perhaps increase) the value that you pass to the [`Auth` constructor](#creating-a-new-instance) as the argument named `$sessionResyncInterval`.
@@ -480,6 +484,8 @@ Usually, you should build an URL with the selector and token and send it to the 
 ```php
 $url = 'https://www.example.com/verify_email?selector=' . \urlencode($selector) . '&token=' . \urlencode($token);
 ```
+
+**Note:** When sending an email to the user, please note that the (optional) username, at this point, has not yet been confirmed as acceptable to the owner of the (new) email address. It could contain offensive or misleading language chosen by someone who is not actually the owner of the address.
 
 ### Logout
 
