@@ -260,7 +260,7 @@ abstract class UserManager {
 			$projection = \implode(', ', $requestedColumns);
 
 			$users = $this->db->select(
-				'SELECT ' . $projection . ' FROM ' . $this->makeTableName('users') . ' WHERE username = ? LIMIT 2 OFFSET 0',
+				'SELECT ' . $projection . ' FROM ' . $this->makeTableName('users') . ' WHERE username = ? COLLATE NOCASE LIMIT 2 OFFSET 0',
 				[ $username ]
 			);
 		}
