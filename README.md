@@ -109,11 +109,11 @@ Migrating from an earlier version of this project? See our [upgrade guide](Migra
 
 // or
 
-// $db = new \Delight\Db\PdoDsn('mysql:dbname=my-database;host=localhost;charset=utf8mb4', 'my-username', 'my-password');
+// $db = \Delight\Db\PdoDatabase::fromDsn(new \Delight\Db\PdoDsn('mysql:dbname=my-database;host=localhost;charset=utf8mb4', 'my-username', 'my-password'));
 // or
-// $db = new \Delight\Db\PdoDsn('pgsql:dbname=my-database;host=localhost;port=5432', 'my-username', 'my-password');
+// $db = \Delight\Db\PdoDatabase::fromDsn(new \Delight\Db\PdoDsn('pgsql:dbname=my-database;host=localhost;port=5432', 'my-username', 'my-password'));
 // or
-// $db = new \Delight\Db\PdoDsn('sqlite:../Databases/my-database.sqlite');
+// $db = \Delight\Db\PdoDatabase::fromDsn(new \Delight\Db\PdoDsn('sqlite:../Databases/my-database.sqlite'));
 
 $auth = new \Delight\Auth\Auth($db);
 ```
@@ -129,6 +129,8 @@ During development, you may want to disable the request limiting or throttling p
 During the lifetime of a session, some user data may be changed remotely, either by a client in another session or by an administrator. That means this information must be regularly resynchronized with its authoritative source in the database, which this library does automatically. By default, this happens every five minutes. If you want to change this interval, pass a custom interval in seconds to the constructor as the fifth argument, which is named `$sessionResyncInterval`.
 
 If all your database tables need a common database name, schema name, or other qualifier that must be specified explicitly, you can optionally pass that qualifier to the constructor as the sixth parameter, which is named `$dbSchema`.
+
+If you want to use a `PdoDatabase` instance (e.g. `$db`) independently as well, please refer to the [documentation of the database library](https://github.com/delight-im/PHP-DB).
 
 ### Registration (sign up)
 
