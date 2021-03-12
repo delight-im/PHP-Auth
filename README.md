@@ -156,7 +156,7 @@ catch (\Delight\Auth\TooManyRequestsException $e) {
 }
 ```
 
-**Note:** The anonymous callback function is a [closure](http://php.net/manual/en/functions.anonymous.php). Thus, besides its own parameters, only [superglobals](http://php.net/manual/en/language.variables.superglobals.php) like `$_GET`, `$_POST`, `$_COOKIE` and `$_SERVER` are available inside. For any other variable from the parent scope, you need to explicitly make a copy available inside by adding a `use` clause after the parameter list.
+**Note:** The anonymous callback function is a [closure](https://php.net/manual/functions.anonymous.php). Thus, besides its own parameters, only [superglobals](https://php.net/manual/language.variables.superglobals.php) like `$_GET`, `$_POST`, `$_COOKIE` and `$_SERVER` are available inside. For any other variable from the parent scope, you need to explicitly make a copy available inside by adding a `use` clause after the parameter list.
 
 The username in the third parameter is optional. You can pass `null` there if you don’t want to manage usernames.
 
@@ -285,7 +285,7 @@ catch (\Delight\Auth\TooManyRequestsException $e) {
 }
 ```
 
-**Note:** The anonymous callback function is a [closure](http://php.net/manual/en/functions.anonymous.php). Thus, besides its own parameters, only [superglobals](http://php.net/manual/en/language.variables.superglobals.php) like `$_GET`, `$_POST`, `$_COOKIE` and `$_SERVER` are available inside. For any other variable from the parent scope, you need to explicitly make a copy available inside by adding a `use` clause after the parameter list.
+**Note:** The anonymous callback function is a [closure](https://php.net/manual/functions.anonymous.php). Thus, besides its own parameters, only [superglobals](https://php.net/manual/language.variables.superglobals.php) like `$_GET`, `$_POST`, `$_COOKIE` and `$_SERVER` are available inside. For any other variable from the parent scope, you need to explicitly make a copy available inside by adding a `use` clause after the parameter list.
 
 You should build an URL with the selector and token and send it to the user, e.g.:
 
@@ -427,7 +427,7 @@ catch (\Delight\Auth\TooManyRequestsException $e) {
 }
 ```
 
-**Note:** The anonymous callback function is a [closure](http://php.net/manual/en/functions.anonymous.php). Thus, besides its own parameters, only [superglobals](http://php.net/manual/en/language.variables.superglobals.php) like `$_GET`, `$_POST`, `$_COOKIE` and `$_SERVER` are available inside. For any other variable from the parent scope, you need to explicitly make a copy available inside by adding a `use` clause after the parameter list.
+**Note:** The anonymous callback function is a [closure](https://php.net/manual/functions.anonymous.php). Thus, besides its own parameters, only [superglobals](https://php.net/manual/language.variables.superglobals.php) like `$_GET`, `$_POST`, `$_COOKIE` and `$_SERVER` are available inside. For any other variable from the parent scope, you need to explicitly make a copy available inside by adding a `use` clause after the parameter list.
 
 For email verification, you should build an URL with the selector and token and send it to the user, e.g.:
 
@@ -479,7 +479,7 @@ catch (\Delight\Auth\TooManyRequestsException $e) {
 }
 ```
 
-**Note:** The anonymous callback function is a [closure](http://php.net/manual/en/functions.anonymous.php). Thus, besides its own parameters, only [superglobals](http://php.net/manual/en/language.variables.superglobals.php) like `$_GET`, `$_POST`, `$_COOKIE` and `$_SERVER` are available inside. For any other variable from the parent scope, you need to explicitly make a copy available inside by adding a `use` clause after the parameter list.
+**Note:** The anonymous callback function is a [closure](https://php.net/manual/functions.anonymous.php). Thus, besides its own parameters, only [superglobals](https://php.net/manual/language.variables.superglobals.php) like `$_GET`, `$_POST`, `$_COOKIE` and `$_SERVER` are available inside. For any other variable from the parent scope, you need to explicitly make a copy available inside by adding a `use` clause after the parameter list.
 
 Usually, you should build an URL with the selector and token and send it to the user, e.g. as follows:
 
@@ -1127,7 +1127,7 @@ is the general (mandatory) session cookie. The second (optional) cookie is only 
 
 You can rename the session cookie used by this library through one of the following means, in order of recommendation:
 
- * In the [PHP configuration](http://php.net/manual/en/configuration.file.php) (`php.ini`), find the line with the `session.name` directive and change its value to something like `session_v1`, as in:
+ * In the [PHP configuration](https://php.net/manual/configuration.file.php) (`php.ini`), find the line with the `session.name` directive and change its value to something like `session_v1`, as in:
 
    ```
    session.name = session_v1
@@ -1139,7 +1139,7 @@ You can rename the session cookie used by this library through one of the follow
    \ini_set('session.name', 'session_v1');
    ```
 
-   For this to work, `session.auto_start` must be set to `0` in the [PHP configuration](http://php.net/manual/en/configuration.file.php) (`php.ini`).
+   For this to work, `session.auto_start` must be set to `0` in the [PHP configuration](https://php.net/manual/configuration.file.php) (`php.ini`).
 
  * As early as possible in your application, and before you create the `Auth` instance, call `\session_name` with an argument like `session_v1`, as in:
 
@@ -1147,7 +1147,7 @@ You can rename the session cookie used by this library through one of the follow
    \session_name('session_v1');
    ```
 
-   For this to work, `session.auto_start` must be set to `0` in the [PHP configuration](http://php.net/manual/en/configuration.file.php) (`php.ini`).
+   For this to work, `session.auto_start` must be set to `0` in the [PHP configuration](https://php.net/manual/configuration.file.php) (`php.ini`).
 
 The name of the cookie for [persistent logins](#keeping-the-user-logged-in) will change as well – automatically – following your change of the session cookie’s name.
 
@@ -1161,7 +1161,7 @@ Whatever set of subdomains you choose, you should set the cookie’s attribute t
 
 You can change the attribute through one of the following means, in order of recommendation:
 
- * In the [PHP configuration](http://php.net/manual/en/configuration.file.php) (`php.ini`), find the line with the `session.cookie_domain` directive and change its value as desired, e.g.:
+ * In the [PHP configuration](https://php.net/manual/configuration.file.php) (`php.ini`), find the line with the `session.cookie_domain` directive and change its value as desired, e.g.:
 
    ```
    session.cookie_domain = example.com
@@ -1173,7 +1173,7 @@ You can change the attribute through one of the following means, in order of rec
    \ini_set('session.cookie_domain', 'example.com');
    ```
 
-   For this to work, `session.auto_start` must be set to `0` in the [PHP configuration](http://php.net/manual/en/configuration.file.php) (`php.ini`).
+   For this to work, `session.auto_start` must be set to `0` in the [PHP configuration](https://php.net/manual/configuration.file.php) (`php.ini`).
 
 #### Restricting the path where cookies are available
 
@@ -1183,7 +1183,7 @@ In most cases, you’ll want to make cookies available for all paths, i.e. any d
 
 You can change the attribute through one of the following means, in order of recommendation:
 
- * In the [PHP configuration](http://php.net/manual/en/configuration.file.php) (`php.ini`), find the line with the `session.cookie_path` directive and change its value as desired, e.g.:
+ * In the [PHP configuration](https://php.net/manual/configuration.file.php) (`php.ini`), find the line with the `session.cookie_path` directive and change its value as desired, e.g.:
 
    ```
    session.cookie_path = /
@@ -1195,7 +1195,7 @@ You can change the attribute through one of the following means, in order of rec
    \ini_set('session.cookie_path', '/');
    ```
 
-   For this to work, `session.auto_start` must be set to `0` in the [PHP configuration](http://php.net/manual/en/configuration.file.php) (`php.ini`).
+   For this to work, `session.auto_start` must be set to `0` in the [PHP configuration](https://php.net/manual/configuration.file.php) (`php.ini`).
 
 #### Controlling client-side script access to cookies
 
@@ -1205,7 +1205,7 @@ Thus, you should always set `httponly` to `1`, except for the rare cases where y
 
 You can change the attribute through one of the following means, in order of recommendation:
 
- * In the [PHP configuration](http://php.net/manual/en/configuration.file.php) (`php.ini`), find the line with the `session.cookie_httponly` directive and change its value as desired, e.g.:
+ * In the [PHP configuration](https://php.net/manual/configuration.file.php) (`php.ini`), find the line with the `session.cookie_httponly` directive and change its value as desired, e.g.:
 
    ```
    session.cookie_httponly = 1
@@ -1217,7 +1217,7 @@ You can change the attribute through one of the following means, in order of rec
    \ini_set('session.cookie_httponly', 1);
    ```
 
-   For this to work, `session.auto_start` must be set to `0` in the [PHP configuration](http://php.net/manual/en/configuration.file.php) (`php.ini`).
+   For this to work, `session.auto_start` must be set to `0` in the [PHP configuration](https://php.net/manual/configuration.file.php) (`php.ini`).
 
 #### Configuring transport security for cookies
 
@@ -1227,7 +1227,7 @@ Obviously, this solely depends on whether you are able to serve *all* pages excl
 
 You can change the attribute through one of the following means, in order of recommendation:
 
- * In the [PHP configuration](http://php.net/manual/en/configuration.file.php) (`php.ini`), find the line with the `session.cookie_secure` directive and change its value as desired, e.g.:
+ * In the [PHP configuration](https://php.net/manual/configuration.file.php) (`php.ini`), find the line with the `session.cookie_secure` directive and change its value as desired, e.g.:
 
    ```
    session.cookie_secure = 1
@@ -1239,7 +1239,7 @@ You can change the attribute through one of the following means, in order of rec
    \ini_set('session.cookie_secure', 1);
    ```
 
-   For this to work, `session.auto_start` must be set to `0` in the [PHP configuration](http://php.net/manual/en/configuration.file.php) (`php.ini`).
+   For this to work, `session.auto_start` must be set to `0` in the [PHP configuration](https://php.net/manual/configuration.file.php) (`php.ini`).
 
 ### Utilities
 
