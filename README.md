@@ -8,7 +8,7 @@ Completely framework-agnostic and database-agnostic.
 
 ## Why do I need this?
 
- * There are [tons](http://www.troyhunt.com/2011/01/whos-who-of-bad-password-practices.html) [of](http://www.jeremytunnell.com/posts/swab-password-policies-and-two-factor-authentication-a-comedy-of-errors) [websites](http://badpasswordpolicies.tumblr.com/) with weak authentication systems. Don’t build such a site.
+ * There are [tons](https://www.troyhunt.com/whos-who-of-bad-password-practices/) [of](https://blog.codinghorror.com/password-rules-are-bullshit/) [websites](https://badpasswordpolicies.tumblr.com/) with weak authentication systems. Don’t build such a site.
  * Re-implementing a new authentication system for every PHP project is *not* a good idea.
  * Building your own authentication classes piece by piece, and copying it to every project, is *not* recommended, either.
  * A secure authentication system with an easy-to-use API should be thoroughly designed and planned.
