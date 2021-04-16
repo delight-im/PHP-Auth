@@ -841,7 +841,7 @@ for the correct default option in your user interface. You don’t need to check
 
 ### Throttling or rate limiting
 
-All methods provided by this library are *automatically* protected against excessive numbers of requests from clients.
+All methods provided by this library are *automatically* protected against excessive numbers of requests from clients. If the need arises, you can (temporarily) disable this protection using the [`$throttling` parameter](#creating-a-new-instance) passed to the constructor.
 
 If you would like to throttle or rate limit *external* features or methods as well, e.g. those in your own code, you can make use of the built-in helper method for throttling and rate limiting:
 
