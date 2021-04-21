@@ -872,6 +872,8 @@ Allowing short bursts of activity during peak demand is possible by specifying a
 
 In some cases, you may just want to *simulate* the throttling or rate limiting. This lets you check whether an action would be permitted without actually modifying the activity tracker. To do so, simply pass `true` as the fifth argument.
 
+**Note:** When you disable throttling on the instance (using the [`$throttling` parameter](#creating-a-new-instance) passed to the constructor), this turns off both the automatic internal protection and the effect of any calls to `Auth#throttle` in your own application code – unless you also set the optional `$force` parameter to `true` in specific `Auth#throttle` calls.
+
 ### Administration (managing users)
 
 The administrative interface is available via `$auth->admin()`. You can call various method on this interface, as documented below.

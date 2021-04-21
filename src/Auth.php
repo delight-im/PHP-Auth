@@ -1728,12 +1728,16 @@ final class Auth extends UserManager {
 	 * @param int|null $burstiness (optional) the permitted degree of variation or unevenness during peaks (>= 1)
 	 * @param bool|null $simulated (optional) whether to simulate a dry run instead of actually consuming the requested units
 	 * @param int|null $cost (optional) the number of units to request (>= 1)
+	 * @param bool|null $force (optional) whether to apply throttling locally (with this call) even when throttling has been disabled globally (on the instance, via the constructor option)
 	 * @return float the number of units remaining from the supply
 	 * @throws TooManyRequestsException if the actual demand has exceeded the designated supply
 	 * @throws AuthError if an internal problem occurred (do *not* catch)
 	 */
-	public function throttle(array $criteria, $supply, $interval, $burstiness = null, $simulated = null, $cost = null) {
-		if (!$this->throttling) {
+	public function throttle(array $criteria, $supply, $interval, $burstiness = null, $simulated = null, $cost = null, $force = null) {
+		// validate the supplied parameters and set appropriate defaults where necessary
+		$force = ($force !== null) ? (bool) $force : false;
+
+		if (!$this->throttling && !$force) {
 			return $supply;
 		}
 
