@@ -138,6 +138,8 @@ If you want to use a `PdoDatabase` instance (e.g. `$db`) independently as well, 
 try {
     $userId = $auth->register($_POST['email'], $_POST['password'], $_POST['username'], function ($selector, $token) {
         echo 'Send ' . $selector . ' and ' . $token . ' to the user (e.g. via email)';
+        echo '  For emails, consider using the mail(...) function, Symfony Mailer, Swiftmailer, PHPMailer, etc.';
+        echo '  For SMS, consider using a third-party service and a compatible SDK';
     });
 
     echo 'We have signed up a new user with the ID ' . $userId;
@@ -267,6 +269,8 @@ Omit the third parameter or set it to `null` to disable the feature. Otherwise, 
 try {
     $auth->forgotPassword($_POST['email'], function ($selector, $token) {
         echo 'Send ' . $selector . ' and ' . $token . ' to the user (e.g. via email)';
+        echo '  For emails, consider using the mail(...) function, Symfony Mailer, Swiftmailer, PHPMailer, etc.';
+        echo '  For SMS, consider using a third-party service and a compatible SDK';
     });
 
     echo 'Request has been generated';
@@ -402,6 +406,8 @@ try {
     if ($auth->reconfirmPassword($_POST['password'])) {
         $auth->changeEmail($_POST['newEmail'], function ($selector, $token) {
             echo 'Send ' . $selector . ' and ' . $token . ' to the user (e.g. via email to the *new* address)';
+            echo '  For emails, consider using the mail(...) function, Symfony Mailer, Swiftmailer, PHPMailer, etc.';
+            echo '  For SMS, consider using a third-party service and a compatible SDK';
         });
 
         echo 'The change will take effect as soon as the new email address has been confirmed';
@@ -449,6 +455,8 @@ If an earlier confirmation request could not be delivered to the user, or if the
 try {
     $auth->resendConfirmationForEmail($_POST['email'], function ($selector, $token) {
         echo 'Send ' . $selector . ' and ' . $token . ' to the user (e.g. via email)';
+        echo '  For emails, consider using the mail(...) function, Symfony Mailer, Swiftmailer, PHPMailer, etc.';
+        echo '  For SMS, consider using a third-party service and a compatible SDK';
     });
 
     echo 'The user may now respond to the confirmation request (usually by clicking a link)';
@@ -467,6 +475,8 @@ If you want to specify the user by their ID instead of by their email address, t
 try {
     $auth->resendConfirmationForUserId($_POST['userId'], function ($selector, $token) {
         echo 'Send ' . $selector . ' and ' . $token . ' to the user (e.g. via email)';
+        echo '  For emails, consider using the mail(...) function, Symfony Mailer, Swiftmailer, PHPMailer, etc.';
+        echo '  For SMS, consider using a third-party service and a compatible SDK';
     });
 
     echo 'The user may now respond to the confirmation request (usually by clicking a link)';
