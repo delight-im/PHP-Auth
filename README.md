@@ -178,7 +178,7 @@ For email verification, you should build an URL with the selector and token and 
 $url = 'https://www.example.com/verify_email?selector=' . \urlencode($selector) . '&token=' . \urlencode($token);
 ```
 
-If you don’t want to perform email verification, just omit the last parameter to `Auth#register`. The new user will be active immediately, then.
+If you don’t want to perform email verification, just omit the last parameter to `Auth#register`, i.e. the [anonymous function or closure](https://www.php.net/manual/functions.anonymous.php). The new user will be active immediately, then.
 
 Need to store additional user information? Read on [here](#additional-user-information).
 
