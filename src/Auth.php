@@ -30,6 +30,9 @@ final class Auth extends UserManager {
 	private $sessionResyncInterval;
 	/** @var string the name of the cookie used for the 'remember me' feature */
 	private $rememberCookieName;
+	/** @var string the name of the cookie used for the 'remember me' feature */
+	private $sameSite;
+
 
 	/**
 	 * @param PdoDatabase|PdoDsn|\PDO $databaseConnection the database connection to operate on
@@ -39,19 +42,28 @@ final class Auth extends UserManager {
 	 * @param int|null $sessionResyncInterval (optional) the interval in seconds after which to resynchronize the session data with its authoritative source in the database
 	 * @param string|null $dbSchema (optional) the schema name for all database tables used by this component
 	 */
-	public function __construct($databaseConnection, $ipAddress = null, $dbTablePrefix = null, $throttling = null, $sessionResyncInterval = null, $dbSchema = null) {
+	public function __construct($databaseConnection, $ipAddress = null, $dbTablePrefix = null, $throttling = null, $sessionResyncInterval = null, $dbSchema = null, $sameSite = 'Strict') {
 		parent::__construct($databaseConnection, $dbTablePrefix, $dbSchema);
 
 		$this->ipAddress = !empty($ipAddress) ? $ipAddress : (isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : null);
 		$this->throttling = isset($throttling) ? (bool) $throttling : true;
 		$this->sessionResyncInterval = isset($sessionResyncInterval) ? ((int) $sessionResyncInterval) : (60 * 5);
 		$this->rememberCookieName = self::createRememberCookieName();
+		$this->sameSite = $sameSite;
 
-		$this->initSessionIfNecessary();
-		$this->enhanceHttpSecurity();
+		if(!$this->isCli()) {
+			$this->initSessionIfNecessary();
+			$this->enhanceHttpSecurity();
+		}
 
 		$this->processRememberDirective();
 		$this->resyncSessionIfNecessary();
+	}
+
+	/** Check if current environment is a cli s script */
+	private function isCli()
+	{
+		return PHP_SAPI === 'cli';
 	}
 
 	/** Initializes the session and sets the correct configuration */
@@ -65,7 +77,7 @@ final class Auth extends UserManager {
 			\ini_set('session.use_trans_sid', 0);
 
 			// start the session (requests a cookie to be written on the client)
-			@Session::start();
+			//@Session::start($this->sameSite);
 		}
 	}
 
@@ -127,7 +139,7 @@ final class Auth extends UserManager {
 								// the cookie and its contents have now been proven to be valid
 								$valid = true;
 
-								$this->onLoginSuccessful($rememberData['user'], $rememberData['email'], $rememberData['username'], $rememberData['status'], $rememberData['roles_mask'], $rememberData['force_logout'], true);
+								$this->onLoginSuccessful($rememberData['user'], $rememberData['email'], $rememberData['username'], $rememberData['status'], $rememberData['roles_mask'], $rememberData['force_logout'], true, $this->sameSite);
 							}
 						}
 					}
@@ -437,7 +449,7 @@ final class Auth extends UserManager {
 		$_SESSION[self::SESSION_FIELD_FORCE_LOGOUT]++;
 
 		// re-generate the session ID to prevent session fixation attacks (requests a cookie to be written on the client)
-		Session::regenerate(true);
+		Session::regenerate(true, $this->sameSite);
 
 		// if there had been an existing remember directive previously
 		if (isset($previousRememberDirectiveExpiry)) {
@@ -543,6 +555,7 @@ final class Auth extends UserManager {
 		$cookie->setDomain($params['domain']);
 		$cookie->setHttpOnly($params['httponly']);
 		$cookie->setSecureOnly($params['secure']);
+		$cookie->setSameSiteRestriction($this->sameSite);
 		$result = $cookie->save();
 
 		if ($result === false) {
@@ -557,11 +570,12 @@ final class Auth extends UserManager {
 			$cookie->setDomain($params['domain']);
 			$cookie->setHttpOnly($params['httponly']);
 			$cookie->setSecureOnly($params['secure']);
+			$cookie->setSameSiteRestriction($this->sameSite);
 			$cookie->delete();
 		}
 	}
 
-	protected function onLoginSuccessful($userId, $email, $username, $status, $roles, $forceLogout, $remembered) {
+	protected function onLoginSuccessful($userId, $email, $username, $status, $roles, $forceLogout, $remembered, $sameSite = 'Strict') {
 		// update the timestamp of the user's last login
 		try {
 			$this->db->update(
@@ -574,7 +588,7 @@ final class Auth extends UserManager {
 			throw new DatabaseError($e->getMessage());
 		}
 
-		parent::onLoginSuccessful($userId, $email, $username, $status, $roles, $forceLogout, $remembered);
+		parent::onLoginSuccessful($userId, $email, $username, $status, $roles, $forceLogout, $remembered, $sameSite);
 	}
 
 	/**
@@ -591,6 +605,7 @@ final class Auth extends UserManager {
 		$cookie->setDomain($params['domain']);
 		$cookie->setHttpOnly($params['httponly']);
 		$cookie->setSecureOnly($params['secure']);
+		$cookie->setSameSiteRestriction($this->sameSite);
 		$result = $cookie->delete();
 
 		if ($result === false) {
@@ -732,7 +747,7 @@ final class Auth extends UserManager {
 					[ 'id', 'email', 'username', 'status', 'roles_mask', 'force_logout' ]
 				);
 
-				$this->onLoginSuccessful($userData['id'], $userData['email'], $userData['username'], $userData['status'], $userData['roles_mask'], $userData['force_logout'], true);
+				$this->onLoginSuccessful($userData['id'], $userData['email'], $userData['username'], $userData['status'], $userData['roles_mask'], $userData['force_logout'], true, $this->sameSite);
 
 				if ($rememberDuration !== null) {
 					$this->createRememberDirective($userData['id'], $rememberDuration);
@@ -1073,7 +1088,7 @@ final class Auth extends UserManager {
 
 			if ((int) $userData['verified'] === 1) {
 				if (!isset($onBeforeSuccess) || (\is_callable($onBeforeSuccess) && $onBeforeSuccess($userData['id']) === true)) {
-					$this->onLoginSuccessful($userData['id'], $userData['email'], $userData['username'], $userData['status'], $userData['roles_mask'], $userData['force_logout'], false);
+					$this->onLoginSuccessful($userData['id'], $userData['email'], $userData['username'], $userData['status'], $userData['roles_mask'], $userData['force_logout'], false, $this->sameSite);
 
 					// continue to support the old parameter format
 					if ($rememberDuration === true) {
