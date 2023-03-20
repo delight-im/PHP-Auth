@@ -1168,16 +1168,16 @@ final class Auth extends UserManager {
 					\time()
 				]
 			);
-
-			if (!empty($requests)) {
-				return $requests;
-			}
-			else {
-				return 0;
-			}
 		}
 		catch (Error $e) {
 			throw new DatabaseError($e->getMessage());
+		}
+
+		if (!empty($requests)) {
+			return $requests;
+		}
+		else {
+			return 0;
 		}
 	}
 
