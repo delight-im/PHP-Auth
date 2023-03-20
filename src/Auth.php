@@ -1457,12 +1457,12 @@ final class Auth extends UserManager {
 					'SELECT resettable FROM ' . $this->makeTableName('users') . ' WHERE id = ?',
 					[ $this->getUserId() ]
 				);
-
-				return (int) $enabled === 1;
 			}
 			catch (Error $e) {
 				throw new DatabaseError($e->getMessage());
 			}
+
+			return (int) $enabled === 1;
 		}
 		else {
 			throw new NotLoggedInException();
