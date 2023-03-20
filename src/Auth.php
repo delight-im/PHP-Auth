@@ -1462,7 +1462,7 @@ final class Auth extends UserManager {
 				throw new DatabaseError($e->getMessage());
 			}
 
-			return (int) $enabled === 1;
+			return ((int) $enabled) === 1;
 		}
 		else {
 			throw new NotLoggedInException();
