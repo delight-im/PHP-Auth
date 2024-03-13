@@ -21,6 +21,9 @@ final class Auth extends UserManager {
 
 	const COOKIE_PREFIXES = [ Cookie::PREFIX_SECURE, Cookie::PREFIX_HOST ];
 	const COOKIE_CONTENT_SEPARATOR = '~';
+	const TWO_FACTOR_MECHANISM_TOTP = 1;
+	const TWO_FACTOR_MECHANISM_SMS = 2;
+	const TWO_FACTOR_MECHANISM_EMAIL = 3;
 
 	/** @var string the user's current IP address */
 	private $ipAddress;
