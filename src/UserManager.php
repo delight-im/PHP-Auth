@@ -40,6 +40,12 @@ abstract class UserManager {
 	const SESSION_FIELD_LAST_RESYNC = 'auth_last_resync';
 	/** @var string session field for the counter that keeps track of forced logouts that need to be performed in the current session */
 	const SESSION_FIELD_FORCE_LOGOUT = 'auth_force_logout';
+	/** @var string session field for the UNIX timestamp in seconds until which the first factor of authentication is considered to be completed and valid */
+	const SESSION_FIELD_AWAITING_2FA_UNTIL = 'auth_awaiting_2fa_until';
+	/** @var string session field for the ID of the user for whom the first factor of authentication has already been completed */
+	const SESSION_FIELD_AWAITING_2FA_USER_ID = 'auth_awaiting_2fa_user_id';
+	/** @var string session field for the desired "remember me" duration that the user originally requested when attempting to sign in */
+	const SESSION_FIELD_AWAITING_2FA_REMEMBER_DURATION = 'auth_awaiting_2fa_remember_duration';
 
 	/** @var PdoDatabase the database connection to operate on */
 	protected $db;
@@ -241,6 +247,9 @@ abstract class UserManager {
 		$_SESSION[self::SESSION_FIELD_FORCE_LOGOUT] = (int) $forceLogout;
 		$_SESSION[self::SESSION_FIELD_REMEMBERED] = $remembered;
 		$_SESSION[self::SESSION_FIELD_LAST_RESYNC] = \time();
+		$_SESSION[self::SESSION_FIELD_AWAITING_2FA_UNTIL] = null;
+		$_SESSION[self::SESSION_FIELD_AWAITING_2FA_USER_ID] = null;
+		$_SESSION[self::SESSION_FIELD_AWAITING_2FA_REMEMBER_DURATION] = null;
 	}
 
 	/**

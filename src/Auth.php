@@ -408,6 +408,9 @@ final class Auth extends UserManager {
 			unset($_SESSION[self::SESSION_FIELD_REMEMBERED]);
 			unset($_SESSION[self::SESSION_FIELD_LAST_RESYNC]);
 			unset($_SESSION[self::SESSION_FIELD_FORCE_LOGOUT]);
+			unset($_SESSION[self::SESSION_FIELD_AWAITING_2FA_UNTIL]);
+			unset($_SESSION[self::SESSION_FIELD_AWAITING_2FA_USER_ID]);
+			unset($_SESSION[self::SESSION_FIELD_AWAITING_2FA_REMEMBER_DURATION]);
 		}
 	}
 
