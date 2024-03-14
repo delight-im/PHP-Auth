@@ -291,6 +291,7 @@ final class Auth extends UserManager {
 	 * @throws InvalidPasswordException if the password was invalid
 	 * @throws EmailNotVerifiedException if the email address has not been verified yet via confirmation email
 	 * @throws AttemptCancelledException if the attempt has been cancelled by the supplied callback that is executed before success
+	 * @throws SecondFactorRequiredException if a second factor needs to be provided for authentification
 	 * @throws TooManyRequestsException if the number of allowed attempts/requests has been exceeded
 	 * @throws AuthError if an internal problem occurred (do *not* catch)
 	 */
@@ -316,6 +317,7 @@ final class Auth extends UserManager {
 	 * @throws InvalidPasswordException if the password was invalid
 	 * @throws EmailNotVerifiedException if the email address has not been verified yet via confirmation email
 	 * @throws AttemptCancelledException if the attempt has been cancelled by the supplied callback that is executed before success
+	 * @throws SecondFactorRequiredException if a second factor needs to be provided for authentification
 	 * @throws TooManyRequestsException if the number of allowed attempts/requests has been exceeded
 	 * @throws AuthError if an internal problem occurred (do *not* catch)
 	 */
@@ -723,6 +725,7 @@ final class Auth extends UserManager {
 	 * @throws InvalidSelectorTokenPairException if either the selector or the token was not correct
 	 * @throws TokenExpiredException if the token has already expired
 	 * @throws UserAlreadyExistsException if an attempt has been made to change the email address to a (now) occupied address
+	 * @throws SecondFactorRequiredException if a second factor needs to be provided for authentification
 	 * @throws TooManyRequestsException if the number of allowed attempts/requests has been exceeded
 	 * @throws AuthError if an internal problem occurred (do *not* catch)
 	 */
@@ -1035,6 +1038,7 @@ final class Auth extends UserManager {
 	 * @throws InvalidPasswordException if the password was invalid
 	 * @throws EmailNotVerifiedException if the email address has not been verified yet via confirmation email
 	 * @throws AttemptCancelledException if the attempt has been cancelled by the supplied callback that is executed before success
+	 * @throws SecondFactorRequiredException if a second factor needs to be provided for authentification
 	 * @throws TooManyRequestsException if the number of allowed attempts/requests has been exceeded
 	 * @throws AuthError if an internal problem occurred (do *not* catch)
 	 */
@@ -1324,6 +1328,7 @@ final class Auth extends UserManager {
 	 * @throws TokenExpiredException if the token has already expired
 	 * @throws ResetDisabledException if the user has explicitly disabled password resets for their account
 	 * @throws InvalidPasswordException if the new password was invalid
+	 * @throws SecondFactorRequiredException if a second factor needs to be provided for authentification
 	 * @throws TooManyRequestsException if the number of allowed attempts/requests has been exceeded
 	 * @throws AuthError if an internal problem occurred (do *not* catch)
 	 *
