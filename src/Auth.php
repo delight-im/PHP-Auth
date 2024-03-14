@@ -1922,6 +1922,13 @@ final class Auth extends UserManager {
 		);
 	}
 
+	private static function createSelectorForOneTimePassword($otpValue, $userId = null) {
+		$userId = !empty($userId) ? (int) $userId : 0;
+		$key = $userId . '#' . $otpValue;
+
+		return \substr(\sha1($key, false), 0, 24);
+	}
+
 	/**
 	 * Returns the selector of a potential locally existing remember directive
 	 *
