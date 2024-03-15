@@ -1481,6 +1481,94 @@ final class Auth extends UserManager {
 	}
 
 	/**
+	 * Prepares the setup of two-factor authentification via time-based one-time passwords (TOTP)
+	 *
+	 * After performing this step, the user will be able to add the service or application to their authenticator application
+	 *
+	 * When the user has entered a one-time password from their authenticator application afterwards, call {@see enableTwoFactorViaTotp} with that one-time password
+	 *
+	 * @param string|null $serviceName (optional) the name of the service or application that the user interacts with, often the domain name or application title
+	 * @return string[] an array with the key URI (which can be encoded as a QR code) at index zero and the secret string (for manual input) at index one
+	 * @throws TwoFactorMechanismAlreadyEnabledException if this method of two-factor authentification has already been enabled
+	 * @throws NotLoggedInException if the user is not currently signed in
+	 * @throws TooManyRequestsException if the number of allowed attempts/requests has been exceeded
+	 * @throws AuthError if an internal problem occurred (do *not* catch)
+	 */
+	public function prepareTwoFactorViaTotp($serviceName = null) {
+		if ($this->isLoggedIn()) {
+			$this->throttle([ 'prepareTwoFactorViaTotp', 'userId', $this->getUserId() ], 2, (60 * 60), 2);
+			$this->throttle([ 'prepareTwoFactorViaTotp', $this->getIpAddress() ], 3, (60 * 60), 3);
+
+			try {
+				$existingConfig = $this->db->selectRow(
+					'SELECT id, expires_at FROM ' . $this->makeTableName('users_2fa') . ' WHERE user_id = ? AND mechanism = ?',
+					[
+						$this->getUserId(),
+						self::TWO_FACTOR_MECHANISM_TOTP,
+					]
+				);
+			}
+			catch (Error $e) {
+				throw new DatabaseError($e->getMessage());
+			}
+
+			// if an existing configuration has been found
+			if (!empty($existingConfig)) {
+				// if the existing configuration has not been completed/enabled yet
+				if (!empty($existingConfig['expires_at'])) {
+					// delete the existing (incomplete) configuration
+					try {
+						$this->db->delete(
+							$this->makeTableNameComponents('users_2fa'),
+							[
+								'id' => $existingConfig['id'],
+								'user_id' => $this->getUserId(),
+								'mechanism' => self::TWO_FACTOR_MECHANISM_TOTP,
+								'expires_at' => $existingConfig['expires_at'],
+							]
+						);
+					}
+					catch (Error $e) {
+						throw new DatabaseError($e->getMessage());
+					}
+				}
+				// if the existing configuration has been completed/enabled already
+				else {
+					throw new TwoFactorMechanismAlreadyEnabledException();
+				}
+			}
+
+			// create a new configuration
+
+			$totpSecret = \Delight\Otp\Otp::createSecret(\Delight\Otp\Otp::SHARED_SECRET_STRENGTH_HIGH);
+
+			try {
+				$this->db->insert(
+					$this->makeTableNameComponents('users_2fa'),
+					[
+						'user_id' => $this->getUserId(),
+						'mechanism' => self::TWO_FACTOR_MECHANISM_TOTP,
+						'seed' => $totpSecret,
+						'created_at' => \time(),
+						'expires_at' => \time() + 60 * 30,
+					]
+				);
+			}
+			catch (Error $e) {
+				throw new DatabaseError($e->getMessage());
+			}
+
+			$serviceName = !empty($serviceName) ? (string) $serviceName : (!empty($_SERVER['SERVER_NAME']) ? (string) $_SERVER['SERVER_NAME'] : (string) $_SERVER['SERVER_ADDR']);
+			$totpKeyUri = \Delight\Otp\Otp::createTotpKeyUriForQrCode($serviceName, $this->getEmail(), $totpSecret);
+
+			return [ $totpKeyUri, $totpSecret ];
+		}
+		else {
+			throw new NotLoggedInException();
+		}
+	}
+
+	/**
 	 * Returns whether the user is currently logged in by reading from the session
 	 *
 	 * @return boolean whether the user is logged in or not
