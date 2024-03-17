@@ -1569,6 +1569,121 @@ final class Auth extends UserManager {
 	}
 
 	/**
+	 * Completes the previously started setup of two-factor authentification via time-based one-time passwords (TOTP)
+	 *
+	 * Initially providing a valid one-time password here once proves that the setup was successful on the client side
+	 *
+	 * In order to let the user set up their authenticator application, call {@see prepareTwoFactorViaTotp} as a first step
+	 *
+	 * @param string $otpValue a one-time password (OTP) that has just been entered by the user
+	 * @return string[] a few recovery codes that can be used instead of one-time passwords from the authenticator application in case the user loses access to their TOTP source
+	 * @throws InvalidOneTimePasswordException if the one-time password provided by the user is not valid
+	 * @throws TwoFactorMechanismNotInitializedException if this method of two-factor authentification has not been initialized before or if the initialization has expired
+	 * @throws TwoFactorMechanismAlreadyEnabledException if this method of two-factor authentification has already been enabled
+	 * @throws NotLoggedInException if the user is not currently signed in
+	 * @throws TooManyRequestsException if the number of allowed attempts/requests has been exceeded
+	 * @throws AuthError if an internal problem occurred (do *not* catch)
+	 */
+	public function enableTwoFactorViaTotp($otpValue) {
+		if ($this->isLoggedIn()) {
+			$this->throttle([ 'enableTwoFactorViaTotp', 'userId', $this->getUserId() ], 2, (60 * 60), 2);
+			$this->throttle([ 'enableTwoFactorViaTotp', $this->getIpAddress() ], 3, (60 * 60), 3);
+
+			$otpValue = !empty($otpValue) ? \trim((string) $otpValue) : null;
+
+			if (empty($otpValue)) {
+				throw new InvalidOneTimePasswordException();
+			}
+
+			try {
+				$existingConfig = $this->db->selectRow(
+					'SELECT id, seed, expires_at FROM ' . $this->makeTableName('users_2fa') . ' WHERE user_id = ? AND mechanism = ?',
+					[
+						$this->getUserId(),
+						self::TWO_FACTOR_MECHANISM_TOTP,
+					]
+				);
+			}
+			catch (Error $e) {
+				throw new DatabaseError($e->getMessage());
+			}
+
+			// if no existing configuration has been found
+			if (empty($existingConfig)) {
+				throw new TwoFactorMechanismNotInitializedException();
+			}
+
+			// if an existing configuration had already been completed/enabled
+			if (empty($existingConfig['expires_at'])) {
+				throw new TwoFactorMechanismAlreadyEnabledException();
+			}
+
+			// if the existing prepared configuration has already expired
+			if ($existingConfig['expires_at'] < \time()) {
+				throw new TwoFactorMechanismNotInitializedException();
+			}
+
+			// check if the one-time password provided by the user is valid for the stored secret
+			$totpValueVerified = \Delight\Otp\Otp::verifyTotp($existingConfig['seed'], $otpValue);
+
+			if (!$totpValueVerified) {
+				throw new InvalidOneTimePasswordException();
+			}
+
+			$recoveryCodes = [];
+
+			for ($i = 0; $i < 6; $i++) {
+				$recoveryCode = \strtoupper(\Delight\Otp\Otp::createSecret(\Delight\Otp\Otp::SHARED_SECRET_STRENGTH_LOW));
+				$recoveryCodeSelector = self::createSelectorForOneTimePassword($recoveryCode, $this->getUserId());
+				$recoveryCodeToken = \password_hash($recoveryCode, \PASSWORD_DEFAULT);
+
+				try {
+					$this->db->insert(
+						$this->makeTableNameComponents('users_otps'),
+						[
+							'user_id' => $this->getUserId(),
+							'mechanism' => self::TWO_FACTOR_MECHANISM_TOTP,
+							'single_factor' => 0,
+							'selector' => $recoveryCodeSelector,
+							'token' => $recoveryCodeToken,
+							'expires_at' => null
+						]
+					);
+				}
+				catch (Error $e) {
+					throw new DatabaseError($e->getMessage());
+				}
+
+				$recoveryCodes[] = $recoveryCode;
+			}
+
+			// update the existing (incomplete) configuration to complete/enable it
+			try {
+				$this->db->update(
+					$this->makeTableNameComponents('users_2fa'),
+					[
+						'expires_at' => null,
+					],
+					[
+						'id' => $existingConfig['id'],
+						'user_id' => $this->getUserId(),
+						'mechanism' => self::TWO_FACTOR_MECHANISM_TOTP,
+						'expires_at' => $existingConfig['expires_at'],
+					]
+				);
+			}
+			catch (Error $e) {
+				throw new DatabaseError($e->getMessage());
+			}
+
+			return $recoveryCodes;
+		}
+		else {
+			throw new NotLoggedInException();
+		}
+	}
+
+	/**
 	 * Returns whether the user is currently logged in by reading from the session
 	 *
 	 * @return boolean whether the user is logged in or not
