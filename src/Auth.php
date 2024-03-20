@@ -1132,6 +1132,112 @@ final class Auth extends UserManager {
 	}
 
 	/**
+	 * Either finishes single-factor authentification (if two-factor authentification is not set up), or throws an exception (otherwise)
+	 *
+	 * @throws SecondFactorRequiredException if a second factor needs to be provided for authentification
+	 * @throws TooManyRequestsException if the number of allowed attempts/requests has been exceeded
+	 * @throws AuthError if an internal problem occurred (do *not* catch)
+	 *
+	 * @see provideOneTimePasswordAsSecondFactor
+	 */
+	private function finishSingleFactorOrThrow($userId, $email, $username, $status, $roles, $forceLogout, $remembered, $rememberDuration = null) {
+		try {
+			$twoFactorMethods = $this->db->select(
+				'SELECT mechanism, seed FROM ' . $this->makeTableName('users_2fa') . ' WHERE user_id = ? AND expires_at IS NULL',
+				[ $userId ]
+			);
+		}
+		catch (Error $e) {
+			throw new DatabaseError($e->getMessage());
+		}
+
+		// if any mechanism for two-factor authentification has been set up for this user
+		if (!empty($twoFactorMethods)) {
+			$secondFactorRequiredException = new SecondFactorRequiredException();
+			$throttled = false;
+
+			foreach ($twoFactorMethods as $twoFactorMethod) {
+				if (!empty($twoFactorMethod) && !empty($twoFactorMethod['mechanism'])) {
+					// if the specific mechanism requires that we generate a one-time password randomly now
+					if ($twoFactorMethod['mechanism'] === self::TWO_FACTOR_MECHANISM_SMS || $twoFactorMethod['mechanism'] === self::TWO_FACTOR_MECHANISM_EMAIL) {
+						if (!$throttled) {
+							$this->throttle([ 'generateOtp', $userId ], 1, 60 * 5, 2);
+							$throttled = true;
+						}
+
+						// generate a one-time password
+						$otpValue = \strtoupper(\substr(\Delight\Otp\Otp::createSecret(\Delight\Otp\Otp::SHARED_SECRET_STRENGTH_LOW), 0, 6));
+						$otpValueSelector = self::createSelectorForOneTimePassword($otpValue, $userId);
+						$otpValueToken = \password_hash($otpValue, \PASSWORD_DEFAULT);
+
+						// store the generated one-time password
+						try {
+							$this->db->insert(
+								$this->makeTableNameComponents('users_otps'),
+								[
+									'user_id' => $userId,
+									'mechanism' => $twoFactorMethod['mechanism'],
+									'single_factor' => 0,
+									'selector' => $otpValueSelector,
+									'token' => $otpValueToken,
+									'expires_at' => \time() + 60 * 10,
+								]
+							);
+						}
+						catch (Error $e) {
+							throw new DatabaseError($e->getMessage());
+						}
+
+						if ($twoFactorMethod['mechanism'] === self::TWO_FACTOR_MECHANISM_SMS) {
+							$secondFactorRequiredException->addSmsOption($twoFactorMethod['seed'], $otpValue);
+						}
+						elseif ($twoFactorMethod['mechanism'] === self::TWO_FACTOR_MECHANISM_EMAIL) {
+							$secondFactorRequiredException->addEmailOption($twoFactorMethod['seed'], $otpValue);
+						}
+						else {
+							throw new InvalidStateError();
+						}
+
+						// delete any old one-time passwords for this user that have expired at least 15 minutes ago
+						try {
+							$this->db->exec(
+								'DELETE FROM ' . $this->makeTableName('users_otps') . ' WHERE user_id = ? AND expires_at < ?',
+								[ $userId, \time() - 60 * 15 ]
+							);
+						}
+						catch (Error $e) {
+							throw new DatabaseError($e->getMessage());
+						}
+					}
+					// if the specific mechanism mandates that the one-time password is generated on the client side
+					elseif ($twoFactorMethod['mechanism'] === self::TWO_FACTOR_MECHANISM_TOTP) {
+						$secondFactorRequiredException->addTotpOption();
+					}
+					else {
+						throw new InvalidStateError();
+					}
+				}
+			}
+
+			// allow for the second factor to be completed within five minutes, and consider the first factor to be completed and valid until then
+			$_SESSION[self::SESSION_FIELD_AWAITING_2FA_UNTIL] = \time() + 60 * 5;
+			// remember which user it is that has completed the first factor and is now expected to complete the second factor
+			$_SESSION[self::SESSION_FIELD_AWAITING_2FA_USER_ID] = $userId;
+			// remember the "remember me" duration that the user just requested to be kept after signing in
+			$_SESSION[self::SESSION_FIELD_AWAITING_2FA_REMEMBER_DURATION] = $rememberDuration;
+
+			// cancel/pause the login attempt for now
+			throw $secondFactorRequiredException;
+		}
+
+		$this->onLoginSuccessful($userId, $email, $username, $status, $roles, $forceLogout, $remembered);
+
+		if ($rememberDuration !== null) {
+			$this->createRememberDirective($userId, $rememberDuration);
+		}
+	}
+
+	/**
 	 * Returns the requested user data for the account with the specified email address (if any)
 	 *
 	 * You must never pass untrusted input to the parameter that takes the column list
