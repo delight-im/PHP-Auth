@@ -741,11 +741,9 @@ final class Auth extends UserManager {
 					[ 'id', 'email', 'username', 'status', 'roles_mask', 'force_logout' ]
 				);
 
-				$this->onLoginSuccessful($userData['id'], $userData['email'], $userData['username'], $userData['status'], $userData['roles_mask'], $userData['force_logout'], true);
-
-				if ($rememberDuration !== null) {
-					$this->createRememberDirective($userData['id'], $rememberDuration);
-				}
+				$this->finishSingleFactorOrThrow(
+					$userData['id'], $userData['email'], $userData['username'], $userData['status'], $userData['roles_mask'], $userData['force_logout'], true, $rememberDuration
+				);
 			}
 		}
 
@@ -1083,8 +1081,6 @@ final class Auth extends UserManager {
 
 			if ((int) $userData['verified'] === 1) {
 				if (!isset($onBeforeSuccess) || (\is_callable($onBeforeSuccess) && $onBeforeSuccess($userData['id']) === true)) {
-					$this->onLoginSuccessful($userData['id'], $userData['email'], $userData['username'], $userData['status'], $userData['roles_mask'], $userData['force_logout'], false);
-
 					// continue to support the old parameter format
 					if ($rememberDuration === true) {
 						$rememberDuration = 60 * 60 * 24 * 28;
@@ -1093,9 +1089,9 @@ final class Auth extends UserManager {
 						$rememberDuration = null;
 					}
 
-					if ($rememberDuration !== null) {
-						$this->createRememberDirective($userData['id'], $rememberDuration);
-					}
+					$this->finishSingleFactorOrThrow(
+						$userData['id'], $userData['email'], $userData['username'], $userData['status'], $userData['roles_mask'], $userData['force_logout'], false, $rememberDuration
+					);
 
 					return;
 				}
@@ -1454,11 +1450,9 @@ final class Auth extends UserManager {
 				[ 'username', 'status', 'roles_mask', 'force_logout' ]
 			);
 
-			$this->onLoginSuccessful($idAndEmail['id'], $idAndEmail['email'], $userData['username'], $userData['status'], $userData['roles_mask'], $userData['force_logout'], true);
-
-			if ($rememberDuration !== null) {
-				$this->createRememberDirective($idAndEmail['id'], $rememberDuration);
-			}
+			$this->finishSingleFactorOrThrow(
+				$idAndEmail['id'], $idAndEmail['email'], $userData['username'], $userData['status'], $userData['roles_mask'], $userData['force_logout'], true, $rememberDuration
+			);
 		}
 
 		return $idAndEmail;
