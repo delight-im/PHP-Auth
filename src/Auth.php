@@ -793,6 +793,165 @@ final class Auth extends UserManager {
 	}
 
 	/**
+	 * Provides a one-time password as the second factor of authentification after the first factor has already been completed previously
+	 *
+	 * Two-factor authentification would previously have been enabled by calling {@see prepareTwoFactorViaTotp} and then {@see enableTwoFactorViaTotp}
+	 *
+	 * @param string $otpValue a one-time password (OTP) that has just been entered by the user
+	 * @throws InvalidOneTimePasswordException if the one-time password provided by the user is not valid
+	 * @throws NotLoggedInException if the user has not completed the first factor of authentification recently
+	 * @throws TooManyRequestsException if the number of allowed attempts/requests has been exceeded
+	 * @throws AuthError if an internal problem occurred (do *not* catch)
+	 */
+	public function provideOneTimePasswordAsSecondFactor($otpValue) {
+		if (empty($_SESSION[self::SESSION_FIELD_AWAITING_2FA_UNTIL]) || $_SESSION[self::SESSION_FIELD_AWAITING_2FA_UNTIL] < \time()) {
+			throw new NotLoggedInException();
+		}
+
+		if (empty($_SESSION[self::SESSION_FIELD_AWAITING_2FA_USER_ID])) {
+			throw new NotLoggedInException();
+		}
+
+		$_SESSION[self::SESSION_FIELD_AWAITING_2FA_USER_ID] = (int) $_SESSION[self::SESSION_FIELD_AWAITING_2FA_USER_ID];
+		$otpValue = !empty($otpValue) ? (string) $otpValue : '';
+		$otpValue = \preg_replace('/[^A-Za-z0-9]/', '', $otpValue);
+		$otpValue = \strtoupper($otpValue);
+
+		if (empty($otpValue)) {
+			throw new InvalidOneTimePasswordException();
+		}
+
+		$this->throttle([ 'provideOneTimePasswordAsSecondFactor', $_SESSION[self::SESSION_FIELD_AWAITING_2FA_USER_ID] ], 2, 60 * 15, 3);
+		$this->throttle([ 'provideOneTimePasswordAsSecondFactor', $this->getIpAddress() ], 5, 60 * 15, 3);
+
+		$otpValueSelector = self::createSelectorForOneTimePassword($otpValue, $_SESSION[self::SESSION_FIELD_AWAITING_2FA_USER_ID]);
+		$otpValueToken = \password_hash($otpValue, \PASSWORD_DEFAULT);
+
+		try {
+			$otpRecords = $this->db->select(
+				'SELECT id, mechanism, token, expires_at FROM ' . $this->makeTableName('users_otps') . ' WHERE selector = ? AND user_id = ?',
+				[ $otpValueSelector, $_SESSION[self::SESSION_FIELD_AWAITING_2FA_USER_ID] ]
+			);
+		}
+		catch (Error $e) {
+			throw new DatabaseError($e->getMessage());
+		}
+
+		$success = false;
+		$performTotpVerification = true;
+
+		if (!empty($otpRecords)) {
+			foreach ($otpRecords as $otpRecord) {
+				if (!empty($otpRecord)) {
+					if (\password_verify($otpValue, $otpRecord['token'])) {
+						// if the mechanism for this one-time password was time-based (TOTP)
+						if (!empty($otpRecord['mechanism']) && $otpRecord['mechanism'] === self::TWO_FACTOR_MECHANISM_TOTP) {
+							// if the one-time password had an expiry time and that time has passed recently
+							if (isset($otpRecord['expires_at']) && $otpRecord['expires_at'] > (\time() - 60 * 15) && $otpRecord['expires_at'] < \time()) {
+								// the one-time password was in fact a TOTP value on our denylist to prevent replay attacks
+								$performTotpVerification = false;
+
+								continue;
+							}
+						}
+
+						// if the one-time password had no expiry time, i.e. it was valid indefinitely, or if the expiry time has not passed yet
+						if (!isset($otpRecord['expires_at']) || $otpRecord['expires_at'] >= \time()) {
+							// remove the one-time password from the database to prevent repeated usages
+							try {
+								$this->db->delete(
+									$this->makeTableNameComponents('users_otps'),
+									[ 'id' => $otpRecord['id'] ]
+								);
+							}
+							catch (Error $e) {
+								throw new DatabaseError($e->getMessage());
+							}
+
+							// remember that we have successfully verified the one-time password now
+							$success = true;
+
+							break;
+						}
+					}
+				}
+			}
+		}
+
+		// if the one-time password couldn't be verified yet by looking it up in the database
+		if (!$success) {
+			// if we are still supposed to interpret and verify the one-time password as TOTP
+			if ($performTotpVerification) {
+				try {
+					$totpSecret = $this->db->selectValue(
+						'SELECT seed FROM ' . $this->makeTableName('users_2fa') . ' WHERE user_id = ? AND mechanism = ? AND expires_at IS NULL',
+						[
+							$_SESSION[self::SESSION_FIELD_AWAITING_2FA_USER_ID],
+							self::TWO_FACTOR_MECHANISM_TOTP,
+						]
+					);
+				}
+				catch (Error $e) {
+					throw new DatabaseError($e->getMessage());
+				}
+
+				if (!empty($totpSecret)) {
+					if (\Delight\Otp\Otp::verifyTotp($totpSecret, $otpValue)) {
+						// insert the TOTP value into our denylist to prevent replay attacks
+						try {
+							$this->db->insert(
+								$this->makeTableNameComponents('users_otps'),
+								[
+									'user_id' => $_SESSION[self::SESSION_FIELD_AWAITING_2FA_USER_ID],
+									'mechanism' => self::TWO_FACTOR_MECHANISM_TOTP,
+									'single_factor' => 0,
+									'selector' => $otpValueSelector,
+									'token' => $otpValueToken,
+									'expires_at' => \time() - 5
+								]
+							);
+						}
+						catch (Error $e) {
+							throw new DatabaseError($e->getMessage());
+						}
+
+						// remember that we have successfully verified the one-time password now
+						$success = true;
+					}
+				}
+			}
+		}
+
+		if ($success) {
+			try {
+				$userData = $this->db->selectRow(
+					'SELECT email, username, status, roles_mask, force_logout FROM ' . $this->makeTableName('users') . ' WHERE id = ?',
+					[ $_SESSION[self::SESSION_FIELD_AWAITING_2FA_USER_ID] ]
+				);
+			}
+			catch (Error $e) {
+				throw new DatabaseError($e->getMessage());
+			}
+
+			if (!empty($userData)) {
+				$this->onLoginSuccessful(
+					$_SESSION[self::SESSION_FIELD_AWAITING_2FA_USER_ID], $userData['email'], $userData['username'], $userData['status'], $userData['roles_mask'], $userData['force_logout'], false
+				);
+
+				if (isset($_SESSION[self::SESSION_FIELD_AWAITING_2FA_REMEMBER_DURATION])) {
+					$this->createRememberDirective(
+						$_SESSION[self::SESSION_FIELD_AWAITING_2FA_USER_ID], $_SESSION[self::SESSION_FIELD_AWAITING_2FA_REMEMBER_DURATION]
+					);
+				}
+
+				return;
+			}
+		}
+
+		throw new InvalidOneTimePasswordException();
+	}
+
+	/**
 	 * Attempts to change the email address of the currently signed-in user (which requires confirmation)
 	 *
 	 * The callback function must have the following signature:
