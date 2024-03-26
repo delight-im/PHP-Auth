@@ -88,6 +88,21 @@ function processRequestData(\Delight\Auth\Auth $auth) {
 				catch (\Delight\Auth\EmailNotVerifiedException $e) {
 					return 'email address not verified';
 				}
+				catch (\Delight\Auth\SecondFactorRequiredException $e) {
+					$secondFactorOptions = [];
+
+					if ($e->hasTotpOption()) {
+						$secondFactorOptions[] = 'TOTP';
+					}
+					if ($e->hasSmsOption()) {
+						$secondFactorOptions[] = 'SMS (' . $e->getSmsRecipient() . ') with ' . $e->getSmsOtpValue();
+					}
+					if ($e->hasEmailOption()) {
+						$secondFactorOptions[] = 'email (' . $e->getEmailRecipient() . ') with ' . $e->getEmailOtpValue();
+					}
+
+					return 'second factor required: ' . \implode(' / ', $secondFactorOptions);
+				}
 				catch (\Delight\Auth\TooManyRequestsException $e) {
 					return 'too many requests';
 				}
@@ -166,6 +181,21 @@ function processRequestData(\Delight\Auth\Auth $auth) {
 				}
 				catch (\Delight\Auth\UserAlreadyExistsException $e) {
 					return 'email address already exists';
+				}
+				catch (\Delight\Auth\SecondFactorRequiredException $e) {
+					$secondFactorOptions = [];
+
+					if ($e->hasTotpOption()) {
+						$secondFactorOptions[] = 'TOTP';
+					}
+					if ($e->hasSmsOption()) {
+						$secondFactorOptions[] = 'SMS (' . $e->getSmsRecipient() . ') with ' . $e->getSmsOtpValue();
+					}
+					if ($e->hasEmailOption()) {
+						$secondFactorOptions[] = 'email (' . $e->getEmailRecipient() . ') with ' . $e->getEmailOtpValue();
+					}
+
+					return 'second factor required: ' . \implode(' / ', $secondFactorOptions);
 				}
 				catch (\Delight\Auth\TooManyRequestsException $e) {
 					return 'too many requests';
@@ -281,6 +311,21 @@ function processRequestData(\Delight\Auth\Auth $auth) {
 				}
 				catch (\Delight\Auth\InvalidPasswordException $e) {
 					return 'invalid password';
+				}
+				catch (\Delight\Auth\SecondFactorRequiredException $e) {
+					$secondFactorOptions = [];
+
+					if ($e->hasTotpOption()) {
+						$secondFactorOptions[] = 'TOTP';
+					}
+					if ($e->hasSmsOption()) {
+						$secondFactorOptions[] = 'SMS (' . $e->getSmsRecipient() . ') with ' . $e->getSmsOtpValue();
+					}
+					if ($e->hasEmailOption()) {
+						$secondFactorOptions[] = 'email (' . $e->getEmailRecipient() . ') with ' . $e->getEmailOtpValue();
+					}
+
+					return 'second factor required: ' . \implode(' / ', $secondFactorOptions);
 				}
 				catch (\Delight\Auth\TooManyRequestsException $e) {
 					return 'too many requests';
