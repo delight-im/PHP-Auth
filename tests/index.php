@@ -350,6 +350,22 @@ function processRequestData(\Delight\Auth\Auth $auth) {
 					return 'too many requests';
 				}
 			}
+			else if ($_POST['action'] === 'prepareTwoFactorViaTotp') {
+				try {
+					$keyUriAndSecret = $auth->prepareTwoFactorViaTotp($_POST['serviceName']);
+
+					return \implode(' | ', $keyUriAndSecret);
+				}
+				catch (\Delight\Auth\TwoFactorMechanismAlreadyEnabledException $e) {
+					return 'already enabled';
+				}
+				catch (\Delight\Auth\NotLoggedInException $e) {
+					return 'not logged in';
+				}
+				catch (\Delight\Auth\TooManyRequestsException $e) {
+					return 'too many requests';
+				}
+			}
 			else if ($_POST['action'] === 'reconfirmPassword') {
 				try {
 					return $auth->reconfirmPassword($_POST['password']) ? 'correct' : 'wrong';
@@ -876,6 +892,12 @@ function showAuthenticatedUserForm(\Delight\Auth\Auth $auth) {
 	echo '<option value="1"' . ($auth->isPasswordResetEnabled() ? ' selected="selected"' : '') . '>Enabled</option>';
 	echo '</select> ';
 	echo '<button type="submit">Control password resets</button>';
+	echo '</form>';
+
+	echo '<form action="" method="post" accept-charset="utf-8">';
+	echo '<input type="hidden" name="action" value="prepareTwoFactorViaTotp" />';
+	echo '<input type="text" name="serviceName" placeholder="Service name" value="' . \htmlspecialchars(!empty($_SERVER['SERVER_NAME']) ? (string) $_SERVER['SERVER_NAME'] : (!empty($_SERVER['SERVER_ADDR']) ? (string) $_SERVER['SERVER_ADDR'] : '')) . '" /> ';
+	echo '<button type="submit">Prepare 2FA via TOTP</button>';
 	echo '</form>';
 
 	echo '<form action="" method="post" accept-charset="utf-8">';
