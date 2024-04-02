@@ -107,6 +107,22 @@ function processRequestData(\Delight\Auth\Auth $auth) {
 					return 'too many requests';
 				}
 			}
+			else if ($_POST['action'] === 'provideOneTimePasswordAsSecondFactor') {
+				try {
+					$auth->provideOneTimePasswordAsSecondFactor($_POST['otpValue']);
+
+					return 'ok';
+				}
+				catch (\Delight\Auth\InvalidOneTimePasswordException $e) {
+					return 'invalid OTP';
+				}
+				catch (\Delight\Auth\NotLoggedInException $e) {
+					return 'first factor not completed';
+				}
+				catch (\Delight\Auth\TooManyRequestsException $e) {
+					return 'too many requests';
+				}
+			}
 			else if ($_POST['action'] === 'register') {
 				try {
 					if ($_POST['require_verification'] == 1) {
@@ -976,6 +992,12 @@ function showGuestUserForm() {
 	echo '<option value="1">Remember (keep logged in)? — Yes</option>';
 	echo '</select> ';
 	echo '<button type="submit">Log in with username</button>';
+	echo '</form>';
+
+	echo '<form action="" method="post" accept-charset="utf-8">';
+	echo '<input type="hidden" name="action" value="provideOneTimePasswordAsSecondFactor" />';
+	echo '<input type="text" name="otpValue" placeholder="OTP value" /> ';
+	echo '<button type="submit">Provide OTP</button>';
 	echo '</form>';
 
 	echo '<form action="" method="post" accept-charset="utf-8">';
