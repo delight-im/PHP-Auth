@@ -1795,6 +1795,26 @@ final class Auth extends UserManager {
 	}
 
 	/**
+	 * Prepares the setup of two-factor authentification with one-time passwords sent via email
+	 *
+	 * After performing this step, a one-time password will have to be delivered to the user via email and then be requested from the user for verification
+	 *
+	 * When the user has entered the one-time password from the email afterwards, call {@see enableTwoFactorViaEmail} with that one-time password
+	 *
+	 * @return string[] an array with the email address at index zero and the one-time password to be sent (but not otherwise displayed to the user) at index one
+	 * @throws TwoFactorMechanismAlreadyEnabledException if this method of two-factor authentification has already been enabled
+	 * @throws NotLoggedInException if the user is not currently signed in
+	 * @throws TooManyRequestsException if the number of allowed attempts/requests has been exceeded
+	 * @throws AuthError if an internal problem occurred (do *not* catch)
+	 */
+	public function prepareTwoFactorViaEmail() {
+		$this->prepareTwoFactor(self::TWO_FACTOR_MECHANISM_EMAIL, null, null);
+		$otpValue = $this->generateAndStoreRandomOneTimePassword($this->getUserId(), self::TWO_FACTOR_MECHANISM_EMAIL);
+
+		return [ $this->getEmail(), $otpValue ];
+	}
+
+	/**
 	 * Prepares the setup of two-factor authentification via a specified mechanism
 	 *
 	 * @param int $mechanism the specific mechanism to be used for two-factor authentification, as one of the `TWO_FACTOR_MECHANISM_*` constants from this class
