@@ -795,7 +795,7 @@ final class Auth extends UserManager {
 	/**
 	 * Provides a one-time password as the second factor of authentification after the first factor has already been completed previously
 	 *
-	 * Two-factor authentification would previously have been enabled by calling {@see prepareTwoFactorViaTotp} and then {@see enableTwoFactorViaTotp}
+	 * Two-factor authentification would previously have been enabled by calling {@see prepareTwoFactorViaTotp}, {@see prepareTwoFactorViaSms} or {@see prepareTwoFactorViaEmail}, and then {@see enableTwoFactorViaTotp}, {@see enableTwoFactorViaSms} or {@see enableTwoFactorViaEmail}
 	 *
 	 * @param string $otpValue a one-time password (OTP) that has just been entered by the user
 	 * @throws InvalidOneTimePasswordException if the one-time password provided by the user is not valid
