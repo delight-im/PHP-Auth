@@ -842,7 +842,7 @@ function showDebugData(\Delight\Auth\Auth $auth, $result) {
 	echo '$auth->getIpAddress()' . "\t\t\t";
 	\var_dump($auth->getIpAddress());
 	echo 'Waiting for 2FA' . "\t\t\t\t";
-	if (!empty($_SESSION[\Delight\Auth\Auth::SESSION_FIELD_AWAITING_2FA_UNTIL]) && $_SESSION[\Delight\Auth\Auth::SESSION_FIELD_AWAITING_2FA_UNTIL] >= \time()) {
+	if ($auth->isWaitingForSecondFactor()) {
 		echo 'User #' . ((int) $_SESSION[\Delight\Auth\Auth::SESSION_FIELD_AWAITING_2FA_USER_ID]) . ' (' . ($_SESSION[\Delight\Auth\Auth::SESSION_FIELD_AWAITING_2FA_UNTIL] - \time()) . ' seconds)';
 	}
 	else {
