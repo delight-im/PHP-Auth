@@ -1747,6 +1747,26 @@ final class Auth extends UserManager {
 	}
 
 	/**
+	 * Prepares the setup of two-factor authentification via time-based one-time passwords (TOTP)
+	 *
+	 * After performing this step, the user will be able to add the service or application to their authenticator application
+	 *
+	 * When the user has entered a one-time password from their authenticator application afterwards, call {@see enableTwoFactorViaTotp} with that one-time password
+	 *
+	 * @param string|null $serviceName (optional) the name of the service or application that the user interacts with, often the domain name or application title
+	 * @return string[] an array with the key URI (which can be encoded as a QR code) at index zero and the secret string (for manual input) at index one
+	 * @throws TwoFactorMechanismAlreadyEnabledException if this method of two-factor authentification has already been enabled
+	 * @throws NotLoggedInException if the user is not currently signed in
+	 * @throws TooManyRequestsException if the number of allowed attempts/requests has been exceeded
+	 * @throws AuthError if an internal problem occurred (do *not* catch)
+	 */
+	public function prepareTwoFactorViaTotp($serviceName = null) {
+		$serviceName = !empty($serviceName) ? (string) $serviceName : (!empty($_SERVER['SERVER_NAME']) ? (string) $_SERVER['SERVER_NAME'] : (string) $_SERVER['SERVER_ADDR']);
+
+		return $this->prepareTwoFactor(self::TWO_FACTOR_MECHANISM_TOTP, $serviceName, null);
+	}
+
+	/**
 	 * Prepares the setup of two-factor authentification via a specified mechanism
 	 *
 	 * @param int $mechanism the specific mechanism to be used for two-factor authentification, as one of the `TWO_FACTOR_MECHANISM_*` constants from this class
