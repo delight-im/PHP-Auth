@@ -401,6 +401,22 @@ function processRequestData(\Delight\Auth\Auth $auth) {
 					return 'too many requests';
 				}
 			}
+			else if ($_POST['action'] === 'prepareTwoFactorViaEmail') {
+				try {
+					$emailAddressAndOtpValue = $auth->prepareTwoFactorViaEmail();
+
+					return $emailAddressAndOtpValue[1] . ' -> ' . $emailAddressAndOtpValue[0];
+				}
+				catch (\Delight\Auth\TwoFactorMechanismAlreadyEnabledException $e) {
+					return 'already enabled';
+				}
+				catch (\Delight\Auth\NotLoggedInException $e) {
+					return 'not logged in';
+				}
+				catch (\Delight\Auth\TooManyRequestsException $e) {
+					return 'too many requests';
+				}
+			}
 			else if ($_POST['action'] === 'enableTwoFactorViaTotp') {
 				try {
 					$recoveryCodes = $auth->enableTwoFactorViaTotp($_POST['otpValue']);
@@ -968,6 +984,11 @@ function showAuthenticatedUserForm(\Delight\Auth\Auth $auth) {
 	echo '<input type="hidden" name="action" value="prepareTwoFactorViaSms" />';
 	echo '<input type="text" name="phoneNumber" placeholder="Phone number" /> ';
 	echo '<button type="submit">Prepare 2FA via SMS</button>';
+	echo '</form>';
+
+	echo '<form action="" method="post" accept-charset="utf-8">';
+	echo '<input type="hidden" name="action" value="prepareTwoFactorViaEmail" />';
+	echo '<button type="submit">Prepare 2FA via email</button>';
 	echo '</form>';
 
 	echo '<form action="" method="post" accept-charset="utf-8">';
