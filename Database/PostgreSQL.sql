@@ -18,6 +18,16 @@ CREATE TABLE IF NOT EXISTS "users" (
 	"force_logout" INTEGER NOT NULL DEFAULT '0' CHECK ("force_logout" >= 0)
 );
 
+CREATE TABLE IF NOT EXISTS "users_2fa" (
+	"id" BIGSERIAL PRIMARY KEY CHECK ("id" >= 0),
+	"user_id" INTEGER NOT NULL CHECK ("user_id" >= 0),
+	"mechanism" SMALLINT NOT NULL CHECK ("mechanism" >= 0),
+	"seed" VARCHAR(255) DEFAULT NULL,
+	"created_at" INTEGER NOT NULL CHECK ("created_at" >= 0),
+	"expires_at" INTEGER DEFAULT NULL CHECK ("expires_at" >= 0),
+);
+CREATE UNIQUE INDEX IF NOT EXISTS "user_id_mechanism" ON "users_2fa" ("user_id", "mechanism");
+
 CREATE TABLE IF NOT EXISTS "users_confirmations" (
 	"id" SERIAL PRIMARY KEY CHECK ("id" >= 0),
 	"user_id" INTEGER NOT NULL CHECK ("user_id" >= 0),
@@ -28,6 +38,18 @@ CREATE TABLE IF NOT EXISTS "users_confirmations" (
 );
 CREATE INDEX IF NOT EXISTS "email_expires" ON "users_confirmations" ("email", "expires");
 CREATE INDEX IF NOT EXISTS "user_id" ON "users_confirmations" ("user_id");
+
+CREATE TABLE IF NOT EXISTS "users_otps" (
+	"id" BIGSERIAL PRIMARY KEY CHECK ("id" >= 0),
+	"user_id" INTEGER NOT NULL CHECK ("user_id" >= 0),
+	"mechanism" SMALLINT NOT NULL CHECK ("mechanism" >= 0),
+	"single_factor" SMALLINT NOT NULL DEFAULT '0' CHECK ("single_factor" >= 0),
+	"selector" VARCHAR(24) NOT NULL,
+	"token" VARCHAR(255) NOT NULL,
+	"expires_at" INTEGER DEFAULT NULL CHECK ("expires_at" >= 0),
+);
+CREATE INDEX IF NOT EXISTS "user_id_mechanism" ON "users_otps" ("user_id", "mechanism");
+CREATE INDEX IF NOT EXISTS "selector_user_id" ON "users_otps" ("selector", "user_id");
 
 CREATE TABLE IF NOT EXISTS "users_remembered" (
 	"id" BIGSERIAL PRIMARY KEY CHECK ("id" >= 0),
