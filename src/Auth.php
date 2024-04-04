@@ -2193,6 +2193,15 @@ final class Auth extends UserManager {
 	}
 
 	/**
+	 * Returns whether we are waiting for the user to complete the second factor of (two-factor) authentification, them having successfully completed the first factor before
+	 *
+	 * @return bool
+	 */
+	public function isWaitingForSecondFactor() {
+		return !empty($_SESSION[self::SESSION_FIELD_AWAITING_2FA_UNTIL]) && $_SESSION[self::SESSION_FIELD_AWAITING_2FA_UNTIL] >= \time();
+	}
+
+	/**
 	 * Performs throttling or rate limiting using the token bucket algorithm (inverse leaky bucket algorithm)
 	 *
 	 * @param array $criteria the individual criteria that together describe the resource that is being throttled
