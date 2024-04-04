@@ -1767,6 +1767,34 @@ final class Auth extends UserManager {
 	}
 
 	/**
+	 * Prepares the setup of two-factor authentification with one-time passwords sent via SMS
+	 *
+	 * After performing this step, a one-time password will have to be delivered to the user via SMS and then be requested from the user for verification
+	 *
+	 * When the user has entered the one-time password from the text message afterwards, call {@see enableTwoFactorViaSms} with that one-time password
+	 *
+	 * @param string $phoneNumber the phone number to send the one-time passwords to
+	 * @return string[] an array with the phone number at index zero and the one-time password to be sent (but not otherwise displayed to the user) at index one
+	 * @throws InvalidPhoneNumberException if no valid phone number has been provided
+	 * @throws TwoFactorMechanismAlreadyEnabledException if this method of two-factor authentification has already been enabled
+	 * @throws NotLoggedInException if the user is not currently signed in
+	 * @throws TooManyRequestsException if the number of allowed attempts/requests has been exceeded
+	 * @throws AuthError if an internal problem occurred (do *not* catch)
+	 */
+	public function prepareTwoFactorViaSms($phoneNumber) {
+		$phoneNumber = !empty($phoneNumber) ? \trim((string) $phoneNumber) : '';
+
+		if (\strlen($phoneNumber) < 3) {
+			throw new InvalidPhoneNumberException();
+		}
+
+		$this->prepareTwoFactor(self::TWO_FACTOR_MECHANISM_SMS, null, $phoneNumber);
+		$otpValue = $this->generateAndStoreRandomOneTimePassword($this->getUserId(), self::TWO_FACTOR_MECHANISM_SMS);
+
+		return [ $phoneNumber, $otpValue ];
+	}
+
+	/**
 	 * Prepares the setup of two-factor authentification via a specified mechanism
 	 *
 	 * @param int $mechanism the specific mechanism to be used for two-factor authentification, as one of the `TWO_FACTOR_MECHANISM_*` constants from this class
