@@ -1320,28 +1320,7 @@ final class Auth extends UserManager {
 							$throttled = true;
 						}
 
-						// generate a one-time password
-						$otpValue = \strtoupper(\substr(\Delight\Otp\Otp::createSecret(\Delight\Otp\Otp::SHARED_SECRET_STRENGTH_LOW), 0, 6));
-						$otpValueSelector = self::createSelectorForOneTimePassword($otpValue, $userId);
-						$otpValueToken = \password_hash($otpValue, \PASSWORD_DEFAULT);
-
-						// store the generated one-time password
-						try {
-							$this->db->insert(
-								$this->makeTableNameComponents('users_otps'),
-								[
-									'user_id' => $userId,
-									'mechanism' => $twoFactorMethod['mechanism'],
-									'single_factor' => 0,
-									'selector' => $otpValueSelector,
-									'token' => $otpValueToken,
-									'expires_at' => \time() + 60 * 10,
-								]
-							);
-						}
-						catch (Error $e) {
-							throw new DatabaseError($e->getMessage());
-						}
+						$otpValue = $this->generateAndStoreRandomOneTimePassword($userId, $twoFactorMethod['mechanism']);
 
 						if ($twoFactorMethod['mechanism'] === self::TWO_FACTOR_MECHANISM_SMS) {
 							$secondFactorRequiredException->addSmsOption($twoFactorMethod['seed'], $otpValue);
@@ -1351,17 +1330,6 @@ final class Auth extends UserManager {
 						}
 						else {
 							throw new InvalidStateError();
-						}
-
-						// delete any old one-time passwords for this user that have expired at least 15 minutes ago
-						try {
-							$this->db->exec(
-								'DELETE FROM ' . $this->makeTableName('users_otps') . ' WHERE user_id = ? AND expires_at < ?',
-								[ $userId, \time() - 60 * 15 ]
-							);
-						}
-						catch (Error $e) {
-							throw new DatabaseError($e->getMessage());
 						}
 					}
 					// if the specific mechanism mandates that the one-time password is generated on the client side
@@ -1390,6 +1358,45 @@ final class Auth extends UserManager {
 		if ($rememberDuration !== null) {
 			$this->createRememberDirective($userId, $rememberDuration);
 		}
+	}
+
+	private function generateAndStoreRandomOneTimePassword($userId, $mechanism) {
+		// generate a random one-time password
+		$otpLength = 6;
+		$otpValue = \strtoupper(\substr(\Delight\Otp\Otp::createSecret(\Delight\Otp\Otp::SHARED_SECRET_STRENGTH_LOW), 0, $otpLength));
+		$otpValueSelector = self::createSelectorForOneTimePassword($otpValue, $userId);
+		$otpValueToken = \password_hash($otpValue, \PASSWORD_DEFAULT);
+
+		// store the generated one-time password for the user and define it to expire after ten minutes
+		try {
+			$this->db->insert(
+				$this->makeTableNameComponents('users_otps'),
+				[
+					'user_id' => $userId,
+					'mechanism' => $mechanism,
+					'single_factor' => 0,
+					'selector' => $otpValueSelector,
+					'token' => $otpValueToken,
+					'expires_at' => \time() + 60 * 10,
+				]
+			);
+		}
+		catch (Error $e) {
+			throw new DatabaseError($e->getMessage());
+		}
+
+		// delete any old one-time passwords for the user that have expired at least 15 minutes ago
+		try {
+			$this->db->exec(
+				'DELETE FROM ' . $this->makeTableName('users_otps') . ' WHERE user_id = ? AND expires_at < ?',
+				[ $userId, \time() - 60 * 15 ]
+			);
+		}
+		catch (Error $e) {
+			throw new DatabaseError($e->getMessage());
+		}
+
+		return $otpValue;
 	}
 
 	/**
