@@ -1747,30 +1747,36 @@ final class Auth extends UserManager {
 	}
 
 	/**
-	 * Prepares the setup of two-factor authentification via time-based one-time passwords (TOTP)
+	 * Prepares the setup of two-factor authentification via a specified mechanism
 	 *
-	 * After performing this step, the user will be able to add the service or application to their authenticator application
-	 *
-	 * When the user has entered a one-time password from their authenticator application afterwards, call {@see enableTwoFactorViaTotp} with that one-time password
-	 *
-	 * @param string|null $serviceName (optional) the name of the service or application that the user interacts with, often the domain name or application title
-	 * @return string[] an array with the key URI (which can be encoded as a QR code) at index zero and the secret string (for manual input) at index one
-	 * @throws TwoFactorMechanismAlreadyEnabledException if this method of two-factor authentification has already been enabled
+	 * @param int $mechanism the specific mechanism to be used for two-factor authentification, as one of the `TWO_FACTOR_MECHANISM_*` constants from this class
+	 * @param string|null $serviceName (optional) the name of the service or application that the user interacts with, only used with TOTP 2FA
+	 * @param string|null $phoneNumber (optional) the phone number to send the one-time passwords to, only used with SMS 2FA
+	 * @return string[] an array with the TOTP configuration, if applicable, namely the key URI at index zero and the secret string at index one, or otherwise an empty array
+	 * @throws TwoFactorMechanismAlreadyEnabledException if the specified method of two-factor authentification has already been enabled
 	 * @throws NotLoggedInException if the user is not currently signed in
 	 * @throws TooManyRequestsException if the number of allowed attempts/requests has been exceeded
 	 * @throws AuthError if an internal problem occurred (do *not* catch)
 	 */
-	public function prepareTwoFactorViaTotp($serviceName = null) {
+	private function prepareTwoFactor($mechanism, $serviceName = null, $phoneNumber = null) {
+		if (empty($mechanism)) {
+			throw new InvalidStateError();
+		}
+
+		if ($mechanism !== self::TWO_FACTOR_MECHANISM_TOTP && $mechanism !== self::TWO_FACTOR_MECHANISM_SMS && $mechanism !== self::TWO_FACTOR_MECHANISM_EMAIL) {
+			throw new InvalidStateError();
+		}
+
 		if ($this->isLoggedIn()) {
-			$this->throttle([ 'prepareTwoFactorViaTotp', 'userId', $this->getUserId() ], 2, (60 * 60), 2);
-			$this->throttle([ 'prepareTwoFactorViaTotp', $this->getIpAddress() ], 3, (60 * 60), 3);
+			$this->throttle([ 'prepareTwoFactor', 'mechanism', $mechanism, 'userId', $this->getUserId() ], 2, (60 * 60), 2);
+			$this->throttle([ 'prepareTwoFactor', 'mechanism', $mechanism, $this->getIpAddress() ], 3, (60 * 60), 3);
 
 			try {
 				$existingConfig = $this->db->selectRow(
 					'SELECT id, expires_at FROM ' . $this->makeTableName('users_2fa') . ' WHERE user_id = ? AND mechanism = ?',
 					[
 						$this->getUserId(),
-						self::TWO_FACTOR_MECHANISM_TOTP,
+						$mechanism,
 					]
 				);
 			}
@@ -1789,7 +1795,7 @@ final class Auth extends UserManager {
 							[
 								'id' => $existingConfig['id'],
 								'user_id' => $this->getUserId(),
-								'mechanism' => self::TWO_FACTOR_MECHANISM_TOTP,
+								'mechanism' => $mechanism,
 								'expires_at' => $existingConfig['expires_at'],
 							]
 						);
@@ -1806,15 +1812,30 @@ final class Auth extends UserManager {
 
 			// create a new configuration
 
-			$totpSecret = \Delight\Otp\Otp::createSecret(\Delight\Otp\Otp::SHARED_SECRET_STRENGTH_HIGH);
+			if ($mechanism === self::TWO_FACTOR_MECHANISM_TOTP) {
+				$seed = \Delight\Otp\Otp::createSecret(\Delight\Otp\Otp::SHARED_SECRET_STRENGTH_HIGH);
+				$totpKeyUri = \Delight\Otp\Otp::createTotpKeyUriForQrCode($serviceName, $this->getEmail(), $seed);
+				$otpConfig = [ $totpKeyUri, $seed ];
+			}
+			elseif ($mechanism === self::TWO_FACTOR_MECHANISM_SMS) {
+				$seed = $phoneNumber;
+				$otpConfig = [];
+			}
+			elseif ($mechanism === self::TWO_FACTOR_MECHANISM_EMAIL) {
+				$seed = $this->getEmail();
+				$otpConfig = [];
+			}
+			else {
+				throw new InvalidStateError();
+			}
 
 			try {
 				$this->db->insert(
 					$this->makeTableNameComponents('users_2fa'),
 					[
 						'user_id' => $this->getUserId(),
-						'mechanism' => self::TWO_FACTOR_MECHANISM_TOTP,
-						'seed' => $totpSecret,
+						'mechanism' => $mechanism,
+						'seed' => $seed,
 						'created_at' => \time(),
 						'expires_at' => \time() + 60 * 30,
 					]
@@ -1824,10 +1845,7 @@ final class Auth extends UserManager {
 				throw new DatabaseError($e->getMessage());
 			}
 
-			$serviceName = !empty($serviceName) ? (string) $serviceName : (!empty($_SERVER['SERVER_NAME']) ? (string) $_SERVER['SERVER_NAME'] : (string) $_SERVER['SERVER_ADDR']);
-			$totpKeyUri = \Delight\Otp\Otp::createTotpKeyUriForQrCode($serviceName, $this->getEmail(), $totpSecret);
-
-			return [ $totpKeyUri, $totpSecret ];
+			return $otpConfig;
 		}
 		else {
 			throw new NotLoggedInException();
