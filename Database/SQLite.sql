@@ -19,6 +19,16 @@ CREATE TABLE "users" (
 	CONSTRAINT "email" UNIQUE ("email")
 );
 
+CREATE TABLE "users_2fa" (
+	"id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL CHECK ("id" >= 0),
+	"user_id" INTEGER NOT NULL CHECK ("user_id" >= 0),
+	"mechanism" INTEGER NOT NULL CHECK ("mechanism" >= 0),
+	"seed" VARCHAR(255) DEFAULT NULL,
+	"created_at" INTEGER NOT NULL CHECK ("created_at" >= 0),
+	"expires_at" INTEGER CHECK ("expires_at" >= 0) DEFAULT NULL,
+	CONSTRAINT "user_id_mechanism" UNIQUE ("user_id", "mechanism")
+);
+
 CREATE TABLE "users_confirmations" (
 	"id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL CHECK ("id" >= 0),
 	"user_id" INTEGER NOT NULL CHECK ("user_id" >= 0),
@@ -30,6 +40,18 @@ CREATE TABLE "users_confirmations" (
 );
 CREATE INDEX "users_confirmations.email_expires" ON "users_confirmations" ("email", "expires");
 CREATE INDEX "users_confirmations.user_id" ON "users_confirmations" ("user_id");
+
+CREATE TABLE "users_otps" (
+	"id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL CHECK ("id" >= 0),
+	"user_id" INTEGER NOT NULL CHECK ("user_id" >= 0),
+	"mechanism" INTEGER NOT NULL CHECK ("mechanism" >= 0),
+	"single_factor" INTEGER NOT NULL CHECK ("single_factor" >= 0) DEFAULT "0",
+	"selector" VARCHAR(24) NOT NULL,
+	"token" VARCHAR(255) NOT NULL,
+	"expires_at" INTEGER CHECK ("expires_at" >= 0) DEFAULT NULL
+);
+CREATE INDEX "users_otps.user_id_mechanism" ON "users_otps" ("user_id", "mechanism");
+CREATE INDEX "users_otps.selector_user_id" ON "users_otps" ("selector", "user_id");
 
 CREATE TABLE "users_remembered" (
 	"id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL CHECK ("id" >= 0),
