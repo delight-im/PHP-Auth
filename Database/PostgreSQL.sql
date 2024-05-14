@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS "users_2fa" (
 	"mechanism" SMALLINT NOT NULL CHECK ("mechanism" >= 0),
 	"seed" VARCHAR(255) DEFAULT NULL,
 	"created_at" INTEGER NOT NULL CHECK ("created_at" >= 0),
-	"expires_at" INTEGER DEFAULT NULL CHECK ("expires_at" >= 0),
+	"expires_at" INTEGER DEFAULT NULL CHECK ("expires_at" >= 0)
 );
 CREATE UNIQUE INDEX IF NOT EXISTS "user_id_mechanism" ON "users_2fa" ("user_id", "mechanism");
 
@@ -46,7 +46,7 @@ CREATE TABLE IF NOT EXISTS "users_otps" (
 	"single_factor" SMALLINT NOT NULL DEFAULT '0' CHECK ("single_factor" >= 0),
 	"selector" VARCHAR(24) NOT NULL,
 	"token" VARCHAR(255) NOT NULL,
-	"expires_at" INTEGER DEFAULT NULL CHECK ("expires_at" >= 0),
+	"expires_at" INTEGER DEFAULT NULL CHECK ("expires_at" >= 0)
 );
 CREATE INDEX IF NOT EXISTS "user_id_mechanism" ON "users_otps" ("user_id", "mechanism");
 CREATE INDEX IF NOT EXISTS "selector_user_id" ON "users_otps" ("selector", "user_id");
