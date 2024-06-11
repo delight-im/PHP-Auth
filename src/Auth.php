@@ -1941,6 +1941,26 @@ final class Auth extends UserManager {
 	}
 
 	/**
+	 * Completes the previously started setup of two-factor authentification with one-time passwords sent via SMS
+	 *
+	 * Initially providing a valid one-time password here once is what proves that the setup was successful on the client side
+	 *
+	 * In order to let the user set up their phone number for OTPs via SMS, call {@see prepareTwoFactorViaSms} as a first step
+	 *
+	 * @param string $otpValue a one-time password (OTP) that has just been entered by the user
+	 * @return string[] a few recovery codes that can be used instead of one-time passwords from text messages in case the user loses access to their phone (number)
+	 * @throws InvalidOneTimePasswordException if the one-time password provided by the user is not valid
+	 * @throws TwoFactorMechanismNotInitializedException if this method of two-factor authentification has not been initialized before or if the initialization has expired
+	 * @throws TwoFactorMechanismAlreadyEnabledException if this method of two-factor authentification has already been enabled
+	 * @throws NotLoggedInException if the user is not currently signed in
+	 * @throws TooManyRequestsException if the number of allowed attempts/requests has been exceeded
+	 * @throws AuthError if an internal problem occurred (do *not* catch)
+	 */
+	public function enableTwoFactorViaSms($otpValue) {
+		return $this->enableTwoFactor(self::TWO_FACTOR_MECHANISM_SMS, $otpValue);
+	}
+
+	/**
 	 * Completes the previously started setup of two-factor authentification via a specified mechanism
 	 *
 	 * Initially providing a valid one-time password here once is what proves that the setup was successful on the client side
