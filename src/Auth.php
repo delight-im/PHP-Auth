@@ -1921,14 +1921,15 @@ final class Auth extends UserManager {
 	}
 
 	/**
-	 * Completes the previously started setup of two-factor authentification via time-based one-time passwords (TOTP)
+	 * Completes the previously started setup of two-factor authentification via a specified mechanism
 	 *
-	 * Initially providing a valid one-time password here once proves that the setup was successful on the client side
+	 * Initially providing a valid one-time password here once is what proves that the setup was successful on the client side
 	 *
-	 * In order to let the user set up their authenticator application, call {@see prepareTwoFactorViaTotp} as a first step
+	 * In order to let the user start the setup on the client side, call {@see prepareTwoFactorViaTotp}, {@see prepareTwoFactorViaSms} or {@see prepareTwoFactorViaEmail} as a first step
 	 *
+	 * @param int $mechanism the specific mechanism to be used for two-factor authentification, as one of the `TWO_FACTOR_MECHANISM_*` constants from this class
 	 * @param string $otpValue a one-time password (OTP) that has just been entered by the user
-	 * @return string[] a few recovery codes that can be used instead of one-time passwords from the authenticator application in case the user loses access to their TOTP source
+	 * @return string[] a few recovery codes that can be used instead of one-time passwords from the configured source in case the user loses access to their source
 	 * @throws InvalidOneTimePasswordException if the one-time password provided by the user is not valid
 	 * @throws TwoFactorMechanismNotInitializedException if this method of two-factor authentification has not been initialized before or if the initialization has expired
 	 * @throws TwoFactorMechanismAlreadyEnabledException if this method of two-factor authentification has already been enabled
@@ -1936,10 +1937,18 @@ final class Auth extends UserManager {
 	 * @throws TooManyRequestsException if the number of allowed attempts/requests has been exceeded
 	 * @throws AuthError if an internal problem occurred (do *not* catch)
 	 */
-	public function enableTwoFactorViaTotp($otpValue) {
+	private function enableTwoFactor($mechanism, $otpValue) {
+		if (empty($mechanism)) {
+			throw new InvalidStateError();
+		}
+
+		if ($mechanism !== self::TWO_FACTOR_MECHANISM_TOTP && $mechanism !== self::TWO_FACTOR_MECHANISM_SMS && $mechanism !== self::TWO_FACTOR_MECHANISM_EMAIL) {
+			throw new InvalidStateError();
+		}
+
 		if ($this->isLoggedIn()) {
-			$this->throttle([ 'enableTwoFactorViaTotp', 'userId', $this->getUserId() ], 2, (60 * 60), 2);
-			$this->throttle([ 'enableTwoFactorViaTotp', $this->getIpAddress() ], 3, (60 * 60), 3);
+			$this->throttle([ 'enableTwoFactor', 'mechanism', $mechanism, 'userId', $this->getUserId() ], 2, (60 * 60), 2);
+			$this->throttle([ 'enableTwoFactor', 'mechanism', $mechanism, $this->getIpAddress() ], 3, (60 * 60), 3);
 
 			$otpValue = !empty($otpValue) ? \trim((string) $otpValue) : null;
 
@@ -1952,7 +1961,7 @@ final class Auth extends UserManager {
 					'SELECT id, seed, expires_at FROM ' . $this->makeTableName('users_2fa') . ' WHERE user_id = ? AND mechanism = ?',
 					[
 						$this->getUserId(),
-						self::TWO_FACTOR_MECHANISM_TOTP,
+						$mechanism,
 					]
 				);
 			}
@@ -1975,12 +1984,64 @@ final class Auth extends UserManager {
 				throw new TwoFactorMechanismNotInitializedException();
 			}
 
-			// check if the one-time password provided by the user is valid for the stored secret
-			$totpValueVerified = \Delight\Otp\Otp::verifyTotp($existingConfig['seed'], $otpValue);
+			// check if the one-time password provided by the user is valid
 
-			if (!$totpValueVerified) {
+			if ($mechanism === self::TWO_FACTOR_MECHANISM_TOTP) {
+				$otpValueVerified = \Delight\Otp\Otp::verifyTotp($existingConfig['seed'], $otpValue);
+			}
+			elseif ($mechanism === self::TWO_FACTOR_MECHANISM_SMS || $mechanism === self::TWO_FACTOR_MECHANISM_EMAIL) {
+				$otpValueVerified = false;
+
+				try {
+					$otpRecords = $this->db->select(
+						'SELECT id, token FROM ' . $this->makeTableName('users_otps') . ' WHERE selector = ? AND user_id = ? AND mechanism = ? AND expires_at >= ?',
+						[
+							self::createSelectorForOneTimePassword($otpValue, $this->getUserId()),
+							$this->getUserId(),
+							$mechanism,
+							\time(),
+						]
+					);
+				}
+				catch (Error $e) {
+					throw new DatabaseError($e->getMessage());
+				}
+
+				if (!empty($otpRecords)) {
+					foreach ($otpRecords as $otpRecord) {
+						if (!empty($otpRecord)) {
+							if (\password_verify($otpValue, $otpRecord['token'])) {
+								$otpValueVerified = true;
+
+								// remove the one-time password from the database to prevent repeated usages
+								try {
+									$this->db->delete(
+										$this->makeTableNameComponents('users_otps'),
+										[ 'id' => $otpRecord['id'] ]
+									);
+								}
+								catch (Error $e) {
+									throw new DatabaseError($e->getMessage());
+								}
+
+								break;
+							}
+						}
+					}
+				}
+			}
+			else {
+				throw new InvalidStateError();
+			}
+
+			// fail if the one-time password provided by the user has been invalid
+			if (!$otpValueVerified) {
 				throw new InvalidOneTimePasswordException();
 			}
+
+			// now that we know the one-time password has been valid
+
+			// generate and store recovery codes that are to be presented to the user *once*
 
 			$recoveryCodes = [];
 
@@ -1994,7 +2055,7 @@ final class Auth extends UserManager {
 						$this->makeTableNameComponents('users_otps'),
 						[
 							'user_id' => $this->getUserId(),
-							'mechanism' => self::TWO_FACTOR_MECHANISM_TOTP,
+							'mechanism' => $mechanism,
 							'single_factor' => 0,
 							'selector' => $recoveryCodeSelector,
 							'token' => $recoveryCodeToken,
@@ -2019,7 +2080,7 @@ final class Auth extends UserManager {
 					[
 						'id' => $existingConfig['id'],
 						'user_id' => $this->getUserId(),
-						'mechanism' => self::TWO_FACTOR_MECHANISM_TOTP,
+						'mechanism' => $mechanism,
 						'expires_at' => $existingConfig['expires_at'],
 					]
 				);
