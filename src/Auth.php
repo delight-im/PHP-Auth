@@ -1921,6 +1921,26 @@ final class Auth extends UserManager {
 	}
 
 	/**
+	 * Completes the previously started setup of two-factor authentification via time-based one-time passwords (TOTP)
+	 *
+	 * Initially providing a valid one-time password here once is what proves that the setup was successful on the client side
+	 *
+	 * In order to let the user set up their authenticator application, call {@see prepareTwoFactorViaTotp} as a first step
+	 *
+	 * @param string $otpValue a one-time password (OTP) that has just been entered by the user
+	 * @return string[] a few recovery codes that can be used instead of one-time passwords from the authenticator application in case the user loses access to their TOTP source
+	 * @throws InvalidOneTimePasswordException if the one-time password provided by the user is not valid
+	 * @throws TwoFactorMechanismNotInitializedException if this method of two-factor authentification has not been initialized before or if the initialization has expired
+	 * @throws TwoFactorMechanismAlreadyEnabledException if this method of two-factor authentification has already been enabled
+	 * @throws NotLoggedInException if the user is not currently signed in
+	 * @throws TooManyRequestsException if the number of allowed attempts/requests has been exceeded
+	 * @throws AuthError if an internal problem occurred (do *not* catch)
+	 */
+	public function enableTwoFactorViaTotp($otpValue) {
+		return $this->enableTwoFactor(self::TWO_FACTOR_MECHANISM_TOTP, $otpValue);
+	}
+
+	/**
 	 * Completes the previously started setup of two-factor authentification via a specified mechanism
 	 *
 	 * Initially providing a valid one-time password here once is what proves that the setup was successful on the client side
