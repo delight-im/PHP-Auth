@@ -1991,8 +1991,8 @@ final class Auth extends UserManager {
 	 * @param string $otpValue a one-time password (OTP) that has just been entered by the user
 	 * @return string[] a few recovery codes that can be used instead of one-time passwords from the configured source in case the user loses access to their source
 	 * @throws InvalidOneTimePasswordException if the one-time password provided by the user is not valid
-	 * @throws TwoFactorMechanismNotInitializedException if this method of two-factor authentification has not been initialized before or if the initialization has expired
-	 * @throws TwoFactorMechanismAlreadyEnabledException if this method of two-factor authentification has already been enabled
+	 * @throws TwoFactorMechanismNotInitializedException if the specified method of two-factor authentification has not been initialized before or if the initialization has expired
+	 * @throws TwoFactorMechanismAlreadyEnabledException if the specified method of two-factor authentification has already been enabled
 	 * @throws NotLoggedInException if the user is not currently signed in
 	 * @throws TooManyRequestsException if the number of allowed attempts/requests has been exceeded
 	 * @throws AuthError if an internal problem occurred (do *not* catch)
