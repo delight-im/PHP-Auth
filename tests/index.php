@@ -461,6 +461,28 @@ function processRequestData(\Delight\Auth\Auth $auth) {
 					return 'too many requests';
 				}
 			}
+			else if ($_POST['action'] === 'enableTwoFactorViaEmail') {
+				try {
+					$recoveryCodes = $auth->enableTwoFactorViaEmail($_POST['otpValue']);
+
+					return \implode(' | ', $recoveryCodes);
+				}
+				catch (\Delight\Auth\InvalidOneTimePasswordException $e) {
+					return 'invalid OTP';
+				}
+				catch (\Delight\Auth\TwoFactorMechanismNotInitializedException $e) {
+					return 'not initialized';
+				}
+				catch (\Delight\Auth\TwoFactorMechanismAlreadyEnabledException $e) {
+					return 'already enabled';
+				}
+				catch (\Delight\Auth\NotLoggedInException $e) {
+					return 'not logged in';
+				}
+				catch (\Delight\Auth\TooManyRequestsException $e) {
+					return 'too many requests';
+				}
+			}
 			else if ($_POST['action'] === 'reconfirmPassword') {
 				try {
 					return $auth->reconfirmPassword($_POST['password']) ? 'correct' : 'wrong';
@@ -1023,6 +1045,12 @@ function showAuthenticatedUserForm(\Delight\Auth\Auth $auth) {
 	echo '<input type="hidden" name="action" value="enableTwoFactorViaSms" />';
 	echo '<input type="text" name="otpValue" placeholder="OTP value" /> ';
 	echo '<button type="submit">Enable 2FA via SMS</button>';
+	echo '</form>';
+
+	echo '<form action="" method="post" accept-charset="utf-8">';
+	echo '<input type="hidden" name="action" value="enableTwoFactorViaEmail" />';
+	echo '<input type="text" name="otpValue" placeholder="OTP value" /> ';
+	echo '<button type="submit">Enable 2FA via email</button>';
 	echo '</form>';
 
 	echo '<form action="" method="post" accept-charset="utf-8">';
