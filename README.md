@@ -638,7 +638,7 @@ Here’s how to use this library with your own tables for custom user informatio
         }
 
         if (!isset($_SESSION['_internal_user_info'])) {
-            // TODO: load your custom user information and assign it to the session variable below
+            // To do: load your custom user information and assign it to the session variable below
             // $_SESSION['_internal_user_info'] = ...
         }
 
