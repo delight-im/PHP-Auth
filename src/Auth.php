@@ -1869,6 +1869,20 @@ final class Auth extends UserManager {
 					catch (Error $e) {
 						throw new DatabaseError($e->getMessage());
 					}
+
+					// delete any one-time passwords for the user that were for (verification of) the old configuration
+					try {
+						$this->db->exec(
+							'DELETE FROM ' . $this->makeTableName('users_otps') . ' WHERE user_id = ? AND mechanism = ? AND expires_at IS NOT NULL',
+							[
+								$this->getUserId(),
+								$mechanism,
+							]
+						);
+					}
+					catch (Error $e) {
+						throw new DatabaseError($e->getMessage());
+					}
 				}
 				// if the existing configuration has been completed/enabled already
 				else {
