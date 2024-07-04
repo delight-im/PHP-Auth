@@ -813,9 +813,7 @@ final class Auth extends UserManager {
 		}
 
 		$_SESSION[self::SESSION_FIELD_AWAITING_2FA_USER_ID] = (int) $_SESSION[self::SESSION_FIELD_AWAITING_2FA_USER_ID];
-		$otpValue = !empty($otpValue) ? (string) $otpValue : '';
-		$otpValue = \preg_replace('/[^A-Za-z0-9]/', '', $otpValue);
-		$otpValue = \strtoupper($otpValue);
+		$otpValue = !empty($otpValue) ? self::sanitizeOtpValue((string) $otpValue) : '';
 
 		if (empty($otpValue)) {
 			throw new InvalidOneTimePasswordException();
@@ -2010,7 +2008,7 @@ final class Auth extends UserManager {
 			$this->throttle([ 'enableTwoFactor', 'mechanism', $mechanism, 'userId', $this->getUserId() ], 2, (60 * 60), 2);
 			$this->throttle([ 'enableTwoFactor', 'mechanism', $mechanism, $this->getIpAddress() ], 3, (60 * 60), 3);
 
-			$otpValue = !empty($otpValue) ? \trim((string) $otpValue) : null;
+			$otpValue = !empty($otpValue) ? self::sanitizeOtpValue((string) $otpValue) : '';
 
 			if (empty($otpValue)) {
 				throw new InvalidOneTimePasswordException();
@@ -2661,6 +2659,14 @@ final class Auth extends UserManager {
 		}
 
 		return null;
+	}
+
+	private static function sanitizeOtpValue($otpValue) {
+		$otpValue = \trim($otpValue);
+		$otpValue = \preg_replace('/[^A-Za-z0-9]/', '', $otpValue);
+		$otpValue = \strtoupper($otpValue);
+
+		return $otpValue;
 	}
 
 }
