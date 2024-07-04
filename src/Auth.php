@@ -1360,8 +1360,26 @@ final class Auth extends UserManager {
 
 	private function generateAndStoreRandomOneTimePassword($userId, $mechanism) {
 		// generate a random one-time password
-		$otpLength = 6;
-		$otpValue = \strtoupper(\substr(\Delight\Otp\Otp::createSecret(\Delight\Otp\Otp::SHARED_SECRET_STRENGTH_LOW), 0, $otpLength));
+
+		$otpValue = null;
+
+		if (\PHP_VERSION_ID >= 70000) {
+			try {
+				$otpValue = \random_int(0, 999999);
+				$otpValue = \sprintf('%06d', $otpValue);
+			}
+			catch (\Exception $e) {
+				$otpValue = null;
+			}
+		}
+
+		if (empty($otpValue)) {
+			$otpValue = \Delight\Otp\Otp::createSecret(\Delight\Otp\Otp::SHARED_SECRET_STRENGTH_LOW);
+			$otpValue = \substr($otpValue, 0, 6);
+			$otpValue = \strtoupper($otpValue);
+		}
+
+		// create a selector/token pair from the generated one-time password
 		$otpValueSelector = self::createSelectorForOneTimePassword($otpValue, $userId);
 		$otpValueToken = \password_hash($otpValue, \PASSWORD_DEFAULT);
 
