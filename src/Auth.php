@@ -1321,10 +1321,10 @@ final class Auth extends UserManager {
 						$otpValue = $this->generateAndStoreRandomOneTimePassword($userId, $twoFactorMethod['mechanism']);
 
 						if (((int) $twoFactorMethod['mechanism']) === self::TWO_FACTOR_MECHANISM_SMS) {
-							$secondFactorRequiredException->addSmsOption($twoFactorMethod['seed'], $otpValue);
+							$secondFactorRequiredException->addSmsOption($otpValue, $twoFactorMethod['seed']);
 						}
 						elseif (((int) $twoFactorMethod['mechanism']) === self::TWO_FACTOR_MECHANISM_EMAIL) {
-							$secondFactorRequiredException->addEmailOption($twoFactorMethod['seed'], $otpValue);
+							$secondFactorRequiredException->addEmailOption($otpValue, $twoFactorMethod['seed']);
 						}
 						else {
 							throw new InvalidStateError();

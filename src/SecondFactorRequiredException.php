@@ -49,14 +49,14 @@ class SecondFactorRequiredException extends AuthException {
 		$this->totp = true;
 	}
 
-	public function addSmsOption($recipient, $otpValue) {
-		$this->smsRecipient = !empty($recipient) ? (string) $recipient : null;
+	public function addSmsOption($otpValue, $recipient) {
 		$this->smsOtpValue = !empty($otpValue) ? (string) $otpValue : null;
+		$this->smsRecipient = !empty($recipient) ? (string) $recipient : null;
 	}
 
-	public function addEmailOption($recipient, $otpValue) {
-		$this->emailRecipient = !empty($recipient) ? (string) $recipient : null;
+	public function addEmailOption($otpValue, $recipient) {
 		$this->emailOtpValue = !empty($otpValue) ? (string) $otpValue : null;
+		$this->emailRecipient = !empty($recipient) ? (string) $recipient : null;
 	}
 
 }
