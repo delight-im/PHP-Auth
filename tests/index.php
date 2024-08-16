@@ -35,6 +35,14 @@ $db = new \PDO('mysql:dbname=php_auth;host=127.0.0.1;charset=utf8mb4', 'root', '
 
 $auth = new \Delight\Auth\Auth($db);
 
+echo '<!DOCTYPE html>';
+echo '<html>';
+echo '<head>';
+echo '<meta charset="utf-8">';
+echo '<title></title>';
+echo '</head>';
+echo '<body>';
+
 $result = \processRequestData($auth);
 
 \showGeneralForm();
@@ -1310,3 +1318,6 @@ function createRolesOptions() {
 
 	return $out;
 }
+
+echo '</body>';
+echo '</html>';
