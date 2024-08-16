@@ -13,8 +13,10 @@ class SecondFactorRequiredException extends AuthException {
 
 	protected $totp;
 	protected $smsRecipient;
+	protected $smsRecipientMasked;
 	protected $smsOtpValue;
 	protected $emailRecipient;
+	protected $emailRecipientMasked;
 	protected $emailOtpValue;
 
 	public function hasTotpOption() {
@@ -29,6 +31,10 @@ class SecondFactorRequiredException extends AuthException {
 		return $this->smsRecipient;
 	}
 
+	public function getSmsRecipientMasked() {
+		return $this->smsRecipientMasked;
+	}
+
 	public function getSmsOtpValue() {
 		return $this->smsOtpValue;
 	}
@@ -41,6 +47,10 @@ class SecondFactorRequiredException extends AuthException {
 		return $this->emailRecipient;
 	}
 
+	public function getEmailRecipientMasked() {
+		return $this->emailRecipientMasked;
+	}
+
 	public function getEmailOtpValue() {
 		return $this->emailOtpValue;
 	}
@@ -49,14 +59,16 @@ class SecondFactorRequiredException extends AuthException {
 		$this->totp = true;
 	}
 
-	public function addSmsOption($otpValue, $recipient) {
+	public function addSmsOption($otpValue, $recipient, $recipientMasked = null) {
 		$this->smsOtpValue = !empty($otpValue) ? (string) $otpValue : null;
 		$this->smsRecipient = !empty($recipient) ? (string) $recipient : null;
+		$this->smsRecipientMasked = !empty($recipientMasked) ? (string) $recipientMasked : null;
 	}
 
-	public function addEmailOption($otpValue, $recipient) {
+	public function addEmailOption($otpValue, $recipient, $recipientMasked = null) {
 		$this->emailOtpValue = !empty($otpValue) ? (string) $otpValue : null;
 		$this->emailRecipient = !empty($recipient) ? (string) $recipient : null;
+		$this->emailRecipientMasked = !empty($recipientMasked) ? (string) $recipientMasked : null;
 	}
 
 }
