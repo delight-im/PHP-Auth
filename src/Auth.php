@@ -1321,10 +1321,10 @@ final class Auth extends UserManager {
 						$otpValue = $this->generateAndStoreRandomOneTimePassword($userId, $twoFactorMethod['mechanism']);
 
 						if (((int) $twoFactorMethod['mechanism']) === self::TWO_FACTOR_MECHANISM_SMS) {
-							$secondFactorRequiredException->addSmsOption($otpValue, $twoFactorMethod['seed']);
+							$secondFactorRequiredException->addSmsOption($otpValue, $twoFactorMethod['seed'], \Delight\Auth\PhoneNumber::mask($twoFactorMethod['seed']));
 						}
 						elseif (((int) $twoFactorMethod['mechanism']) === self::TWO_FACTOR_MECHANISM_EMAIL) {
-							$secondFactorRequiredException->addEmailOption($otpValue, $twoFactorMethod['seed']);
+							$secondFactorRequiredException->addEmailOption($otpValue, $twoFactorMethod['seed'], \Delight\Auth\EmailAddress::mask($twoFactorMethod['seed']));
 						}
 						else {
 							throw new InvalidStateError();
