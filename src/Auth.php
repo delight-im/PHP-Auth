@@ -797,7 +797,7 @@ final class Auth extends UserManager {
 	 *
 	 * Two-factor authentification would previously have been enabled by calling {@see prepareTwoFactorViaTotp}, {@see prepareTwoFactorViaSms} or {@see prepareTwoFactorViaEmail}, and then {@see enableTwoFactorViaTotp}, {@see enableTwoFactorViaSms} or {@see enableTwoFactorViaEmail}
 	 *
-	 * @param string $otpValue a one-time password (OTP) that has just been entered by the user
+	 * @param string $otpValue a one-time password (OTP) that has just been entered by the user, with or without spaces and special characters
 	 * @throws InvalidOneTimePasswordException if the one-time password provided by the user is not valid
 	 * @throws NotLoggedInException if the user has not completed the first factor of authentification recently
 	 * @throws TooManyRequestsException if the number of allowed attempts/requests has been exceeded
@@ -1957,7 +1957,7 @@ final class Auth extends UserManager {
 	 *
 	 * In order to let the user set up their authenticator application, call {@see prepareTwoFactorViaTotp} as a first step
 	 *
-	 * @param string $otpValue a one-time password (OTP) that has just been entered by the user
+	 * @param string $otpValue a one-time password (OTP) that has just been entered by the user, with or without spaces and special characters
 	 * @return string[] a few recovery codes that can be used instead of one-time passwords from the authenticator application in case the user loses access to their TOTP source
 	 * @throws InvalidOneTimePasswordException if the one-time password provided by the user is not valid
 	 * @throws TwoFactorMechanismNotInitializedException if this method of two-factor authentification has not been initialized before or if the initialization has expired
@@ -1977,7 +1977,7 @@ final class Auth extends UserManager {
 	 *
 	 * In order to let the user set up their phone number for OTPs via SMS, call {@see prepareTwoFactorViaSms} as a first step
 	 *
-	 * @param string $otpValue a one-time password (OTP) that has just been entered by the user
+	 * @param string $otpValue a one-time password (OTP) that has just been entered by the user, with or without spaces and special characters
 	 * @return string[] a few recovery codes that can be used instead of one-time passwords from text messages in case the user loses access to their phone (number)
 	 * @throws InvalidOneTimePasswordException if the one-time password provided by the user is not valid
 	 * @throws TwoFactorMechanismNotInitializedException if this method of two-factor authentification has not been initialized before or if the initialization has expired
@@ -1997,7 +1997,7 @@ final class Auth extends UserManager {
 	 *
 	 * In order to let the user set up their email address for OTPs via email, call {@see prepareTwoFactorViaEmail} as a first step
 	 *
-	 * @param string $otpValue a one-time password (OTP) that has just been entered by the user
+	 * @param string $otpValue a one-time password (OTP) that has just been entered by the user, with or without spaces and special characters
 	 * @return string[] a few recovery codes that can be used instead of one-time passwords from emails in case the user loses access to their email (address)
 	 * @throws InvalidOneTimePasswordException if the one-time password provided by the user is not valid
 	 * @throws TwoFactorMechanismNotInitializedException if this method of two-factor authentification has not been initialized before or if the initialization has expired
@@ -2018,7 +2018,7 @@ final class Auth extends UserManager {
 	 * In order to let the user start the setup on the client side, call {@see prepareTwoFactorViaTotp}, {@see prepareTwoFactorViaSms} or {@see prepareTwoFactorViaEmail} as a first step
 	 *
 	 * @param int $mechanism the specific mechanism to be used for two-factor authentification, as one of the `TWO_FACTOR_MECHANISM_*` constants from this class
-	 * @param string $otpValue a one-time password (OTP) that has just been entered by the user
+	 * @param string $otpValue a one-time password (OTP) that has just been entered by the user, with or without spaces and special characters
 	 * @return string[] a few recovery codes that can be used instead of one-time passwords from the configured source in case the user loses access to their source
 	 * @throws InvalidOneTimePasswordException if the one-time password provided by the user is not valid
 	 * @throws TwoFactorMechanismNotInitializedException if the specified method of two-factor authentification has not been initialized before or if the initialization has expired
