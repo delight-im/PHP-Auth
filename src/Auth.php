@@ -670,7 +670,7 @@ final class Auth extends UserManager {
 					// if the user is currently signed in
 					if ($this->isLoggedIn()) {
 						// if the user has just confirmed an email address for their own account
-						if ($this->getUserId() === $confirmationData['user_id']) {
+						if ($this->getUserId() === ((int) $confirmationData['user_id'])) {
 							// immediately update the email address in the current session as well
 							$_SESSION[self::SESSION_FIELD_EMAIL] = $confirmationData['new_email'];
 						}
@@ -843,7 +843,7 @@ final class Auth extends UserManager {
 				if (!empty($otpRecord)) {
 					if (\password_verify($otpValue, $otpRecord['token'])) {
 						// if the mechanism for this one-time password was time-based (TOTP)
-						if (!empty($otpRecord['mechanism']) && $otpRecord['mechanism'] === self::TWO_FACTOR_MECHANISM_TOTP) {
+						if (!empty($otpRecord['mechanism']) && ((int) $otpRecord['mechanism']) === self::TWO_FACTOR_MECHANISM_TOTP) {
 							// if the one-time password had an expiry time and that time has passed recently
 							if (isset($otpRecord['expires_at']) && $otpRecord['expires_at'] > (\time() - 60 * 15) && $otpRecord['expires_at'] < \time()) {
 								// the one-time password was in fact a TOTP value on our denylist to prevent replay attacks
@@ -1312,7 +1312,7 @@ final class Auth extends UserManager {
 			foreach ($twoFactorMethods as $twoFactorMethod) {
 				if (!empty($twoFactorMethod) && !empty($twoFactorMethod['mechanism'])) {
 					// if the specific mechanism requires that we generate a one-time password randomly now
-					if ($twoFactorMethod['mechanism'] === self::TWO_FACTOR_MECHANISM_SMS || $twoFactorMethod['mechanism'] === self::TWO_FACTOR_MECHANISM_EMAIL) {
+					if (((int) $twoFactorMethod['mechanism']) === self::TWO_FACTOR_MECHANISM_SMS || ((int) $twoFactorMethod['mechanism']) === self::TWO_FACTOR_MECHANISM_EMAIL) {
 						if (!$throttled) {
 							$this->throttle([ 'generateOtp', $userId ], 1, 60 * 5, 2);
 							$throttled = true;
@@ -1320,10 +1320,10 @@ final class Auth extends UserManager {
 
 						$otpValue = $this->generateAndStoreRandomOneTimePassword($userId, $twoFactorMethod['mechanism']);
 
-						if ($twoFactorMethod['mechanism'] === self::TWO_FACTOR_MECHANISM_SMS) {
+						if (((int) $twoFactorMethod['mechanism']) === self::TWO_FACTOR_MECHANISM_SMS) {
 							$secondFactorRequiredException->addSmsOption($twoFactorMethod['seed'], $otpValue);
 						}
-						elseif ($twoFactorMethod['mechanism'] === self::TWO_FACTOR_MECHANISM_EMAIL) {
+						elseif (((int) $twoFactorMethod['mechanism']) === self::TWO_FACTOR_MECHANISM_EMAIL) {
 							$secondFactorRequiredException->addEmailOption($twoFactorMethod['seed'], $otpValue);
 						}
 						else {
@@ -1331,7 +1331,7 @@ final class Auth extends UserManager {
 						}
 					}
 					// if the specific mechanism mandates that the one-time password is generated on the client side
-					elseif ($twoFactorMethod['mechanism'] === self::TWO_FACTOR_MECHANISM_TOTP) {
+					elseif (((int) $twoFactorMethod['mechanism']) === self::TWO_FACTOR_MECHANISM_TOTP) {
 						$secondFactorRequiredException->addTotpOption();
 					}
 					else {
