@@ -95,10 +95,10 @@ function processRequestData(\Delight\Auth\Auth $auth) {
 						$secondFactorOptions[] = 'TOTP';
 					}
 					if ($e->hasSmsOption()) {
-						$secondFactorOptions[] = 'SMS (' . $e->getSmsRecipient() . ') with ' . $e->getSmsOtpValue();
+						$secondFactorOptions[] = 'SMS (' . $e->getSmsRecipient() . ' / ' . $e->getSmsRecipientMasked() . ') with ' . $e->getSmsOtpValue();
 					}
 					if ($e->hasEmailOption()) {
-						$secondFactorOptions[] = 'email (' . $e->getEmailRecipient() . ') with ' . $e->getEmailOtpValue();
+						$secondFactorOptions[] = 'email (' . $e->getEmailRecipient() . ' / ' . $e->getEmailRecipientMasked() . ') with ' . $e->getEmailOtpValue();
 					}
 
 					return 'second factor required: ' . \implode(' / ', $secondFactorOptions);
@@ -205,10 +205,10 @@ function processRequestData(\Delight\Auth\Auth $auth) {
 						$secondFactorOptions[] = 'TOTP';
 					}
 					if ($e->hasSmsOption()) {
-						$secondFactorOptions[] = 'SMS (' . $e->getSmsRecipient() . ') with ' . $e->getSmsOtpValue();
+						$secondFactorOptions[] = 'SMS (' . $e->getSmsRecipient() . ' / ' . $e->getSmsRecipientMasked() . ') with ' . $e->getSmsOtpValue();
 					}
 					if ($e->hasEmailOption()) {
-						$secondFactorOptions[] = 'email (' . $e->getEmailRecipient() . ') with ' . $e->getEmailOtpValue();
+						$secondFactorOptions[] = 'email (' . $e->getEmailRecipient() . ' / ' . $e->getEmailRecipientMasked() . ') with ' . $e->getEmailOtpValue();
 					}
 
 					return 'second factor required: ' . \implode(' / ', $secondFactorOptions);
@@ -335,10 +335,10 @@ function processRequestData(\Delight\Auth\Auth $auth) {
 						$secondFactorOptions[] = 'TOTP';
 					}
 					if ($e->hasSmsOption()) {
-						$secondFactorOptions[] = 'SMS (' . $e->getSmsRecipient() . ') with ' . $e->getSmsOtpValue();
+						$secondFactorOptions[] = 'SMS (' . $e->getSmsRecipient() . ' / ' . $e->getSmsRecipientMasked() . ') with ' . $e->getSmsOtpValue();
 					}
 					if ($e->hasEmailOption()) {
-						$secondFactorOptions[] = 'email (' . $e->getEmailRecipient() . ') with ' . $e->getEmailOtpValue();
+						$secondFactorOptions[] = 'email (' . $e->getEmailRecipient() . ' / ' . $e->getEmailRecipientMasked() . ') with ' . $e->getEmailOtpValue();
 					}
 
 					return 'second factor required: ' . \implode(' / ', $secondFactorOptions);
