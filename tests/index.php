@@ -928,6 +928,14 @@ function showDebugData(\Delight\Auth\Auth $auth, $result) {
 	\var_dump($auth->isRemembered());
 	echo '$auth->getIpAddress()' . "\t\t\t";
 	\var_dump($auth->getIpAddress());
+	echo '$auth->hasTwoFactor()' . "\t\t\t";
+	\var_dump($auth->hasTwoFactor());
+	echo '$auth->hasTwoFactorViaTotp()' . "\t\t";
+	\var_dump($auth->hasTwoFactorViaTotp());
+	echo '$auth->hasTwoFactorViaSms()' . "\t\t";
+	\var_dump($auth->hasTwoFactorViaSms());
+	echo '$auth->hasTwoFactorViaEmail()' . "\t\t";
+	\var_dump($auth->hasTwoFactorViaEmail());
 	echo 'Waiting for 2FA' . "\t\t\t\t";
 	if ($auth->isWaitingForSecondFactor()) {
 		echo 'User #' . ((int) $_SESSION[\Delight\Auth\Auth::SESSION_FIELD_AWAITING_2FA_USER_ID]) . ' (' . ($_SESSION[\Delight\Auth\Auth::SESSION_FIELD_AWAITING_2FA_UNTIL] - \time()) . ' seconds)';
