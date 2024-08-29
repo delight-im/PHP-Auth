@@ -2437,6 +2437,106 @@ final class Auth extends UserManager {
 	}
 
 	/**
+	 * Returns whether the currently signed-in user has enabled two-factor authentification
+	 *
+	 * @return bool
+	 * @throws AuthError if an internal problem occurred (do *not* catch)
+	 */
+	public function hasTwoFactor() {
+		if ($this->isLoggedIn()) {
+			try {
+				$enabled = $this->db->selectValue(
+					'SELECT COUNT(*) FROM ' . $this->makeTableName('users_2fa') . ' WHERE user_id = ? AND expires_at IS NULL',
+					[ $this->getUserId() ]
+				);
+			}
+			catch (Error $e) {
+				throw new DatabaseError($e->getMessage());
+			}
+
+			return ((int) $enabled) > 0;
+		}
+		else {
+			return false;
+		}
+	}
+
+	/**
+	 * Returns whether the currently signed-in user has enabled two-factor authentification via time-based one-time passwords (TOTP)
+	 *
+	 * @return bool
+	 * @throws AuthError if an internal problem occurred (do *not* catch)
+	 */
+	public function hasTwoFactorViaTotp() {
+		if ($this->isLoggedIn()) {
+			try {
+				$enabled = $this->db->selectValue(
+					'SELECT COUNT(*) FROM ' . $this->makeTableName('users_2fa') . ' WHERE user_id = ? AND mechanism = ? AND expires_at IS NULL',
+					[ $this->getUserId(), self::TWO_FACTOR_MECHANISM_TOTP ]
+				);
+			}
+			catch (Error $e) {
+				throw new DatabaseError($e->getMessage());
+			}
+
+			return ((int) $enabled) > 0;
+		}
+		else {
+			return false;
+		}
+	}
+
+	/**
+	 * Returns whether the currently signed-in user has enabled two-factor authentification with one-time passwords sent via SMS
+	 *
+	 * @return bool
+	 * @throws AuthError if an internal problem occurred (do *not* catch)
+	 */
+	public function hasTwoFactorViaSms() {
+		if ($this->isLoggedIn()) {
+			try {
+				$enabled = $this->db->selectValue(
+					'SELECT COUNT(*) FROM ' . $this->makeTableName('users_2fa') . ' WHERE user_id = ? AND mechanism = ? AND expires_at IS NULL',
+					[ $this->getUserId(), self::TWO_FACTOR_MECHANISM_SMS ]
+				);
+			}
+			catch (Error $e) {
+				throw new DatabaseError($e->getMessage());
+			}
+
+			return ((int) $enabled) > 0;
+		}
+		else {
+			return false;
+		}
+	}
+
+	/**
+	 * Returns whether the currently signed-in user has enabled two-factor authentification with one-time passwords sent via email
+	 *
+	 * @return bool
+	 * @throws AuthError if an internal problem occurred (do *not* catch)
+	 */
+	public function hasTwoFactorViaEmail() {
+		if ($this->isLoggedIn()) {
+			try {
+				$enabled = $this->db->selectValue(
+					'SELECT COUNT(*) FROM ' . $this->makeTableName('users_2fa') . ' WHERE user_id = ? AND mechanism = ? AND expires_at IS NULL',
+					[ $this->getUserId(), self::TWO_FACTOR_MECHANISM_EMAIL ]
+				);
+			}
+			catch (Error $e) {
+				throw new DatabaseError($e->getMessage());
+			}
+
+			return ((int) $enabled) > 0;
+		}
+		else {
+			return false;
+		}
+	}
+
+	/**
 	 * Returns whether we are waiting for the user to complete the second factor of (two-factor) authentification, them having successfully completed the first factor before
 	 *
 	 * @return bool
