@@ -2546,6 +2546,102 @@ final class Auth extends UserManager {
 	}
 
 	/**
+	 * Disables two-factor authentification via time-based one-time passwords (TOTP) for the currently signed-in user
+	 *
+	 * @throws NotLoggedInException if the user is not currently signed in
+	 * @throws TooManyRequestsException if the number of allowed attempts/requests has been exceeded
+	 * @throws AuthError if an internal problem occurred (do *not* catch)
+	 */
+	public function disableTwoFactorViaTotp() {
+		if ($this->isLoggedIn()) {
+			try {
+				$this->db->exec(
+					'DELETE FROM ' . $this->makeTableName('users_2fa') . ' WHERE user_id = ? AND mechanism = ? AND expires_at IS NULL',
+					[ $this->getUserId(), self::TWO_FACTOR_MECHANISM_TOTP ]
+				);
+			}
+			catch (Error $e) {
+				throw new DatabaseError($e->getMessage());
+			}
+		}
+		else {
+			throw new NotLoggedInException();
+		}
+	}
+
+	/**
+	 * Disables two-factor authentification with one-time passwords sent via SMS for the currently signed-in user
+	 *
+	 * @throws NotLoggedInException if the user is not currently signed in
+	 * @throws TooManyRequestsException if the number of allowed attempts/requests has been exceeded
+	 * @throws AuthError if an internal problem occurred (do *not* catch)
+	 */
+	public function disableTwoFactorViaSms() {
+		if ($this->isLoggedIn()) {
+			try {
+				$this->db->exec(
+					'DELETE FROM ' . $this->makeTableName('users_2fa') . ' WHERE user_id = ? AND mechanism = ? AND expires_at IS NULL',
+					[ $this->getUserId(), self::TWO_FACTOR_MECHANISM_SMS ]
+				);
+			}
+			catch (Error $e) {
+				throw new DatabaseError($e->getMessage());
+			}
+		}
+		else {
+			throw new NotLoggedInException();
+		}
+	}
+
+	/**
+	 * Disables two-factor authentification with one-time passwords sent via email for the currently signed-in user
+	 *
+	 * @throws NotLoggedInException if the user is not currently signed in
+	 * @throws TooManyRequestsException if the number of allowed attempts/requests has been exceeded
+	 * @throws AuthError if an internal problem occurred (do *not* catch)
+	 */
+	public function disableTwoFactorViaEmail() {
+		if ($this->isLoggedIn()) {
+			try {
+				$this->db->exec(
+					'DELETE FROM ' . $this->makeTableName('users_2fa') . ' WHERE user_id = ? AND mechanism = ? AND expires_at IS NULL',
+					[ $this->getUserId(), self::TWO_FACTOR_MECHANISM_EMAIL ]
+				);
+			}
+			catch (Error $e) {
+				throw new DatabaseError($e->getMessage());
+			}
+		}
+		else {
+			throw new NotLoggedInException();
+		}
+	}
+
+	/**
+	 * Disables two-factor authentification by any method for the currently signed-in user
+	 *
+	 * @throws NotLoggedInException if the user is not currently signed in
+	 * @throws TooManyRequestsException if the number of allowed attempts/requests has been exceeded
+	 * @throws AuthError if an internal problem occurred (do *not* catch)
+	 */
+	public function disableTwoFactor() {
+		if ($this->isLoggedIn()) {
+			try {
+				$this->db->exec(
+					'DELETE FROM ' . $this->makeTableName('users_2fa') . ' WHERE user_id = ? AND expires_at IS NULL',
+					[ $this->getUserId() ]
+				);
+			}
+			catch (Error $e) {
+				throw new DatabaseError($e->getMessage());
+			}
+		}
+		else {
+			throw new NotLoggedInException();
+		}
+	}
+
+	/**
 	 * Performs throttling or rate limiting using the token bucket algorithm (inverse leaky bucket algorithm)
 	 *
 	 * @param array $criteria the individual criteria that together describe the resource that is being throttled
