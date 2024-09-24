@@ -491,6 +491,58 @@ function processRequestData(\Delight\Auth\Auth $auth) {
 					return 'too many requests';
 				}
 			}
+			else if ($_POST['action'] === 'disableTwoFactorViaTotp') {
+				try {
+					$auth->disableTwoFactorViaTotp();
+
+					return 'ok';
+				}
+				catch (\Delight\Auth\NotLoggedInException $e) {
+					return 'not logged in';
+				}
+				catch (\Delight\Auth\TooManyRequestsException $e) {
+					return 'too many requests';
+				}
+			}
+			else if ($_POST['action'] === 'disableTwoFactorViaSms') {
+				try {
+					$auth->disableTwoFactorViaSms();
+
+					return 'ok';
+				}
+				catch (\Delight\Auth\NotLoggedInException $e) {
+					return 'not logged in';
+				}
+				catch (\Delight\Auth\TooManyRequestsException $e) {
+					return 'too many requests';
+				}
+			}
+			else if ($_POST['action'] === 'disableTwoFactorViaEmail') {
+				try {
+					$auth->disableTwoFactorViaEmail();
+
+					return 'ok';
+				}
+				catch (\Delight\Auth\NotLoggedInException $e) {
+					return 'not logged in';
+				}
+				catch (\Delight\Auth\TooManyRequestsException $e) {
+					return 'too many requests';
+				}
+			}
+			else if ($_POST['action'] === 'disableTwoFactor') {
+				try {
+					$auth->disableTwoFactor();
+
+					return 'ok';
+				}
+				catch (\Delight\Auth\NotLoggedInException $e) {
+					return 'not logged in';
+				}
+				catch (\Delight\Auth\TooManyRequestsException $e) {
+					return 'too many requests';
+				}
+			}
 			else if ($_POST['action'] === 'reconfirmPassword') {
 				try {
 					return $auth->reconfirmPassword($_POST['password']) ? 'correct' : 'wrong';
@@ -1067,6 +1119,26 @@ function showAuthenticatedUserForm(\Delight\Auth\Auth $auth) {
 	echo '<input type="hidden" name="action" value="enableTwoFactorViaEmail" />';
 	echo '<input type="text" name="otpValue" placeholder="OTP value" /> ';
 	echo '<button type="submit">Enable 2FA via email</button>';
+	echo '</form>';
+
+	echo '<form action="" method="post" accept-charset="utf-8">';
+	echo '<input type="hidden" name="action" value="disableTwoFactorViaTotp" />';
+	echo '<button type="submit">Disable 2FA via TOTP</button>';
+	echo '</form>';
+
+	echo '<form action="" method="post" accept-charset="utf-8">';
+	echo '<input type="hidden" name="action" value="disableTwoFactorViaSms" />';
+	echo '<button type="submit">Disable 2FA via SMS</button>';
+	echo '</form>';
+
+	echo '<form action="" method="post" accept-charset="utf-8">';
+	echo '<input type="hidden" name="action" value="disableTwoFactorViaEmail" />';
+	echo '<button type="submit">Disable 2FA via email</button>';
+	echo '</form>';
+
+	echo '<form action="" method="post" accept-charset="utf-8">';
+	echo '<input type="hidden" name="action" value="disableTwoFactor" />';
+	echo '<button type="submit">Disable 2FA</button>';
 	echo '</form>';
 
 	echo '<form action="" method="post" accept-charset="utf-8">';
