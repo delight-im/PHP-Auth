@@ -7,7 +7,7 @@
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
 /*!40101 SET NAMES utf8mb4 */;
 
-CREATE TABLE IF NOT EXISTS `users` (
+CREATE TABLE `users` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `email` varchar(249) COLLATE utf8mb4_unicode_ci NOT NULL,
   `password` varchar(255) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   UNIQUE KEY `email` (`email`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE IF NOT EXISTS `users_2fa` (
+CREATE TABLE `users_2fa` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `user_id` int(10) unsigned NOT NULL,
   `mechanism` tinyint(2) unsigned NOT NULL,
@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS `users_2fa` (
   UNIQUE KEY `user_id_mechanism` (`user_id`,`mechanism`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE IF NOT EXISTS `users_confirmations` (
+CREATE TABLE `users_confirmations` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `user_id` int(10) unsigned NOT NULL,
   `email` varchar(249) COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -47,7 +47,7 @@ CREATE TABLE IF NOT EXISTS `users_confirmations` (
   KEY `user_id` (`user_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE IF NOT EXISTS `users_otps` (
+CREATE TABLE `users_otps` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `user_id` int(10) unsigned NOT NULL,
   `mechanism` tinyint(2) unsigned NOT NULL,
@@ -60,7 +60,7 @@ CREATE TABLE IF NOT EXISTS `users_otps` (
   KEY `selector_user_id` (`selector`,`user_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE IF NOT EXISTS `users_remembered` (
+CREATE TABLE `users_remembered` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `user` int(10) unsigned NOT NULL,
   `selector` varchar(24) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
@@ -71,7 +71,7 @@ CREATE TABLE IF NOT EXISTS `users_remembered` (
   KEY `user` (`user`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE IF NOT EXISTS `users_resets` (
+CREATE TABLE `users_resets` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `user` int(10) unsigned NOT NULL,
   `selector` varchar(20) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
@@ -82,7 +82,7 @@ CREATE TABLE IF NOT EXISTS `users_resets` (
   KEY `user_expires` (`user`,`expires`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE IF NOT EXISTS `users_throttling` (
+CREATE TABLE `users_throttling` (
   `bucket` varchar(44) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
   `tokens` float unsigned NOT NULL,
   `replenished_at` int(10) unsigned NOT NULL,
