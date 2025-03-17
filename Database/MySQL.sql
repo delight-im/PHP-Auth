@@ -84,7 +84,7 @@ CREATE TABLE `users_resets` (
 
 CREATE TABLE `users_throttling` (
   `bucket` varchar(44) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
-  `tokens` float unsigned NOT NULL,
+  `tokens` float NOT NULL,
   `replenished_at` int unsigned NOT NULL,
   `expires_at` int unsigned NOT NULL,
   PRIMARY KEY (`bucket`),
