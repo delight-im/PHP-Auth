@@ -77,6 +77,7 @@ Migrating from an earlier version of this project? See our [upgrade guide](Migra
    * [Available roles](#available-roles)
    * [Permissions (or access rights, privileges or capabilities)](#permissions-or-access-rights-privileges-or-capabilities)
    * [Custom role names](#custom-role-names)
+ * [Two-factor authentication (2FA)](#two-factor-authentication-2fa)
  * [Enabling or disabling password resets](#enabling-or-disabling-password-resets)
  * [Throttling or rate limiting](#throttling-or-rate-limiting)
  * [Administration (managing users)](#administration-managing-users)
@@ -815,6 +816,182 @@ instead of
 ```
 
 Just remember *not* to alias a *single* included role to *multiple* roles with custom names.
+
+### Two-factor authentication (2FA)
+
+ 1. For users who are signed in, you can check if they have set up two-factor authentication (2FA) (using *any* mode) using `Auth#hasTwoFactor`. This is useful if you want to advertise the feature in general. Additionally, you will usually check if an individual mode of 2FA is set up using `Auth#hasTwoFactorViaTotp`, `Auth#hasTwoFactorViaSms` or `Auth#hasTwoFactorViaEmail`. Use those methods to check if the user should be presented with a way to enable or disable the specific mode of 2FA in their settings.
+
+ 1. This library supports three modes of two-factor authentication, which represent different sources or delivery mechanisms for one-time passwords (OTPs):
+
+    * time-based one-time passwords (TOTP)
+    * one-time passwords sent via SMS
+    * one-time passwords sent via email
+
+    Choose any combination of these modes that you want to support. You can start with just one and add others later quite easily.
+
+ 1. In order to let users set up two-factor authentication via time-based one-time passwords (TOTP), call `Auth#prepareTwoFactorViaTotp` and provide the user-visible name of your application as the single argument. The result will be an array with the key URI for the QR code (that you will afterwards display to the user) at index zero, and the secret for manual input (that you can show to the user as an alternative) at index one. Wrap that call in `Auth#reconfirmPassword`.
+
+    ```php
+    try {
+        if ($auth->reconfirmPassword($_POST['password'])) {
+            $keyUriAndSecret = $auth->prepareTwoFactorViaTotp('Example.com');
+
+            // To do: encode the key URI '$keyUriAndSecret[0]' as a QR code (preferably on the client side) and display the QR code to the user
+            // and
+            // To do: additionally, show the secret string '$keyUriAndSecret[1]' to the user as a fallback for manual input
+        }
+        else {
+            echo 'Please re-confirm your correct password';
+        }
+    }
+    catch (\Delight\Auth\TwoFactorMechanismAlreadyEnabledException $e) {
+        echo 'Two-factor authentication via TOTP has already been enabled';
+    }
+    catch (\Delight\Auth\NotLoggedInException $e) {
+        echo 'Please sign in first';
+    }
+    catch (\Delight\Auth\TooManyRequestsException $e) {
+        echo 'Please try again later';
+    }
+    ```
+
+    Now ask the user to set up your service in their authenticator application, either with the QR code or with the secret for manual input, and let them generate an initial one-time password that they need to enter within your application next.
+
+ 1. Alternatively, to let the user set up two-factor authentication via SMS, ask the user for their phone number and provide it as the single argument to `Auth#prepareTwoFactorViaSms`. The result will be an array with the (still unverified) phone number again at index zero, and the one-time password that you need to send to the user at index one. Wrap that call in `Auth#reconfirmPassword`.
+
+    ```php
+    try {
+        if ($auth->reconfirmPassword($_POST['password'])) {
+            $phoneNumberAndOtpValue = $auth->prepareTwoFactorViaSms($phoneNumber);
+
+            // To do: send the one-time password '$phoneNumberAndOtpValue[1]' to (still unverified) phone number '$phoneNumberAndOtpValue[0]'
+            //   Consider using a third-party service and a compatible SDK to send the text message
+
+            echo 'Please enter the initial one-time password that has been sent to you via text message';
+        }
+        else {
+            echo 'Please re-confirm your correct password';
+        }
+    }
+    catch (\Delight\Auth\InvalidPhoneNumberException $e) {
+        echo 'Please provide a valid phone number';
+    }
+    catch (\Delight\Auth\TwoFactorMechanismAlreadyEnabledException $e) {
+        echo 'Two-factor authentication via SMS has already been enabled';
+    }
+    catch (\Delight\Auth\NotLoggedInException $e) {
+        echo 'Please sign in first';
+    }
+    catch (\Delight\Auth\TooManyRequestsException $e) {
+        echo 'Please try again later';
+    }
+    ```
+
+ 1. Finally, if you want to let the user set up two-factor authentication via email, simply call `Auth#prepareTwoFactorViaEmail`. The result will be an array with the user’s email address at index zero, and the one-time password that you need to send to the user at index one. Wrap that call in `Auth#reconfirmPassword`.
+
+    ```php
+    try {
+        if ($auth->reconfirmPassword($_POST['password'])) {
+            $emailAddressAndOtpValue = $auth->prepareTwoFactorViaEmail();
+
+            // To do: send the one-time password '$emailAddressAndOtpValue[1]' to email address '$emailAddressAndOtpValue[0]'
+            //   Consider using the 'mail' function, Symfony Mailer, Swiftmailer, PHPMailer, etc., to send the email
+
+            echo 'Please enter the initial one-time password that has been sent to you via email';
+        }
+        else {
+            echo 'Please re-confirm your correct password';
+        }
+    }
+    catch (\Delight\Auth\TwoFactorMechanismAlreadyEnabledException $e) {
+        echo 'Two-factor authentication via email has already been enabled';
+    }
+    catch (\Delight\Auth\NotLoggedInException $e) {
+        echo 'Please sign in first';
+    }
+    catch (\Delight\Auth\TooManyRequestsException $e) {
+        echo 'Please try again later';
+    }
+    ```
+
+ 1. As soon as the user has entered a one-time password in your application, which they generated or received in the step before, pass this value to `Auth#enableTwoFactorViaTotp`, `Auth#enableTwoFactorViaSms` or `Auth#enableTwoFactorViaEmail` to complete the setup. If successful, a few recovery codes will be generated and returned to you, which you will show to the user and ask them to print or put somewhere safely – this is important!
+
+    ```php
+    try {
+        $recoveryCodes = $auth->enableTwoFactorViaTotp($_POST['oneTimePassword']);
+
+        echo 'Here are a few recovery codes that can help you if you ever lose access to your authenticator application. Please print them and keep them safe for the future:' . "\n";
+        echo \implode("\n", $recoveryCodes);
+    }
+    catch (\Delight\Auth\InvalidOneTimePasswordException $e) {
+        echo 'Your one-time password has not been correct';
+    }
+    catch (\Delight\Auth\TwoFactorMechanismNotInitializedException $e) {
+        echo 'Please prepare the setup of two-factor authentication first';
+    }
+    catch (\Delight\Auth\TwoFactorMechanismAlreadyEnabledException $e) {
+        echo 'You have already enabled this mode of two-factor authentication';
+    }
+    catch (\Delight\Auth\NotLoggedInException $e) {
+        echo 'Please sign in first';
+    }
+    catch (\Delight\Auth\TooManyRequestsException $e) {
+        echo 'Please try again later';
+    }
+    ```
+
+    You can use the three methods interchangeably here, depending on the modes you want to support.
+
+ 1. With the four methods `Auth#login`, `Auth#loginWithUsername`, `Auth#confirmEmailAndSignIn` and `Auth#resetPasswordAndSignIn`, where used in your application, you need to catch an additional `\Delight\Auth\SecondFactorRequiredException`. Whenever that exception occurs, you need to ask the user to enter a one-time password. The exception instance (e.g. `$e`) has all the information you need to request the one-time password from the user:
+
+    ```php
+    catch (\Delight\Auth\SecondFactorRequiredException $e) {
+        if ($e->hasTotpOption()) {
+            echo 'Please open your authenticator application and enter the code that is shown';
+        }
+
+        if ($e->hasSmsOption()) {
+            // To do: send '$e->getSmsOtpValue()' to '$e->getSmsRecipient()' via text message
+            //   Consider using a third-party service and a compatible SDK to send the text message
+
+            echo 'Please enter the one-time password that has been sent to you via text message at ' . $e->getSmsRecipientMasked();
+        }
+
+        if ($e->hasEmailOption()) {
+            // To do: send '$e->getEmailOtpValue()' to '$e->getEmailRecipient()' via email
+            //   Consider using the 'mail' function, Symfony Mailer, Swiftmailer, PHPMailer, etc., to send the email
+
+            echo 'Please enter the one-time password that has been sent to you via email at ' . $e->getEmailRecipientMasked();
+        }
+    }
+    ```
+
+    You can also check if the user is in the middle of completing two-factor authentification at any time by calling `Auth#isWaitingForSecondFactor`, for example to determine if you need to show an input field for the one-time password (instead of showing the normal login screen again). In this second step of signing in, the user doesn’t need to provide any other information, just the one-time password.
+
+ 1. Call `Auth#provideOneTimePasswordAsSecondFactor($otpValue)` with the one-time password entered by the user to complete the authentification process:
+
+    ```php
+    try {
+        $auth->provideOneTimePasswordAsSecondFactor($_POST['oneTimePassword']);
+
+        echo 'You are now signed in';
+    }
+    catch (\Delight\Auth\InvalidOneTimePasswordException $e) {
+        echo 'Your one-time password has not been correct';
+    }
+    catch (\Delight\Auth\NotLoggedInException $e) {
+        echo 'Please sign in first';
+    }
+    catch (\Delight\Auth\TooManyRequestsException $e) {
+        echo 'Please try again later';
+    }
+    ```
+
+ 1. If the user wants to disable two-factor authentication again, call `Auth#disableTwoFactorViaTotp`, `Auth#disableTwoFactorViaSms` or `Auth#disableTwoFactorViaEmail` to disable it for a specific mode, or `Auth#disableTwoFactor` to disable it for all three modes at once.
+
+**Note:** When a user changes their email address, and they have set up two-factor authentication via email, this does not automatically change the email address used for delivery of one-time passwords. You should disable 2FA via email for the user in that case, inform the user about this change, and ask them to set up 2FA via email again afterwards, perhaps even automatically by calling `Auth#prepareTwoFactorViaEmail` immediately after the successful change of the user’s email address.
+
+**Warning:** Two-factor authentication increases the risk that users lock themselves out of their accounts, especially if they forget to properly store their backup codes.
 
 ### Enabling or disabling password resets
 
