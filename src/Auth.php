@@ -779,7 +779,7 @@ final class Auth extends UserManager {
 	 */
 	public function changePasswordWithoutOldPassword($newPassword) {
 		if ($this->isLoggedIn()) {
-			$newPassword = self::validatePassword($newPassword);
+			$newPassword = self::validatePassword($newPassword, true);
 			$this->updatePasswordInternal($this->getUserId(), $newPassword);
 
 			try {
@@ -1560,7 +1560,7 @@ final class Auth extends UserManager {
 			if ((int) $resetData['resettable'] === 1) {
 				if (\password_verify($token, $resetData['token'])) {
 					if ($resetData['expires'] >= \time()) {
-						$newPassword = self::validatePassword($newPassword);
+						$newPassword = self::validatePassword($newPassword, true);
 						$this->updatePasswordInternal($resetData['user'], $newPassword);
 						$this->forceLogoutForUserById($resetData['user']);
 

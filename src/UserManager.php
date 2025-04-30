@@ -132,7 +132,7 @@ abstract class UserManager {
 		\ignore_user_abort(true);
 
 		$email = self::validateEmailAddress($email);
-		$password = self::validatePassword($password);
+		$password = self::validatePassword($password, true);
 
 		$username = isset($username) ? \trim($username) : null;
 
@@ -315,18 +315,26 @@ abstract class UserManager {
 	 * Validates a password
 	 *
 	 * @param string $password the password to validate
+	 * @param bool|null $isNewPassword (optional) whether the password is a new password that the user wants to use
 	 * @return string the sanitized password
 	 * @throws InvalidPasswordException if the password has been invalid
 	 */
-	protected static function validatePassword($password) {
+	protected static function validatePassword($password, $isNewPassword = null) {
 		if (empty($password)) {
 			throw new InvalidPasswordException();
 		}
 
 		$password = \trim($password);
+		$isNewPassword = ($isNewPassword !== null) ? (bool) $isNewPassword : false;
 
 		if (\strlen($password) < 1) {
 			throw new InvalidPasswordException();
+		}
+
+		if ($isNewPassword) {
+			if (\strlen($password) > 72) {
+				throw new InvalidPasswordException();
+			}
 		}
 
 		return $password;

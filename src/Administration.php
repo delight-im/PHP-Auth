@@ -384,7 +384,7 @@ final class Administration extends UserManager {
 	 */
 	public function changePasswordForUserById($userId, $newPassword) {
 		$userId = (int) $userId;
-		$newPassword = self::validatePassword($newPassword);
+		$newPassword = self::validatePassword($newPassword, true);
 
 		$this->updatePasswordInternal(
 			$userId,
