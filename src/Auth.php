@@ -286,11 +286,11 @@ final class Auth extends UserManager {
 	 * @param string $email the user's email address
 	 * @param string $password the user's password
 	 * @param int|null $rememberDuration (optional) the duration in seconds to keep the user logged in ("remember me"), e.g. `60 * 60 * 24 * 365.25` for one year
-	 * @param callable|null $onBeforeSuccess (optional) a function that receives the user's ID as its single parameter and is executed before successful authentication; must return `true` to proceed or `false` to cancel
+	 * @param callable|null $onBeforeSuccess (optional) deprecated
 	 * @throws InvalidEmailException if the email address was invalid or could not be found
 	 * @throws InvalidPasswordException if the password was invalid
 	 * @throws EmailNotVerifiedException if the email address has not been verified yet via confirmation email
-	 * @throws AttemptCancelledException if the attempt has been cancelled by the supplied callback that is executed before success
+	 * @throws AttemptCancelledException deprecated
 	 * @throws SecondFactorRequiredException if a second factor needs to be provided for authentification
 	 * @throws TooManyRequestsException if the number of allowed attempts/requests has been exceeded
 	 * @throws AuthError if an internal problem occurred (do *not* catch)
@@ -311,12 +311,12 @@ final class Auth extends UserManager {
 	 * @param string $username the user's username
 	 * @param string $password the user's password
 	 * @param int|null $rememberDuration (optional) the duration in seconds to keep the user logged in ("remember me"), e.g. `60 * 60 * 24 * 365.25` for one year
-	 * @param callable|null $onBeforeSuccess (optional) a function that receives the user's ID as its single parameter and is executed before successful authentication; must return `true` to proceed or `false` to cancel
+	 * @param callable|null $onBeforeSuccess (optional) deprecated
 	 * @throws UnknownUsernameException if the specified username does not exist
 	 * @throws AmbiguousUsernameException if the specified username is ambiguous, i.e. there are multiple users with that name
 	 * @throws InvalidPasswordException if the password was invalid
 	 * @throws EmailNotVerifiedException if the email address has not been verified yet via confirmation email
-	 * @throws AttemptCancelledException if the attempt has been cancelled by the supplied callback that is executed before success
+	 * @throws AttemptCancelledException deprecated
 	 * @throws SecondFactorRequiredException if a second factor needs to be provided for authentification
 	 * @throws TooManyRequestsException if the number of allowed attempts/requests has been exceeded
 	 * @throws AuthError if an internal problem occurred (do *not* catch)
@@ -1186,13 +1186,13 @@ final class Auth extends UserManager {
 	 * @param string|null $email (optional) the user's email address
 	 * @param string|null $username (optional) the user's username
 	 * @param int|null $rememberDuration (optional) the duration in seconds to keep the user logged in ("remember me"), e.g. `60 * 60 * 24 * 365.25` for one year
-	 * @param callable|null $onBeforeSuccess (optional) a function that receives the user's ID as its single parameter and is executed before successful authentication; must return `true` to proceed or `false` to cancel
+	 * @param callable|null $onBeforeSuccess (optional) deprecated
 	 * @throws InvalidEmailException if the email address was invalid or could not be found
 	 * @throws UnknownUsernameException if an attempt has been made to authenticate with a non-existing username
 	 * @throws AmbiguousUsernameException if an attempt has been made to authenticate with an ambiguous username
 	 * @throws InvalidPasswordException if the password was invalid
 	 * @throws EmailNotVerifiedException if the email address has not been verified yet via confirmation email
-	 * @throws AttemptCancelledException if the attempt has been cancelled by the supplied callback that is executed before success
+	 * @throws AttemptCancelledException deprecated
 	 * @throws SecondFactorRequiredException if a second factor needs to be provided for authentification
 	 * @throws TooManyRequestsException if the number of allowed attempts/requests has been exceeded
 	 * @throws AuthError if an internal problem occurred (do *not* catch)

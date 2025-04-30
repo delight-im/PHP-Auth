@@ -8,4 +8,5 @@
 
 namespace Delight\Auth;
 
+/** @deprecated */
 class AttemptCancelledException extends AuthException {}
