@@ -448,6 +448,8 @@ After the request to change the email address has been made, or even better, aft
 
 **Note:** Changes to a user’s email address take effect in the local session immediately, as expected. In other sessions (e.g. on other devices), the changes may need up to five minutes to take effect, though. This increases performance and usually poses no problem. If you want to change this behavior, nevertheless, simply decrease (or perhaps increase) the value that you pass to the [`Auth` constructor](#creating-a-new-instance) as the argument named `$sessionResyncInterval`.
 
+**Note:** When a user has set up two-factor authentication via email, changing the email address on their account does not automatically change the email address used for delivery of one-time passwords. You should disable 2FA via email for the user in that case, inform the user about this change, and ask them to set up 2FA via email again afterwards, perhaps even automatically by calling `Auth#prepareTwoFactorViaEmail` immediately after the successful change of the user’s email address.
+
 ### Re-sending confirmation requests
 
 If an earlier confirmation request could not be delivered to the user, or if the user missed that request, or if they just don’t want to wait any longer, you may re-send an earlier request like this:
@@ -819,17 +821,17 @@ Just remember *not* to alias a *single* included role to *multiple* roles with c
 
 ### Two-factor authentication (2FA)
 
- 1. For users who are signed in, you can check if they have set up two-factor authentication (2FA) (using *any* mode) using `Auth#hasTwoFactor`. This is useful if you want to advertise the feature in general. Additionally, you will usually check if an individual mode of 2FA is set up using `Auth#hasTwoFactorViaTotp`, `Auth#hasTwoFactorViaSms` or `Auth#hasTwoFactorViaEmail`. Use those methods to check if the user should be presented with a way to enable or disable the specific mode of 2FA in their settings.
-
- 1. This library supports three modes of two-factor authentication, which represent different sources or delivery mechanisms for one-time passwords (OTPs):
+ 1. This library supports three modes of two-factor authentication (2FA), or multi-factor authentication (MFA), which represent different sources or delivery mechanisms for one-time passwords (OTPs):
 
     * time-based one-time passwords (TOTP)
     * one-time passwords sent via SMS
     * one-time passwords sent via email
 
-    Choose any combination of these modes that you want to support. You can start with just one and add others later quite easily.
+    Choose any combination of these modes that you want to support. You can start with just one, if you want, and add others later quite easily.
 
- 1. In order to let users set up two-factor authentication via time-based one-time passwords (TOTP), call `Auth#prepareTwoFactorViaTotp` and provide the user-visible name of your application as the single argument. The result will be an array with the key URI for the QR code (that you will afterwards display to the user) at index zero, and the secret for manual input (that you can show to the user as an alternative) at index one. Wrap that call in `Auth#reconfirmPassword`.
+ 1. For users who are signed in, you can check if they have set up two-factor authentication using `Auth#hasTwoFactor`. This checks if 2FA is set up using *any* mode, i.e. one or more of the mechanisms described before, and is useful if you want to advertise 2FA in general. Additionally, you will usually check if an individual mode of 2FA is set up using `Auth#hasTwoFactorViaTotp`, `Auth#hasTwoFactorViaSms` or `Auth#hasTwoFactorViaEmail`. Use those methods to check if the user should be presented with a way to enable or disable the specific mode of 2FA in their settings.
+
+ 1. In order to let users set up two-factor authentication via TOTP, i.e. with an authenticator application such as Google Authenticator, Ente Auth or Aegis Authenticator, call `Auth#prepareTwoFactorViaTotp` and provide the user-visible name of your application as the single argument. The result will be an array with the key URI for the QR code (that you will afterwards display to the user) at index zero, and the secret for manual input (that you can show to the user as an alternative) at index one. Wrap that call in `Auth#reconfirmPassword`.
 
     ```php
     try {
@@ -837,8 +839,7 @@ Just remember *not* to alias a *single* included role to *multiple* roles with c
             $keyUriAndSecret = $auth->prepareTwoFactorViaTotp('Example.com');
 
             // To do: encode the key URI '$keyUriAndSecret[0]' as a QR code (preferably on the client side) and display the QR code to the user
-            // and
-            // To do: additionally, show the secret string '$keyUriAndSecret[1]' to the user as a fallback for manual input
+            //   and, additionally, show the secret string '$keyUriAndSecret[1]' to the user as a fallback for manual input
         }
         else {
             echo 'Please re-confirm your correct password';
@@ -862,7 +863,7 @@ Just remember *not* to alias a *single* included role to *multiple* roles with c
     ```php
     try {
         if ($auth->reconfirmPassword($_POST['password'])) {
-            $phoneNumberAndOtpValue = $auth->prepareTwoFactorViaSms($phoneNumber);
+            $phoneNumberAndOtpValue = $auth->prepareTwoFactorViaSms($_POST['phoneNumber']);
 
             // To do: send the one-time password '$phoneNumberAndOtpValue[1]' to (still unverified) phone number '$phoneNumberAndOtpValue[0]'
             //   Consider using a third-party service and a compatible SDK to send the text message
@@ -914,11 +915,15 @@ Just remember *not* to alias a *single* included role to *multiple* roles with c
     }
     ```
 
- 1. As soon as the user has entered a one-time password in your application, which they generated or received in the step before, pass this value to `Auth#enableTwoFactorViaTotp`, `Auth#enableTwoFactorViaSms` or `Auth#enableTwoFactorViaEmail` to complete the setup. If successful, a few recovery codes will be generated and returned to you, which you will show to the user and ask them to print or put somewhere safely – this is important!
+    **Note:** When a user changes their email address, and they have set up two-factor authentication via email, this does not automatically change the email address used for delivery of one-time passwords. You should disable 2FA via email for the user in that case, inform the user about this change, and ask them to set up 2FA via email again afterwards, perhaps even automatically by calling `Auth#prepareTwoFactorViaEmail` immediately after the successful change of the user’s email address.
+
+ 1. As soon as the user has entered a one-time password in your application, which they generated or received in the steps before, pass this value to `Auth#enableTwoFactorViaTotp`, `Auth#enableTwoFactorViaSms` or `Auth#enableTwoFactorViaEmail` to complete the setup. If successful, a few recovery codes will be generated and returned to you, which you will show to the user and ask them to print or put somewhere safely – this is important!
 
     ```php
     try {
         $recoveryCodes = $auth->enableTwoFactorViaTotp($_POST['oneTimePassword']);
+        // or $recoveryCodes = $auth->enableTwoFactorViaSms($_POST['oneTimePassword']);
+        // or $recoveryCodes = $auth->enableTwoFactorViaEmail($_POST['oneTimePassword']);
 
         echo 'Here are a few recovery codes that can help you if you ever lose access to your authenticator application. Please print them and keep them safe for the future:' . "\n";
         echo \implode("\n", $recoveryCodes);
@@ -940,7 +945,7 @@ Just remember *not* to alias a *single* included role to *multiple* roles with c
     }
     ```
 
-    You can use the three methods interchangeably here, depending on the modes you want to support.
+    **Note:** You should notify the user whenever a new 2FA mode has been enabled, for example via email, or even on multiple separate communication channels.
 
  1. With the four methods `Auth#login`, `Auth#loginWithUsername`, `Auth#confirmEmailAndSignIn` and `Auth#resetPasswordAndSignIn`, where used in your application, you need to catch an additional `\Delight\Auth\SecondFactorRequiredException`. Whenever that exception occurs, you need to ask the user to enter a one-time password. The exception instance (e.g. `$e`) has all the information you need to request the one-time password from the user:
 
@@ -968,7 +973,7 @@ Just remember *not* to alias a *single* included role to *multiple* roles with c
 
     You can also check if the user is in the middle of completing two-factor authentification at any time by calling `Auth#isWaitingForSecondFactor`, for example to determine if you need to show an input field for the one-time password (instead of showing the normal login screen again). In this second step of signing in, the user doesn’t need to provide any other information, just the one-time password.
 
- 1. Call `Auth#provideOneTimePasswordAsSecondFactor($otpValue)` with the one-time password entered by the user to complete the authentification process:
+ 1. Call `Auth#provideOneTimePasswordAsSecondFactor` with the one-time password entered by the user to complete the authentification process:
 
     ```php
     try {
@@ -989,7 +994,7 @@ Just remember *not* to alias a *single* included role to *multiple* roles with c
 
  1. If the user wants to disable two-factor authentication again, call `Auth#disableTwoFactorViaTotp`, `Auth#disableTwoFactorViaSms` or `Auth#disableTwoFactorViaEmail` to disable it for a specific mode, or `Auth#disableTwoFactor` to disable it for all three modes at once.
 
-**Note:** When a user changes their email address, and they have set up two-factor authentication via email, this does not automatically change the email address used for delivery of one-time passwords. You should disable 2FA via email for the user in that case, inform the user about this change, and ask them to set up 2FA via email again afterwards, perhaps even automatically by calling `Auth#prepareTwoFactorViaEmail` immediately after the successful change of the user’s email address.
+    **Note:** You should notify the user whenever a 2FA mode has been disabled, for example via email, or even on multiple separate communication channels.
 
 **Warning:** Two-factor authentication increases the risk that users lock themselves out of their accounts, especially if they forget to properly store their backup codes.
 
