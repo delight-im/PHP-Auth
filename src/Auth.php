@@ -126,7 +126,7 @@ final class Auth extends UserManager {
 
 					if (!empty($rememberData)) {
 						if ($rememberData['expires'] >= \time()) {
-							if (\password_verify($parts[1], $rememberData['token'])) {
+							if (TokenHash::verify($parts[1], $rememberData['token'])) {
 								// the cookie and its contents have now been proven to be valid
 								$valid = true;
 
@@ -498,7 +498,7 @@ final class Auth extends UserManager {
 	private function createRememberDirective($userId, $duration) {
 		$selector = self::createRandomString(24);
 		$token = self::createRandomString(32);
-		$tokenHashed = \password_hash($token, \PASSWORD_DEFAULT);
+		$tokenHashed = TokenHash::from($token);
 		$expires = \time() + ((int) $duration);
 
 		try {
@@ -636,7 +636,7 @@ final class Auth extends UserManager {
 		}
 
 		if (!empty($confirmationData)) {
-			if (\password_verify($token, $confirmationData['token'])) {
+			if (TokenHash::verify($token, $confirmationData['token'])) {
 				if ($confirmationData['expires'] >= \time()) {
 					// invalidate any potential outstanding password reset requests
 					try {
@@ -823,7 +823,7 @@ final class Auth extends UserManager {
 		$this->throttle([ 'provideOneTimePasswordAsSecondFactor', $this->getIpAddress() ], 5, 60 * 15, 3);
 
 		$otpValueSelector = self::createSelectorForOneTimePassword($otpValue, $_SESSION[self::SESSION_FIELD_AWAITING_2FA_USER_ID]);
-		$otpValueToken = \password_hash($otpValue, \PASSWORD_DEFAULT);
+		$otpValueToken = TokenHash::from($otpValue);
 
 		try {
 			$otpRecords = $this->db->select(
@@ -841,7 +841,7 @@ final class Auth extends UserManager {
 		if (!empty($otpRecords)) {
 			foreach ($otpRecords as $otpRecord) {
 				if (!empty($otpRecord)) {
-					if (\password_verify($otpValue, $otpRecord['token'])) {
+					if (TokenHash::verify($otpValue, $otpRecord['token'])) {
 						// if the mechanism for this one-time password was time-based (TOTP)
 						if (!empty($otpRecord['mechanism']) && ((int) $otpRecord['mechanism']) === self::TWO_FACTOR_MECHANISM_TOTP) {
 							// if the one-time password had an expiry time and that time has passed recently
@@ -1381,7 +1381,7 @@ final class Auth extends UserManager {
 
 		// create a selector/token pair from the generated one-time password
 		$otpValueSelector = self::createSelectorForOneTimePassword($otpValue, $userId);
-		$otpValueToken = \password_hash($otpValue, \PASSWORD_DEFAULT);
+		$otpValueToken = TokenHash::from($otpValue);
 
 		// store the generated one-time password for the user and define it to expire after ten minutes
 		try {
@@ -1494,7 +1494,7 @@ final class Auth extends UserManager {
 	private function createPasswordResetRequest($userId, $expiresAfter, callable $callback) {
 		$selector = self::createRandomString(20);
 		$token = self::createRandomString(20);
-		$tokenHashed = \password_hash($token, \PASSWORD_DEFAULT);
+		$tokenHashed = TokenHash::from($token);
 		$expiresAt = \time() + $expiresAfter;
 
 		try {
@@ -1558,7 +1558,7 @@ final class Auth extends UserManager {
 
 		if (!empty($resetData)) {
 			if ((int) $resetData['resettable'] === 1) {
-				if (\password_verify($token, $resetData['token'])) {
+				if (TokenHash::verify($token, $resetData['token'])) {
 					if ($resetData['expires'] >= \time()) {
 						$newPassword = self::validatePassword($newPassword, true);
 						$this->updatePasswordInternal($resetData['user'], $newPassword);
@@ -2100,7 +2100,7 @@ final class Auth extends UserManager {
 				if (!empty($otpRecords)) {
 					foreach ($otpRecords as $otpRecord) {
 						if (!empty($otpRecord)) {
-							if (\password_verify($otpValue, $otpRecord['token'])) {
+							if (TokenHash::verify($otpValue, $otpRecord['token'])) {
 								$otpValueVerified = true;
 
 								// remove the one-time password from the database to prevent repeated usages
@@ -2138,7 +2138,7 @@ final class Auth extends UserManager {
 			for ($i = 0; $i < 6; $i++) {
 				$recoveryCode = \strtoupper(\Delight\Otp\Otp::createSecret(\Delight\Otp\Otp::SHARED_SECRET_STRENGTH_LOW));
 				$recoveryCodeSelector = self::createSelectorForOneTimePassword($recoveryCode, $this->getUserId());
-				$recoveryCodeToken = \password_hash($recoveryCode, \PASSWORD_DEFAULT);
+				$recoveryCodeToken = TokenHash::from($recoveryCode);
 
 				try {
 					$this->db->insert(

@@ -359,7 +359,7 @@ abstract class UserManager {
 	protected function createConfirmationRequest($userId, $email, callable $callback) {
 		$selector = self::createRandomString(16);
 		$token = self::createRandomString(16);
-		$tokenHashed = \password_hash($token, \PASSWORD_DEFAULT);
+		$tokenHashed = TokenHash::from($token);
 		$expires = \time() + 60 * 60 * 24;
 
 		try {
