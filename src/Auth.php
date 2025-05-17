@@ -366,7 +366,7 @@ final class Auth extends UserManager {
 			}
 
 			if (!empty($expectedHash)) {
-				$validated = \password_verify($password, $expectedHash);
+				$validated = PasswordHash::verify($password, $expectedHash);
 
 				if (!$validated) {
 					$this->throttle([ 'reconfirmPassword', $this->getIpAddress() ], 3, (60 * 60), 4, false);
@@ -1229,9 +1229,9 @@ final class Auth extends UserManager {
 
 		$password = self::validatePassword($password);
 
-		if (\password_verify($password, $userData['password'])) {
+		if (PasswordHash::verify($password, $userData['password'])) {
 			// if the password needs to be re-hashed to keep up with improving password cracking techniques
-			if (\password_needs_rehash($userData['password'], \PASSWORD_DEFAULT)) {
+			if (PasswordHash::needsRehash($userData['password'])) {
 				// create a new hash from the password and update it in the database
 				$this->updatePasswordInternal($userData['id'], $password);
 			}

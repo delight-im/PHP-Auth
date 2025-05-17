@@ -160,7 +160,7 @@ abstract class UserManager {
 			}
 		}
 
-		$password = \password_hash($password, \PASSWORD_DEFAULT);
+		$password = PasswordHash::from($password);
 		$verified = \is_callable($callback) ? 0 : 1;
 
 		try {
@@ -201,7 +201,7 @@ abstract class UserManager {
 	 * @throws AuthError if an internal problem occurred (do *not* catch)
 	 */
 	protected function updatePasswordInternal($userId, $newPassword) {
-		$newPassword = \password_hash($newPassword, \PASSWORD_DEFAULT);
+		$newPassword = PasswordHash::from($newPassword);
 
 		try {
 			$affected = $this->db->update(
