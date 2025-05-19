@@ -1458,11 +1458,15 @@ For detailed information on how to read and write session data conveniently, ple
 
 ### What about password hashing?
 
-Any password or authentication token is automatically hashed using the [“bcrypt”](https://en.wikipedia.org/wiki/Bcrypt) function, which is based on the [“Blowfish” cipher](https://en.wikipedia.org/wiki/Blowfish_(cipher)) and (still) considered one of the strongest password hash functions today. “bcrypt” is used with 1,024 iterations, i.e. a “cost” factor of 10. A random [“salt”](https://en.wikipedia.org/wiki/Salt_(cryptography)) is applied automatically as well.
+Any password or authentication token is automatically hashed using a computationally expensive hash such as the [“bcrypt”](https://en.wikipedia.org/wiki/Bcrypt) function, which is based on the [“Blowfish” cipher](https://en.wikipedia.org/wiki/Blowfish_(cipher)), or newer hash functions that are considered to be even stronger, as available. A random [“salt”](https://en.wikipedia.org/wiki/Salt_(cryptography)) is applied automatically as well.
 
-You can verify this configuration by looking at the hashes in your database table `users`. If the above is true with your setup, all password hashes in your `users` table should start with the prefix `$2$10$`, `$2a$10$` or `$2y$10$`.
+When new algorithms (such as [Argon2](https://en.wikipedia.org/wiki/Argon2)) are introduced, this library automatically takes care of “upgrading” your existing password hashes whenever a user signs in or changes their password.
 
-When new algorithms (such as [Argon2](https://en.wikipedia.org/wiki/Argon2)) may be introduced in the future, this library will automatically take care of “upgrading” your existing password hashes whenever a user signs in or changes their password.
+### Are there any limitations for passwords?
+
+ * Passwords must *not* be empty.
+ * Passwords can have a *maximum length* of 2048 bytes, i.e. 2048 ASCII characters or 512–2048 UTF-8 characters.
+ * Any text, with arbitrary bytes, including null bytes, can be used in a password.
 
 ### How can I implement custom password requirements?
 
