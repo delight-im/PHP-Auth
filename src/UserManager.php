@@ -332,7 +332,7 @@ abstract class UserManager {
 		}
 
 		if ($isNewPassword) {
-			if (\strlen($password) > 72) {
+			if (\strlen($password) > 2048) {
 				throw new InvalidPasswordException();
 			}
 		}
