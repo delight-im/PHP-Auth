@@ -1060,6 +1060,72 @@ final class Auth extends UserManager {
 	}
 
 	/**
+	 * Attempts to change the username of the currently signed-in user
+	 *
+	 * @param string $newUsername the desired new username
+	 * @param bool|null $requireUnique (optional) whether it must be ensured that the username is unique
+	 * @throws DuplicateUsernameException if it was specified that the username must be unique while it was *not*
+	 * @throws NotLoggedInException if the user is not currently signed in
+	 * @throws TooManyRequestsException if the number of allowed attempts/requests has been exceeded
+	 * @throws AuthError if an internal problem occurred (do *not* catch)
+	 */
+	public function changeUsername($newUsername, $requireUnique = null) {
+		if ($this->isLoggedIn()) {
+			$newUsername = isset($newUsername) ? \trim($newUsername) : null;
+
+			// if the supplied username is an empty string or has consisted of whitespace only
+			if ($newUsername === '') {
+				// this actually means that there is no username
+				$newUsername = null;
+			}
+
+			// if the uniqueness of the username is to be ensured
+			if ($requireUnique) {
+				// if a username has actually been provided
+				if ($newUsername !== null) {
+					$this->throttle([ 'enumerateUsers', $this->getIpAddress() ], 1, (60 * 60), 75);
+
+					// count the number of users who do already have that specified username
+					try {
+						$occurrencesOfUsername = $this->db->selectValue(
+							'SELECT COUNT(*) FROM ' . $this->makeTableName('users') . ' WHERE username = ?',
+							[ $newUsername ]
+						);
+					}
+					catch (Error $e) {
+						throw new DatabaseError($e->getMessage());
+					}
+
+					// if any user with that username does already exist
+					if ((int) $occurrencesOfUsername > 0) {
+						throw new DuplicateUsernameException();
+					}
+				}
+			}
+
+			$this->throttle([ 'changeUsername', 'userId', $this->getUserId() ], 1, (60 * 60 * 24), 2);
+			$this->throttle([ 'changeUsername', $this->getIpAddress() ], 1, (60 * 60 * 24), 6);
+
+			try {
+				$this->db->update(
+					$this->makeTableNameComponents('users'),
+					[ 'username' => $newUsername ],
+					[ 'id' => $this->getUserId() ]
+				);
+			}
+			catch (Error $e) {
+				throw new DatabaseError($e->getMessage());
+			}
+
+			// immediately update the username in the current session as well
+			$_SESSION[self::SESSION_FIELD_USERNAME] = $newUsername;
+		}
+		else {
+			throw new NotLoggedInException();
+		}
+	}
+
+	/**
 	 * Attempts to re-send an earlier confirmation request
 	 *
 	 * The callback function must have the following signature:
