@@ -165,10 +165,10 @@ The username in the third parameter is optional. You can pass `null` there if yo
 
 If you want to enforce unique usernames, on the other hand, simply call `registerWithUniqueUsername` instead of `register`, and be prepared to catch the `DuplicateUsernameException`.
 
-**Note:** When accepting and managing usernames, you may want to exclude non-printing control characters and certain printable special characters, as in the character class `[\x00-\x1f\x7f\/:\\]`. In order to do so, you could wrap the call to `Auth#register` or `Auth#registerWithUniqueUsername` inside a conditional branch, for example by only accepting usernames when the following condition is satisfied:
+**Note:** When accepting and managing usernames, you may want to exclude non-printing control characters and certain printable special characters, as in the character class `[\x00-\x1f\x7f\/:@\\]`. In order to do so, you could wrap the call to `Auth#register` or `Auth#registerWithUniqueUsername` inside a conditional branch, for example by only accepting usernames when the following condition is satisfied:
 
 ```php
-if (\preg_match('/[\x00-\x1f\x7f\/:\\\\]/', $username) === 0) {
+if (\preg_match('/[\x00-\x1f\x7f\/:@\\\\]/', $_POST['username']) === 0) {
     // ...
 }
 ```
