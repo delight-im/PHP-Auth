@@ -2308,9 +2308,9 @@ final class Auth extends UserManager {
 	}
 
 	/**
-	 * Returns the currently signed-in user's display name by reading from the session
+	 * Returns the currently signed-in user's username by reading from the session
 	 *
-	 * @return string the display name
+	 * @return string the username
 	 */
 	public function getUsername() {
 		if (isset($_SESSION) && isset($_SESSION[self::SESSION_FIELD_USERNAME])) {
