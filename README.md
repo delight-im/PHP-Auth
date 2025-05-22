@@ -450,6 +450,34 @@ After the request to change the email address has been made, or even better, aft
 
 **Note:** When a user has set up two-factor authentication via email, changing the email address on their account does not automatically change the email address used for delivery of one-time passwords. You should disable 2FA via email for the user in that case, inform the user about this change, and ask them to set up 2FA via email again afterwards, perhaps even automatically by calling `Auth#prepareTwoFactorViaEmail` immediately after the successful change of the user’s email address.
 
+### Changing the current user’s username
+
+If a user is currently logged in, they may change their username.
+
+```php
+try {
+    $auth->changeUsername($_POST['newUsername']);
+
+    echo 'Username has been changed';
+}
+catch (\Delight\Auth\NotLoggedInException $e) {
+    die('Not logged in');
+}
+catch (\Delight\Auth\TooManyRequestsException $e) {
+    die('Too many requests');
+}
+```
+
+If you want to enforce unique usernames, simply pass `true` as the second argument to `Auth#changeUsername`, and be prepared to catch the `DuplicateUsernameException`.
+
+**Note:** When accepting and managing usernames, you may want to exclude non-printing control characters and certain printable special characters, as in the character class `[\x00-\x1f\x7f\/:@\\]`. In order to do so, you could wrap the call to `Auth#changeUsername` inside a conditional branch, for example by only accepting usernames when the following condition is satisfied:
+
+```php
+if (\preg_match('/[\x00-\x1f\x7f\/:@\\\\]/', $_POST['newUsername']) === 0) {
+    // ...
+}
+```
+
 ### Re-sending confirmation requests
 
 If an earlier confirmation request could not be delivered to the user, or if the user missed that request, or if they just don’t want to wait any longer, you may re-send an earlier request like this:
