@@ -617,6 +617,22 @@ function processRequestData(\Delight\Auth\Auth $auth) {
 					return 'too many requests';
 				}
 			}
+			else if ($_POST['action'] === 'changeUsername') {
+				try {
+					$auth->changeUsername($_POST['newUsername'], $_POST['requireUnique']);
+
+					return 'ok';
+				}
+				catch (\Delight\Auth\DuplicateUsernameException $e) {
+					return 'username already exists';
+				}
+				catch (\Delight\Auth\NotLoggedInException $e) {
+					return 'not logged in';
+				}
+				catch (\Delight\Auth\TooManyRequestsException $e) {
+					return 'too many requests';
+				}
+			}
 			else if ($_POST['action'] === 'setPasswordResetEnabled') {
 				try {
 					$auth->setPasswordResetEnabled($_POST['enabled'] == 1);
@@ -1073,6 +1089,16 @@ function showAuthenticatedUserForm(\Delight\Auth\Auth $auth) {
 	echo '<input type="hidden" name="action" value="changeEmail" />';
 	echo '<input type="text" name="newEmail" placeholder="New email address" /> ';
 	echo '<button type="submit">Change email address</button>';
+	echo '</form>';
+
+	echo '<form action="" method="post" accept-charset="utf-8">';
+	echo '<input type="hidden" name="action" value="changeUsername" />';
+	echo '<input type="text" name="newUsername" placeholder="New username" /> ';
+	echo '<select name="requireUnique" size="1">';
+	echo '<option value="0">Any</option>';
+	echo '<option value="1">Unique</option>';
+	echo '</select> ';
+	echo '<button type="submit">Change username</button>';
 	echo '</form>';
 
 	\showConfirmEmailForm();
