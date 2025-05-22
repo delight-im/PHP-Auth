@@ -60,6 +60,7 @@ Migrating from an earlier version of this project? See our [upgrade guide](Migra
    * [Updating the password](#step-3-of-3-updating-the-password)
  * [Changing the current user’s password](#changing-the-current-users-password)
  * [Changing the current user’s email address](#changing-the-current-users-email-address)
+ * [Changing the current user’s username](#changing-the-current-users-username)
  * [Re-sending confirmation requests](#re-sending-confirmation-requests)
  * [Logout](#logout)
  * [Accessing user information](#accessing-user-information)
