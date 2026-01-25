@@ -972,7 +972,7 @@ final class Auth extends UserManager {
 					$_SESSION[self::SESSION_FIELD_AWAITING_2FA_USER_ID], $userData['email'], $userData['username'], $userData['status'], $userData['roles_mask'], $userData['force_logout'], false
 				);
 
-				if (isset($_SESSION[self::SESSION_FIELD_AWAITING_2FA_REMEMBER_DURATION])) {
+				if (!empty($sessionRememberDuration)) {
 					$this->createRememberDirective(
 						$sessionUserId, $sessionRememberDuration
 					);
