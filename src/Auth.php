@@ -964,13 +964,17 @@ final class Auth extends UserManager {
 			]);
 
 			if (!empty($userData)) {
+				// preserves session variable values ​​before reset the session via onLoginSuccessful
+				$sessionUserId = $_SESSION[self::SESSION_FIELD_AWAITING_2FA_USER_ID];
+				$sessionRememberDuration = $_SESSION[self::SESSION_FIELD_AWAITING_2FA_REMEMBER_DURATION];
+				
 				$this->onLoginSuccessful(
 					$_SESSION[self::SESSION_FIELD_AWAITING_2FA_USER_ID], $userData['email'], $userData['username'], $userData['status'], $userData['roles_mask'], $userData['force_logout'], false
 				);
 
 				if (isset($_SESSION[self::SESSION_FIELD_AWAITING_2FA_REMEMBER_DURATION])) {
 					$this->createRememberDirective(
-						$_SESSION[self::SESSION_FIELD_AWAITING_2FA_USER_ID], $_SESSION[self::SESSION_FIELD_AWAITING_2FA_REMEMBER_DURATION]
+						$sessionUserId, $sessionRememberDuration
 					);
 				}
 
